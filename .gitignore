@@ -1,0 +1,4 @@
+# Ignoring Emacs backup and temp files
+*~
+\#*\#
+.\#*
