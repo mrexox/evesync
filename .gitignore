@@ -7,3 +7,5 @@ TAGS
 # Ignoring .so and .o files
 *.so
 *.o
+
+./ext/inotify/Makefile
