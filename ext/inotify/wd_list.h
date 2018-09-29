@@ -19,8 +19,8 @@ struct wd_list {
     struct wd_list* next;
 };
 
-struct wd_list wd_list_create(int wd, char* filename);
+struct wd_list* wd_list_create(int wd, char* filename);
 int wd_list_add(struct wd_list* head, struct wd_list* node);
 int wd_list_remove(struct wd_list* head, char* filename);
-int wd_list_find(struct wd_list* head, char* filename);
+int wd_list_find(struct wd_list* head, char* filename, int* res);
 #endif

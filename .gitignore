@@ -1,4 +1,9 @@
-# Ignoring Emacs backup and temp files
+# Ignoring Emacs helper files
+TAGS
 *~
 \#*\#
 .\#*
+
+# Ignoring .so and .o files
+*.so
+*.o

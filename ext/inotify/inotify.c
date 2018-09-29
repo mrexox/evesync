@@ -2,11 +2,11 @@
 #include "wd_list.h"
 #include <sys/inotify.h> 
 
-#define BUF_LEN     ( 1024 * ( EVENT_SIZE + 16 ) )
+#define BUF_LEN (10 * (sizeof(struct inotify_event) + NAME_MAX + 1))
 
 /* Definitions */
 VALUE Inotify_initialize(VALUE self);
-VALUE add_watch(VALUEself , VALUE filename);
+VALUE add_watch(VALUE self , VALUE filename);
 VALUE rm_watch(VALUE self, VALUE filename);
 VALUE run(VALUE self, VALUE);
 
@@ -17,16 +17,17 @@ size_t wd_list_size(const void* data);
 void wd_check_errors(int res);
 
 /* wd_list -> ruby data type */
-static const rb_data_type_t wd_list_type = {
-	.wrap_struct_name = "wd_list",
-	.function = {
-		.dmark = NULL,
-		.dfree = wd_list_free,
-		.dsize = wd_list_size,
-	},
-	.data = NULL,
-	.flags = RUBY_TYPED_FREE_IMMEDIATELY,
-};
+static const rb_data_type_t wd_list_type =
+    {
+     .wrap_struct_name = "wd_list",
+     .function = {
+		  .dmark = NULL,
+		  .dfree = wd_list_free,
+		  .dsize = wd_list_size,
+		  },
+     .data = NULL,
+     .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+    };
 
 /* Code */
 void Init_inotify()
@@ -51,8 +52,6 @@ void Init_inotify()
     rb_define_const(Inotify, "IN_Q_OVERFLOW", INT2NUM(IN_Q_OVERFLOW));
     rb_define_const(Inotify, "IN_IGNORED", INT2NUM(IN_IGNORED));
 
-    rb_define_const(Inotify, "IN_CLOSE", INT2NUM(IN_CLOSE));
-    rb_define_const(Inotify, "IN_MOVE", INT2NUM(IN_MOVE));
     rb_define_const(Inotify, "IN_ONLYDIR", INT2NUM(IN_ONLYDIR));
     rb_define_const(Inotify, "IN_DONT_FOLLOW", INT2NUM(IN_DONT_FOLLOW));
     rb_define_const(Inotify, "IN_EXCL_UNLINK", INT2NUM(IN_EXCL_UNLINK));
@@ -61,8 +60,9 @@ void Init_inotify()
     rb_define_const(Inotify, "IN_ONESHOT", INT2NUM(IN_ONESHOT));
     rb_define_const(Inotify, "IN_ALL_EVENTS", INT2NUM(IN_ALL_EVENTS));
 
-    
+    rb_define_alloc_func(Inotify, wd_list_alloc);
     rb_define_method(Inotify, "initialize", Inotify_initialize, 0);
+    
     rb_define_method(Inotify, "add_watch", add_watch, 1);
     rb_define_method(Inotify, "rm_watch", rm_watch, 1);
     rb_define_method(Inotify, "run", run, 1);
@@ -73,11 +73,11 @@ VALUE Inotify_initialize(VALUE self)
 {
     /* Initialize inotify */
 
-    int intotify_fd;
+    int inotify_fd;
 
     inotify_fd = inotify_init();
 
-    if (inotifyFd == -1) {
+    if (inotify_fd == -1) {
 	rb_raise(rb_eRuntimeError, "Unable to get inotify descriptor");
     }
 
@@ -88,7 +88,13 @@ VALUE Inotify_initialize(VALUE self)
     
     struct wd_list* head;
     TypedData_Get_Struct(self, struct wd_list, &wd_list_type, head);
+
+    /* A hack to initialize give head */
+    struct wd_list* tmp = wd_list_create(inotify_fd, NULL);
+    
     /* head is not used in search */
+    (*head) = (*tmp);
+    free(tmp);			/* Initialized! */
     head->wd = inotify_fd;	/* Feature we may need */
     head->filename = NULL;
 
@@ -111,14 +117,14 @@ VALUE add_watch(VALUE self, VALUE filename)
     }
 
     /* Save wd */
-    struct wd_list* node = wd_list_create(wd, filename);
+    struct wd_list* node = wd_list_create(wd, cstr_file);
     if (node == NULL) {
 	rb_raise(rb_eRuntimeError, "Couldn't create a node. Not enough memory");
     }
     
     struct wd_list* head;
     TypedData_Get_Struct(self, struct wd_list, &wd_list_type, head);
-    res = wd_list_add(head, cstr_file, node);
+    int res = wd_list_add(head, node);
 
     wd_check_errors(res);
     
@@ -135,9 +141,11 @@ VALUE rm_watch(VALUE self, VALUE filename)
     struct wd_list* head;
     TypedData_Get_Struct(self, struct wd_list, &wd_list_type, head);
     char* cstr_filename = StringValueCStr(filename);
-    int file_wd = wd_list_find(head, cstr_filename);
 
-    wd_check_errors(file_wd);
+    int res;
+    int file_wd = wd_list_find(head, cstr_filename, &res);
+
+    wd_check_errors(res);
     wd_list_remove(head, cstr_filename);
     
     /* Removing file from watched */
@@ -161,26 +169,28 @@ VALUE run(VALUE self, VALUE handler)
     /* Getting inotify's file descriptor */
     VALUE rb_inotify_fd = rb_iv_get(self, "@inotify_fd");
     int inotify_fd = NUM2INT(rb_inotify_fd);
-
+    
     /* Helper vars */
     size_t num_read;
-    char buf[BUF_LEN] __attribute__ ((aligned(8));
+    char buf[BUF_LEN] __attribute__ ((aligned(8)));;
+    struct inotify_event *event;
     
     for (;;) {
 	num_read = read(inotify_fd, buf, BUF_LEN);
 	if (num_read == -1) {
 	    rb_raise(rb_eRuntimeError, "Reading from inotify file descriptor returned -1");
 	}
-
+	
 	/* Processing read data */
 	
-	for (char* p = buf; b < buf + num_read; ) {
+	for (char* p = buf; p < buf + num_read; ) {
 	    event = (struct inotify_event*) p;
 	    /* TODO handle the event */
 	    p += sizeof(struct inotify_event*) + event->len;
 	}
     }
 }
+				     
 
 
 /* Functions for wd_list_type */
