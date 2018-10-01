@@ -8,4 +8,4 @@ TAGS
 *.so
 *.o
 
-./ext/inotify/Makefile
+ext/inotify/Makefile

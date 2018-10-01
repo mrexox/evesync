@@ -6,7 +6,7 @@
 
 /* Definitions */
 VALUE Inotify_initialize(VALUE self);
-VALUE add_watch(VALUE self , VALUE filename);
+VALUE add_watch(VALUE self , VALUE filename, VALUE event_type);
 VALUE rm_watch(VALUE self, VALUE filename);
 VALUE run(VALUE self, VALUE);
 
@@ -63,7 +63,7 @@ void Init_inotify()
     rb_define_alloc_func(Inotify, wd_list_alloc);
     rb_define_method(Inotify, "initialize", Inotify_initialize, 0);
     
-    rb_define_method(Inotify, "add_watch", add_watch, 1);
+    rb_define_method(Inotify, "add_watch", add_watch, 2);
     rb_define_method(Inotify, "rm_watch", rm_watch, 1);
     rb_define_method(Inotify, "run", run, 1);
 }
@@ -102,7 +102,7 @@ VALUE Inotify_initialize(VALUE self)
 }
 
 /* Adds file into the inotify watcher, returns wd */
-VALUE add_watch(VALUE self, VALUE filename)
+VALUE add_watch(VALUE self, VALUE filename, VALUE event_type)
 {
     /* Getting inotify's file descriptor */
     VALUE rb_inotify_fd = rb_iv_get(self, "@inotify_fd");
@@ -111,7 +111,8 @@ VALUE add_watch(VALUE self, VALUE filename)
     /* Add file to watched */
     int wd;
     char* cstr_file = StringValueCStr(filename);
-    wd = inotify_add_watch(inotify_fd, cstr_file, IN_ALL_EVENTS);
+    int inotify_event = NUM2INT(event_type);
+    wd = inotify_add_watch(inotify_fd, cstr_file, inotify_event);
     if (wd == -1) {
 	rb_raise(rb_eRuntimeError, "Unable to add file to the watched");
     }
