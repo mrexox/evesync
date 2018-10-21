@@ -1,6 +1,6 @@
 #include "ruby.h"
 #include "wd_list.h"
-#include <sys/inotify.h> 
+#include <sys/inotify.h>
 
 #define BUF_LEN (10 * (sizeof(struct inotify_event) + NAME_MAX + 1))
 
@@ -8,7 +8,7 @@
 VALUE Inotify_initialize(VALUE self);
 VALUE add_watch(VALUE self , VALUE filename, VALUE event_type);
 VALUE rm_watch(VALUE self, VALUE filename);
-VALUE run(VALUE self, VALUE);
+VALUE run(VALUE self);
 
 /* rb_data_type_t helpers */
 VALUE wd_list_alloc(VALUE self);
@@ -62,10 +62,10 @@ void Init_inotify()
 
     rb_define_alloc_func(Inotify, wd_list_alloc);
     rb_define_method(Inotify, "initialize", Inotify_initialize, 0);
-    
+
     rb_define_method(Inotify, "add_watch", add_watch, 2);
     rb_define_method(Inotify, "rm_watch", rm_watch, 1);
-    rb_define_method(Inotify, "run", run, 1);
+    rb_define_method(Inotify, "run", run, 0);
 }
 
 /* Initializing which just creates variables and initialize inotify */
@@ -81,17 +81,17 @@ VALUE Inotify_initialize(VALUE self)
 	rb_raise(rb_eRuntimeError, "Unable to get inotify descriptor");
     }
 
-    
+
     rb_iv_set(self, "@inotify_fd", INT2NUM(inotify_fd));
 
     /* Initialize wd_list */
-    
+
     struct wd_list* head;
     TypedData_Get_Struct(self, struct wd_list, &wd_list_type, head);
 
     /* A hack to initialize give head */
     struct wd_list* tmp = wd_list_create(inotify_fd, NULL);
-    
+
     /* head is not used in search */
     (*head) = (*tmp);
     free(tmp);			/* Initialized! */
@@ -122,13 +122,13 @@ VALUE add_watch(VALUE self, VALUE filename, VALUE event_type)
     if (node == NULL) {
 	rb_raise(rb_eRuntimeError, "Couldn't create a node. Not enough memory");
     }
-    
+
     struct wd_list* head;
     TypedData_Get_Struct(self, struct wd_list, &wd_list_type, head);
     int res = wd_list_add(head, node);
 
     wd_check_errors(res);
-    
+
     return INT2NUM(wd);
 }
 
@@ -148,7 +148,7 @@ VALUE rm_watch(VALUE self, VALUE filename)
 
     wd_check_errors(res);
     wd_list_remove(head, cstr_filename);
-    
+
     /* Removing file from watched */
     int wd;
     wd = inotify_rm_watch(inotify_fd, file_wd);
@@ -159,39 +159,57 @@ VALUE rm_watch(VALUE self, VALUE filename)
 }
 
 /* Starts the for(;;) loop and handles all events with handler.
- * 
- * Handler is a block or a proc. It recieves a filename's wd 
+ *
+ * Handler is a block or a proc. It recieves a filename's wd
  * and an event of type IN_*.
  *
  * All the logic will come with ruby code.
  */
-VALUE run(VALUE self, VALUE handler)
+VALUE run(VALUE self)
 {
+    /* Checking if block given */
+    if (!rb_block_given_p()) {
+	rb_raise(rb_eRuntimeError, "Block must be given to run method");
+	return Qtrue;
+    }
+
     /* Getting inotify's file descriptor */
     VALUE rb_inotify_fd = rb_iv_get(self, "@inotify_fd");
     int inotify_fd = NUM2INT(rb_inotify_fd);
-    
+
     /* Helper vars */
-    size_t num_read;
+    ssize_t num_read;
     char buf[BUF_LEN] __attribute__ ((aligned(8)));;
     struct inotify_event *event;
-    
+
     for (;;) {
 	num_read = read(inotify_fd, buf, BUF_LEN);
 	if (num_read == -1) {
-	    rb_raise(rb_eRuntimeError, "Reading from inotify file descriptor returned -1");
+	    rb_raise(rb_eArgError, "Reading from inotify file descriptor returned -1");
 	}
-	
+
 	/* Processing read data */
-	
+
 	for (char* p = buf; p < buf + num_read; ) {
 	    event = (struct inotify_event*) p;
-	    /* TODO handle the event */
+
+	    /* Handling an event:
+	       1st arg: Mask of the event
+	       2nd arg: Watch Descriptor of the file
+	       3rd arg: Name of the event
+	       4th arg: Cookie data
+	     */
+	    rb_yield_values(INT2NUM(event->mask),
+			    INT2NUM(event->wd),
+			    StringValueCStr(event->name),
+			    INT2NUM(event->cookie));
+
 	    p += sizeof(struct inotify_event*) + event->len;
 	}
     }
+    return Qnil;
 }
-				     
+
 
 
 /* Functions for wd_list_type */
@@ -201,7 +219,7 @@ VALUE wd_list_alloc(VALUE self)
 {
     /* allocate */
     struct wd_list* data = (struct wd_list*) malloc(sizeof(struct wd_list));
-    
+
     /* wrap */
     return TypedData_Wrap_Struct(self, &wd_list_type, data);
 }
@@ -216,7 +234,7 @@ void wd_list_free(void* data)
     if (iter == NULL) {
 	return;
     }
-    
+
     while (iter->next != NULL) {
 	prev = iter;
 	iter = iter->next;
@@ -232,7 +250,7 @@ size_t wd_list_size(const void* data)
 {
     size_t total = 0;
     struct wd_list* head = (struct wd_list*) data;
-    
+
     if (head == NULL) {
 	return 0;
     }
@@ -248,7 +266,7 @@ size_t wd_list_size(const void* data)
     return total;
 }
 
-/* This function checks the return values of functions defined 
+/* This function checks the return values of functions defined
  * in wd_list.h
  *
  * It just raises the Ruby exceptions for errors, occured

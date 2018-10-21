@@ -10,6 +10,6 @@ end
 
 task :clean do
   Dir.chdir('ext/inotify') do
-    File.file?('Makefile') && sh('make', 'clean')
+    File.file?('Makefile') && sh('make', 'clean') && rm('Makefile')
   end
 end
