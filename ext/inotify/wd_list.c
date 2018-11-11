@@ -53,7 +53,7 @@ struct wd_list* find_prematched_node(struct wd_list* head, char* filename, int* 
 	}
 	iter = iter->next;
     }
-    
+
     /* The file wasn't in the wd list */
     if (iter == NULL) {
 	*result = FILENAME_NOT_WATCHED;
@@ -69,13 +69,16 @@ struct wd_list* find_prematched_node(struct wd_list* head, char* filename, int* 
 int wd_list_remove(struct wd_list* head, char* filename)
 {
     int err;
-    struct wd_list* prematched_node = find_prematched_node(head, filename, &err);
+    struct wd_list* matched_node;
+    struct wd_list* prematched_node;
+
+    prematched_node = find_prematched_node(head, filename, &err);
     if (prematched_node == NULL) {
 	return err;
     }
-    
+
     /* Remove from the list */
-    struct wd_list* matched_node = prematched_node->next;
+    matched_node = prematched_node->next;
     prematched_node->next = matched_node->next;
     //    free(matched_node->filename); /* FIXME delete if causes an error */
     free(matched_node);
@@ -92,5 +95,3 @@ int wd_list_find(struct wd_list* head, char* filename, int* res)
 	return prematched_node->next->wd;
     }
 }
-
-

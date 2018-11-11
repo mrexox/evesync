@@ -71,6 +71,7 @@ https://github.com/leejarvis/ruby-c-example/blob/master/ext/hello/hello.c
 
 
 * TODO Now
+** TODO избавиться от warning-ов при компиляцииl
 ** TODO протестировать все события и написать в таблицу
 | Событие | Константа | Объект |
 |---------+-----------+--------|
@@ -81,7 +82,7 @@ https://github.com/leejarvis/ruby-c-example/blob/master/ext/hello/hello.c
 ** TODO написать логику демона, который будет помещать в очередь события
 ** TODO написать логирование
 ** TODO написать тест на логирование
-** TODO выбрать MQ
+** DONE выбрать MQ - ZeroMQ
 * TODO On Install
 ** TODO Увеличивать максимальное количество открытых файловых дескрипторов для одной программы
 ** TODO -- Компилировать расширение для конкретного руби и inotify (подумать, нужно ли)
