@@ -74,6 +74,8 @@ VALUE Inotify_initialize(VALUE self)
     /* Initialize inotify */
 
     int inotify_fd;
+    struct wd_list* head;
+    struct wd_list* tmp;
 
     inotify_fd = inotify_init();
 
@@ -81,16 +83,13 @@ VALUE Inotify_initialize(VALUE self)
 	rb_raise(rb_eRuntimeError, "Unable to get inotify descriptor");
     }
 
-
     rb_iv_set(self, "@inotify_fd", INT2NUM(inotify_fd));
 
     /* Initialize wd_list */
-
-    struct wd_list* head;
     TypedData_Get_Struct(self, struct wd_list, &wd_list_type, head);
 
     /* A hack to initialize give head */
-    struct wd_list* tmp = wd_list_create(inotify_fd, NULL);
+    tmp = wd_list_create(inotify_fd, NULL);
 
     /* head is not used in search */
     (*head) = (*tmp);
@@ -105,27 +104,34 @@ VALUE Inotify_initialize(VALUE self)
 VALUE add_watch(VALUE self, VALUE filename, VALUE event_type)
 {
     /* Getting inotify's file descriptor */
-    VALUE rb_inotify_fd = rb_iv_get(self, "@inotify_fd");
-    int inotify_fd = NUM2INT(rb_inotify_fd);
+    VALUE rb_inotify_fd;
+    int inotify_fd;
+    int wd, inotify_event, res;
+    char* cstr_file;
+    struct wd_list* node;
+    struct wd_list* head;
+
+    rb_inotify_fd = rb_iv_get(self, "@inotify_fd");
+    inotify_fd = NUM2INT(rb_inotify_fd);
 
     /* Add file to watched */
-    int wd;
-    char* cstr_file = StringValueCStr(filename);
-    int inotify_event = NUM2INT(event_type);
+
+    cstr_file = StringValueCStr(filename);
+    inotify_event = NUM2INT(event_type);
     wd = inotify_add_watch(inotify_fd, cstr_file, inotify_event);
     if (wd == -1) {
 	rb_raise(rb_eRuntimeError, "Unable to add file to the watched");
     }
 
     /* Save wd */
-    struct wd_list* node = wd_list_create(wd, cstr_file);
+    node = wd_list_create(wd, cstr_file);
     if (node == NULL) {
 	rb_raise(rb_eRuntimeError, "Couldn't create a node. Not enough memory");
     }
 
-    struct wd_list* head;
+
     TypedData_Get_Struct(self, struct wd_list, &wd_list_type, head);
-    int res = wd_list_add(head, node);
+    res = wd_list_add(head, node);
 
     wd_check_errors(res);
 
@@ -135,22 +141,25 @@ VALUE add_watch(VALUE self, VALUE filename, VALUE event_type)
 VALUE rm_watch(VALUE self, VALUE filename)
 {
     /* Getting inotify's file descriptor */
-    VALUE rb_inotify_fd = rb_iv_get(self, "@inotify_fd");
-    int inotify_fd = NUM2INT(rb_inotify_fd);
+    VALUE rb_inotify_fd;
+    int inotify_fd, file_wd, wd, res;
+    struct wd_list* head;
+    char* cstr_filename;
+
+    rb_inotify_fd = rb_iv_get(self, "@inotify_fd");
+    inotify_fd = NUM2INT(rb_inotify_fd);
 
     /* Get wd by filename */
-    struct wd_list* head;
-    TypedData_Get_Struct(self, struct wd_list, &wd_list_type, head);
-    char* cstr_filename = StringValueCStr(filename);
 
-    int res;
-    int file_wd = wd_list_find(head, cstr_filename, &res);
+    TypedData_Get_Struct(self, struct wd_list, &wd_list_type, head);
+    cstr_filename = StringValueCStr(filename);
+
+    file_wd = wd_list_find(head, cstr_filename, &res);
 
     wd_check_errors(res);
     wd_list_remove(head, cstr_filename);
 
     /* Removing file from watched */
-    int wd;
     wd = inotify_rm_watch(inotify_fd, file_wd);
     if (wd == -1) {
 	rb_raise(rb_eRuntimeError, "Unable to remove file from watched");
@@ -167,6 +176,15 @@ VALUE rm_watch(VALUE self, VALUE filename)
  */
 VALUE run(VALUE self)
 {
+    VALUE rb_inotify_fd;
+    int inotify_fd;
+
+    /* Helper vars */
+    ssize_t num_read;
+    struct inotify_event *event;
+    char buf[BUF_LEN] __attribute__ ((aligned(8)));;
+
+
     /* Checking if block given */
     if (!rb_block_given_p()) {
 	rb_raise(rb_eRuntimeError, "Block must be given to run method");
@@ -174,13 +192,9 @@ VALUE run(VALUE self)
     }
 
     /* Getting inotify's file descriptor */
-    VALUE rb_inotify_fd = rb_iv_get(self, "@inotify_fd");
-    int inotify_fd = NUM2INT(rb_inotify_fd);
+    rb_inotify_fd = rb_iv_get(self, "@inotify_fd");
+    inotify_fd = NUM2INT(rb_inotify_fd);
 
-    /* Helper vars */
-    ssize_t num_read;
-    char buf[BUF_LEN] __attribute__ ((aligned(8)));;
-    struct inotify_event *event;
 
     for (;;) {
 	num_read = read(inotify_fd, buf, BUF_LEN);
@@ -199,11 +213,26 @@ VALUE run(VALUE self)
 	       3rd arg: Name of the event
 	       4th arg: Cookie data
 	     */
-	    rb_yield_values(INT2NUM(event->mask),
-			    INT2NUM(event->wd),
-			    StringValueCStr(event->name),
-			    INT2NUM(event->cookie));
+	    // TODO event->name -> str_name
 
+	    VALUE name;
+	    if (event->len > 0) {
+		char * name_buf = (char*)malloc(sizeof(char)*event->len);
+		int r = snprintf(name_buf, (size_t)event->len,
+				 "%s", event->name);
+		if (r != 0) {
+		    rb_raise(rb_eArgError, "Internal Error of inotify_event->name");
+		}
+		name = StringValueCStr(name_buf);
+	    } else {
+		name = Qnil;
+	    }
+
+
+	    rb_yield_values(4, INT2NUM(event->mask),
+	    		    INT2NUM(event->wd),
+	    		    name,
+	    		    INT2NUM(event->cookie));
 	    p += sizeof(struct inotify_event*) + event->len;
 	}
     }
@@ -238,10 +267,8 @@ void wd_list_free(void* data)
     while (iter->next != NULL) {
 	prev = iter;
 	iter = iter->next;
-	free(prev->filename);	/* FIXME delete if causes an error */
 	free(prev);
     }
-    free(iter->filename);	/* FIXME delete if causes an error */
     free(iter);
 }
 
@@ -249,13 +276,16 @@ void wd_list_free(void* data)
 size_t wd_list_size(const void* data)
 {
     size_t total = 0;
-    struct wd_list* head = (struct wd_list*) data;
+    struct wd_list* iter;
+    struct wd_list* head;
+
+    head = (struct wd_list*) data;
 
     if (head == NULL) {
 	return 0;
     }
 
-    struct wd_list* iter = head;
+    iter = head;
     while (iter->next != NULL) {
 	if (iter->filename != NULL) {
 	    total += strlen(iter->filename) * sizeof(char);
