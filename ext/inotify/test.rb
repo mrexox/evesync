@@ -12,15 +12,27 @@ class TestAddRmWatch < Test::Unit::TestCase
 
   def test_rm_add_watch
     # Asserting we don't get any errors on method calls
-    assert_nothing_raised { @a.add_watch('/etc/passwd', Inotify::IN_ALL_EVENTS) }
-    assert_nothing_raised { @a.add_watch('/etc/environment', Inotify::IN_ALL_EVENTS) }
-    assert_nothing_raised { @a.rm_watch('/etc/passwd') }
-    assert_nothing_raised { @a.rm_watch('/etc/environment') }
+    assert_nothing_raised {
+      @a.add_watch('/etc/passwd', Inotify::IN_ALL_EVENTS)
+    }
+    assert_nothing_raised {
+      @a.add_watch('/etc/environment', Inotify::IN_ALL_EVENTS)
+    }
+    assert_nothing_raised {
+      @a.rm_watch('/etc/passwd')
+    }
+    assert_nothing_raised {
+      @a.rm_watch('/etc/environment')
+    }
   end
 
   def test_exceptions
-    assert_raise(RuntimeError) { @a.add_watch('/aassa/asdsad', Inotify::IN_ALL_EVENTS) }
-    assert_raise(RuntimeError) { @a.rm_watch('/aassa/asdsad') }
+    assert_raise(RuntimeError) {
+      @a.add_watch('/aassa/asdsad', Inotify::IN_ALL_EVENTS)
+    }
+    assert_raise(RuntimeError) {
+      @a.rm_watch('/aassa/asdsad')
+    }
   end
 end
 
