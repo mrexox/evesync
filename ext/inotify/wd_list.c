@@ -10,7 +10,7 @@ struct wd_list* wd_list_create(int wd, char* filename)
 
     new = (struct wd_list*)malloc(sizeof(struct wd_list));
     if (new == NULL) {
-	return NULL;		/* Handle it yourself */
+        return NULL;            /* Handle it yourself */
     }
 
     new->wd = wd;
@@ -24,17 +24,17 @@ int wd_list_add(struct wd_list* head, struct wd_list* node)
     struct wd_list* iter;
 
     if (head == NULL) {
-	return HEAD_IS_NULL;
+        return HEAD_IS_NULL;
     }
 
     if (node == NULL) {
-	return NODE_IS_NULL;
+        return NODE_IS_NULL;
     }
 
     /* Iterating through the list till the last */
     iter = head;
     while (iter->next != NULL) {
-	iter = iter->next;
+        iter = iter->next;
     }
 
     iter->next = node;
@@ -47,23 +47,23 @@ struct wd_list* find_prematched_node(struct wd_list* head, char* filename, int* 
     struct wd_list* iter;
 
     if (head == NULL) {
-	*result = HEAD_IS_NULL;
-	return NULL;
+        *result = HEAD_IS_NULL;
+        return NULL;
     }
 
     /* Iterating through all list till the last */
     iter = head;
     while (iter->next != NULL) {
-	if (strcmp(iter->next->filename, filename) == 0) {
-	    break;
-	}
-	iter = iter->next;
+        if (strcmp(iter->next->filename, filename) == 0) {
+            break;
+        }
+        iter = iter->next;
     }
 
     /* The file wasn't in the wd list */
     if (iter->next == NULL) {
-	*result = FILENAME_NOT_WATCHED;
-	return NULL;
+        *result = FILENAME_NOT_WATCHED;
+        return NULL;
     }
 
     /* The file was found in the wd list: it's iter->next->filename */
@@ -80,7 +80,7 @@ int wd_list_remove(struct wd_list* head, char* filename)
 
     prematched_node = find_prematched_node(head, filename, &err);
     if (prematched_node == NULL) {
-	return err;
+        return err;
     }
 
     /* Remove from the list */
@@ -94,12 +94,12 @@ int wd_list_remove(struct wd_list* head, char* filename)
 int wd_list_find(struct wd_list* head, char* filename, int* res)
 {
     struct wd_list* prematched_node =
-	find_prematched_node(head, filename, res);
+        find_prematched_node(head, filename, res);
 
 
     if (*res != 0 || prematched_node == NULL) {
-	return 0;
+        return 0;
     } else {
-	return prematched_node->next->wd;
+        return prematched_node->next->wd;
     }
 }

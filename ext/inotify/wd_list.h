@@ -2,10 +2,10 @@
 #define FSMOON_WD_LIST
 
 
-#define WD_NOT_FOUND		-1
-#define HEAD_IS_NULL		-2
-#define NODE_IS_NULL		-3
-#define FILENAME_NOT_WATCHED	-4
+#define WD_NOT_FOUND            -1
+#define HEAD_IS_NULL            -2
+#define NODE_IS_NULL            -3
+#define FILENAME_NOT_WATCHED    -4
 
 /* This is helper wd_list struct, which is
  * a simple ordered one-way list.
