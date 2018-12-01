@@ -3,7 +3,7 @@
 # The file can be suddenly IN_IGNORED
 # So the method to renew the inotify on this file must present
 
-module Inotify
+class Inotify
   # Files
 
   def on_file_modified(props)

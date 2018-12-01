@@ -14,6 +14,10 @@ Gem::Specification.new do |s|
     LICENSE
     Rakefile
     lib/inotify.rb
+    ext/inotify/inotify.c
+    ext/inotify/wd_list.c
+    ext/inotify/wd_list.h
+    ext/inotify/test.rb
   ]
 
   s.require_paths = %w[lib src]

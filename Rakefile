@@ -1,9 +1,18 @@
 require 'find'
 require 'rake/extensiontask'
 
-task :default => [:test]
+GEMSPEC = 'sysmoon.gemspec'
+GEM_FILE = 'sysmoon-0.0.0.gem'
 
-task :install => [:clean, :compile]
+task :default => [:install, :clean]
+
+task :install => [:test, :build] do
+  sh "sudo gem install #{GEM_FILE}"
+end
+
+task :build do
+  sh "gem build #{GEMSPEC}"
+end
 
 task :test => [:clean, :compile] do
   ruby '-Ilib', 'ext/inotify/test.rb'
@@ -31,4 +40,5 @@ task :clean do
 
   rm_rf('tmp')
   rm_rf('doc')
+  rm_rf(GEM_FILE)
 end
