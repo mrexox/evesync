@@ -9,3 +9,5 @@ TAGS
 *.o
 
 ext/inotify/Makefile
+tmp/
+doc/

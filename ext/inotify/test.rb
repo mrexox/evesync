@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 require 'fileutils'
-require_relative "inotify"
+require 'inotify/inotify'
 
 # Simple tests, no high load. Functionality only
 

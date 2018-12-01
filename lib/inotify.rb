@@ -5,7 +5,7 @@
 
 module Inotify
   # Files
-  
+
   def on_file_modified(props)
   end
 
@@ -16,7 +16,7 @@ module Inotify
   end
 
   # Dirs
-  
+
   def on_dir_created(props)
   end
 
@@ -26,3 +26,5 @@ module Inotify
   def on_dir_deleted(props)
   end
 end
+
+require 'inotify/inotify'
