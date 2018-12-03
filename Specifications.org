@@ -1,13 +1,13 @@
-Функциональные спецификации для программных компонентов
+#+TITLE: Спецификации
 
 * moonwatchd
   - Следит за изменениями в директории /etc.
   - Есть конфигурационная директория /etc/sysmoon/.
   - Конфигурационный файл со списком директорий, подлежащих
     слежке /etc/sysmoon/watch.list
-  - Все изменения посылаются демону 'datamond'.
+  - Все изменения посылаются демону 'moondatad.
 
-* mondatad
+* moondatad
   - При получения сообщения об изменении заносит их в файловую базу данных.
   - Один раз в день база данных сжимается и сохраняется по дате
     (если база содержит 100+ записей).
@@ -32,3 +32,25 @@
      - system_update_differ :: ignore|warn|notify|error
    - services:
      - restart_touched_services :: yes|no
+
+
+#+TITLE: Псевдокод
+
+* moonwatchd
+  - read_config
+  - subscribe_on_events
+    - getting list of watched files
+  - add_watched_files
+  - start_awaiting_loop
+
+* moondatad
+  - read_config
+  - subscribe_on_events
+  - connect_to_database
+  - create_timeout_events
+    - on new filechange
+    - [FUTURE] on new package change
+    - [FUTURE] on new request for current state
+  - start_waiting_loop
+    - if got an event:
+      - put to database

@@ -19,7 +19,7 @@ task :test => [:clean, :compile] do
 end
 
 Rake::ExtensionTask.new "inotify" do |ext|
-  ext.lib_dir = "lib/inotify"
+  ext.lib_dir = "lib/sysmoon/inotify"
 end
 
 task :gem do

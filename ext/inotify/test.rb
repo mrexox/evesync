@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 require 'fileutils'
-require 'inotify/inotify'
+require 'sysmoon/watcher/inotify'
 
 # Simple tests, no high load. Functionality only
 

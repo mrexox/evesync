@@ -1,5 +1,5 @@
 require 'mkmf'
-extension_name = 'inotify'
+extension_name = 'sysmoon/watcher/inotify'
 
 have_header('sys/inotify.h')
 $CFLAGS << %[ -std=gnu99 ]

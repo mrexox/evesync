@@ -8,6 +8,8 @@ TAGS
 *.so
 *.o
 
+# Ignoring ruby temporary files
+*.gem
 ext/inotify/Makefile
 tmp/
 doc/
