@@ -1,8 +1,10 @@
 require 'find'
 require 'rake/extensiontask'
 
+VERSION = '0.0.0'
+
 GEMSPEC = 'sysmoon.gemspec'
-GEM_FILE = 'sysmoon-0.0.0.gem'
+GEM_FILE = "sysmoon-#{VERSION}.gem"
 
 task :default => [:install, :clean]
 

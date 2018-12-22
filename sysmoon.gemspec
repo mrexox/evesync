@@ -1,4 +1,4 @@
-require 'rake'
+require 'rake' # for FileList
 
 Gem::Specification.new do |s|
 
@@ -12,11 +12,13 @@ Gem::Specification.new do |s|
 
   s.authors = "Kiselev Valentine"
 
-  s.files = FileList['bin/*',
-                     'ext/**/*.{rb,c,h}',
-                     'LICENSE',
-                     'Rakefile',
-                     'lib/**/*.{rb,so}']
+  s.files = FileList[
+    'bin/*',
+    'ext/**/*.{rb,c,h}',
+    'LICENSE',
+    'Rakefile',
+    'lib/**/*.{rb,so}'
+  ]
 
   s.require_paths = %w[lib src]
   s.extensions = %w[ext/inotify/extconf.rb]

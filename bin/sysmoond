@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+# -*- mode: ruby -*-
+
+require 'sysmoon'
+require 'sysmoon/watcher'
+require 'sysmoon/exceptions'
+require 'sysmoon/constants'
+
+sysmoon = Sysmoon.new(Config.new(CONFIG_FILE))
+
+begin
+  event_handler = sysmoon.make_handler
+rescue RuntimeError => re
+  # Handle exceptions from watcher while
+  # creating inotify objects
+end
+
+sysmoon.run do |event|
+  begin
+    event_handler.handle(event)
+  rescue RuntimeError => re
+    # Log error
+    # Handle Error if possible
+    # maybe rescue this file event listener
+  end
+end
