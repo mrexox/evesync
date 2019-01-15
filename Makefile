@@ -1,0 +1,5 @@
+.EXPORT_ALL_VARIABLES:
+
+GOOS   ?=linux
+GOARCH ?=amd64
+DISTRO ?=centos
