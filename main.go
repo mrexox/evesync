@@ -1,19 +1,33 @@
 package main
 
 import (
-	"fmt"
 	"github.com/mrexox/sysmoon/pkg"
-	"time"
+	"log"
+	"os"
+	"plugin"
 )
 
 func main() {
+
+	// get package watcher from sysmoon_manager.so file
+	var pkgManager *Manager
+	// TODO: using plugin...
+	// ...
+	pkgWatcher := pkgManager.NewWatcher()
+
 	for {
-		time.Sleep(1 * time.Second)
-		fmt.Println("Woke up!")
+		select {
+		// Packages related events
+		case event := <-pkgWatcher.Events:
+			switch event.Type {
+			case pkg.Update:
+				log.Println("Updated package:", event.Package)
+			case pkg.Install:
+				log.Println("Installed package:", event.Package)
+			case pkg.Delete:
+				log.Println("Uninstalled package:", event.Package)
 
-		newPackages := pkg.UpdatedPackages()
-		fmt.Printf("%+v\n", newPackages)
-
-		fmt.Println("Going to sleep...")
+			}
+		}
 	}
 }

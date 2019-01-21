@@ -1,30 +1,58 @@
 package pkg
 
+import (
+	"github.com/fsnotify/fsnotify"
+)
+
 type Package struct {
-	name    string
-	version string
+	Name    string
+	Version string
 }
 
-func UpdatedPackages() []Package {
-	var packages = []Package{}
-
-	// Parse package updates
-	packages = updated()
-
-	// Return the `diff` from packages of database
-	packages = filterNew(packages)
-
-	return packages
+type PackageWatcher struct {
+	Events chan PackageEvent
+	Errors chan error
 }
 
-func updated() []Package {
-	// Call special package function
-	return []Package{}
+type Manager interface {
+	NewWatcher() *PackageWatcher
+	Install(pkg Package) error
+	Delete(pkg Package) error
+	Update(pkg Package) error
 }
 
-func filterNew(packages []Package) []Package {
-	// Database query
-	// Get only those that are not installed already
-	// Update database (use channels?)
-	return []Package{}
+// Event
+type PackageEvent struct {
+	Type    PackageEventType
+	Package *Package
+}
+
+// Simple integer constant
+type PackageEventType uint32
+
+const (
+	Install PackageEventType = 1 + iota
+	Update
+	Delete
+	Downgrade
+)
+
+// Implementing printable interface
+func (pkg Package) String() string {
+	return []string{pkg.Name, pkg.Version}.Join("-")
+}
+
+func (ev PackageEventType) String() (name string) {
+	switch ev {
+	case Install:
+		name = "Install"
+	case Update:
+		name = "Update"
+	case Delete:
+		name = "Delete"
+	case Downgrade:
+		name = "Downgrade"
+	case true:
+		name = "<Unknown PackageEventType>"
+	}
 }
