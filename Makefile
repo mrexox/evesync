@@ -16,6 +16,8 @@ GREP   += -r
 DISTRO_PLUGIN := sysmoon_distro.so
 SYSMOON_BIN   := sysmoon
 
+all: build
+
 build: $(DISTRO_PLUGIN)
 	go build -o $(SYSMOON_BIN) main.go
 
@@ -29,3 +31,6 @@ run: $(DISTRO_PLUGIN)
 list-todo:
 	@find . -name '*.go' -exec $(GREP) TODO  \{} \+ ||:
 	@find . -name '*.go' -exec $(GREP) FIXME \{} \+ ||:
+
+clean:
+	rm -rf $(DISTRO_PLUGIN) $(SYSMOON_BIN)

@@ -8,7 +8,7 @@ type Package struct {
 }
 
 type PackageWatcher struct {
-	Events chan PackageEvent
+	Events chan *PackageEvent
 	Errors chan error
 }
 
