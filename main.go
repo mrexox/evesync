@@ -3,17 +3,22 @@ package main
 import (
 	"github.com/mrexox/sysmoon/pkg"
 	"log"
-	"os"
 	"plugin"
 )
 
 func main() {
 
 	// get package watcher from sysmoon_manager.so file
-	var pkgManager *Manager
-	// TODO: using plugin...
-	// ...
-	pkgWatcher := pkgManager.NewWatcher()
+	// FIXME: change to global path (or read from config)
+	distroPlugin, err := plugin.Open("sysmoon_distro.so")
+	if err != nil {
+		log.Fatal(err)
+	}
+	pkgManager, err := distroPlugin.Lookup("Manager")
+	if err != nil {
+		log.Fatal(err)
+	}
+	pkgWatcher, err := pkgManager.(pkg.Manager).NewWatcher()
 
 	for {
 		select {

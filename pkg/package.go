@@ -1,8 +1,6 @@
 package pkg
 
-import (
-	"github.com/fsnotify/fsnotify"
-)
+import "strings"
 
 type Package struct {
 	Name    string
@@ -15,7 +13,7 @@ type PackageWatcher struct {
 }
 
 type Manager interface {
-	NewWatcher() *PackageWatcher
+	NewWatcher() (*PackageWatcher, error)
 	Install(pkg Package) error
 	Delete(pkg Package) error
 	Update(pkg Package) error
@@ -39,10 +37,12 @@ const (
 
 // Implementing printable interface
 func (pkg Package) String() string {
-	return []string{pkg.Name, pkg.Version}.Join("-")
+	pkgInfo := []string{pkg.Name, pkg.Version}
+	return strings.Join(pkgInfo[:], "-")
 }
 
-func (ev PackageEventType) String() (name string) {
+func (ev PackageEventType) String() string {
+	var name string
 	switch ev {
 	case Install:
 		name = "Install"
@@ -52,7 +52,8 @@ func (ev PackageEventType) String() (name string) {
 		name = "Delete"
 	case Downgrade:
 		name = "Downgrade"
-	case true:
+	default:
 		name = "<Unknown PackageEventType>"
 	}
+	return name
 }

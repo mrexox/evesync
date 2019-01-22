@@ -16,28 +16,28 @@ type manager struct {
 	logfile     string
 }
 
-func (m manager) Install(pkg Package) error {
-
+func (m manager) Install(pkg pkg.Package) error {
+	return nil
 }
 
-func (m manager) Delete(pkg Package) error {
-
+func (m manager) Delete(pkg pkg.Package) error {
+	return nil
 }
 
-func (m manager) Update(pkg Package) error {
-
+func (m manager) Update(pkg pkg.Package) error {
+	return nil
 }
 
-var Manager = &manager{
+var Manager = manager{
 	command:     "pacman",
 	installKeys: "-Sy",
 	deleteKeys:  "-Ry",
 	logfile:     "/var/log/pacman.log",
 }
 
-var packageWatcher *PackageWatcher = nil
+var packageWatcher *pkg.PackageWatcher = nil
 
-func (m manager) NewWatcher() (*PackgeWatcher, error) {
+func (m manager) NewWatcher() (*pkg.PackageWatcher, error) {
 	// Protect ourselves from initializing more than once
 	if packageWatcher != nil {
 		return packageWatcher, nil
@@ -45,9 +45,10 @@ func (m manager) NewWatcher() (*PackgeWatcher, error) {
 	// TODO: Create channels
 	// TODO: Start goroutines
 	// TODO: Initialize PackageWatcher
-	var w *PackageWatcher
-	w = &PackageWatcher{
+	var w *pkg.PackageWatcher
+	w = &pkg.PackageWatcher{
 		// TODO: fill me
 	}
 	packageWatcher = w
+	return w, nil
 }
