@@ -29,7 +29,8 @@ type PackageEvent struct {
 type PackageEventType uint32
 
 const (
-	Install PackageEventType = 1 + iota
+	Nil PackageEventType = iota
+	Install
 	Update
 	Delete
 	Downgrade

@@ -9,7 +9,11 @@ import (
 	"errors"
 	"github.com/fsnotify/fsnotify"
 	"github.com/mrexox/sysmoon/pkg"
+	"io"
 	"log"
+	"os"
+	"regexp"
+	"strings"
 )
 
 type manager struct {
@@ -92,9 +96,9 @@ func watchPkgEvents(logfile string, evs chan *pkg.PackageEvent, errs chan error)
 }
 
 func handlePkgEvent(event fsnotify.Event) (*pkg.PackageEvent, error) {
-	var t pkg.PackageEventType = nil
-	var p *pkg.Package = nil
-	var pe *pkg.PackageEvent = nil
+	var t pkg.PackageEventType
+	var p *pkg.Package
+	var pe *pkg.PackageEvent
 
 	// Opening logfile and seeking to the
 	file, err := os.Open(event.Name)
@@ -103,12 +107,12 @@ func handlePkgEvent(event fsnotify.Event) (*pkg.PackageEvent, error) {
 	}
 	defer file.Close()
 
-	lastLine := readLastString(file)
+	lastLine := readLastLine(file)
 
 	// Preparing package event
 	t, p = determineChange(lastLine)
-	if t != nil && p != nil {
-		pe = pkg.PackageEvent{
+	if t != pkg.Nil && p != nil {
+		pe = &pkg.PackageEvent{
 			Type:    t,
 			Package: p,
 		}
@@ -118,11 +122,55 @@ func handlePkgEvent(event fsnotify.Event) (*pkg.PackageEvent, error) {
 }
 
 func readLastLine(file *os.File) string {
-	// TODO: implement reading last line of file
+	buffsize := 100
+	buffer := make([]byte, buffsize) // 200 should be enough (actually 60)
+	for {
+		file.Seek(0, 2) // Seeking the end of file
+		_, err := file.Read(buffer)
+
+		// If we are too far from end of file
+		if err != io.EOF {
+			file.Seek(0, 2)
+			buffsize = buffsize + 100
+			buffer = make([]byte, buffsize)
+			continue
+		}
+
+		// Returning the last readed line slice
+		str := string(buffer)
+		if strings.Contains(str, "\n") {
+			sl := strings.Split(str, "\n")
+			return sl[len(sl)-1]
+		}
+
+		// Increasing buffer, it sould capture the newline
+		buffsize = buffsize + 100
+		buffer = make([]byte, buffsize)
+	}
+
 }
 
 func determineChange(line string) (pkg.PackageEventType, *pkg.Package) {
-	// TODO: split string
-	// get type
-	// get package name
+	var t pkg.PackageEventType
+	var p *pkg.Package
+
+	if strings.Contains(line, "installed") {
+		t = pkg.Install
+	} else if strings.Contains(line, "reinstalled") {
+		t = pkg.Update
+	} else if strings.Contains(line, "removed") {
+		t = pkg.Delete
+	} else {
+		// Not informative string
+		return pkg.Nil, nil
+	}
+
+	reg := *regexp.MustCompile(`\s+(?P<name>[^\s]+)\s+\((?P<version>[^()]+)\)`)
+	res := reg.FindStringSubmatch(line)
+	p = &pkg.Package{
+		Name:    res[1],
+		Version: res[2],
+	}
+
+	return t, p
 }

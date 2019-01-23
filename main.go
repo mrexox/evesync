@@ -20,6 +20,11 @@ func main() {
 	}
 	pkgWatcher, err := pkgManager.(pkg.Manager).NewWatcher()
 
+	// TODO: also add some config files watchers
+
+	// TODO: implement handlers
+	// TODO: implement data storage service
+
 	for {
 		select {
 		// Packages related events
