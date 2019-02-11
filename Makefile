@@ -23,13 +23,15 @@ build: $(DISTRO_PLUGIN)
 
 $(DISTRO_PLUGIN):
 	go build -buildmode=plugin -o $(DISTRO_PLUGIN) \
-		pkg/$(DISTRO)/manager.go 
-		
+		pkg/$(DISTRO)/manager.go
+
 run: $(DISTRO_PLUGIN)
 	go run main.go
 
 list-todo:
+	@echo -e ":><: \033[0;31mTODOs\033[0m in code"
 	@find . -name '*.go' -exec $(GREP) TODO  \{} \+ ||:
+	@echo -e ":><: \033[0;31mFIXMEs\033[0m in code"
 	@find . -name '*.go' -exec $(GREP) FIXME \{} \+ ||:
 
 clean:

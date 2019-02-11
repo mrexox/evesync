@@ -8,6 +8,7 @@ package main
 import (
 	"errors"
 	"github.com/fsnotify/fsnotify"
+	"github.com/hpcloud/tail"
 	"github.com/mrexox/sysmoon/pkg"
 	"io"
 	"log"
@@ -49,11 +50,14 @@ func (m manager) NewWatcher() (*pkg.PackageWatcher, error) {
 	if packageWatcher != nil {
 		return packageWatcher, nil
 	}
+
+	// FIXME: return error if watcher can't be added
+	// if m.logfile does not exist
+	// return nil, error!
+
 	events := make(chan *pkg.PackageEvent)
 	errors := make(chan error)
 
-	// if m.logfile does not exist
-	// return nil, error!
 	go watchPkgEvents(m.logfile, events, errors)
 
 	var w *pkg.PackageWatcher
@@ -66,6 +70,7 @@ func (m manager) NewWatcher() (*pkg.PackageWatcher, error) {
 }
 
 func watchPkgEvents(logfile string, evs chan *pkg.PackageEvent, errs chan error) {
+	// TODO: rewrite with tail package
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
@@ -77,11 +82,12 @@ func watchPkgEvents(logfile string, evs chan *pkg.PackageEvent, errs chan error)
 	for {
 		select {
 		case ev, ok := <-w.Events:
+			log.Println("Catched Package event")
 			log.Println(ev)
 			if ok {
 				// Handle event
 				pkgEv, err := handlePkgEvent(ev)
-
+				log.Println("Package event handled")
 				if err != nil {
 					errs <- err // filling errors
 				} else {
@@ -91,7 +97,7 @@ func watchPkgEvents(logfile string, evs chan *pkg.PackageEvent, errs chan error)
 				errs <- errors.New("fsnotify failed for logfile events")
 			}
 		}
-
+		log.Println("Finished Package event handling")
 	}
 }
 
@@ -101,14 +107,27 @@ func handlePkgEvent(event fsnotify.Event) (*pkg.PackageEvent, error) {
 	var pe *pkg.PackageEvent
 
 	// Opening logfile and seeking to the
-	file, err := os.Open(event.Name)
-	if err != nil {
-		return nil, err
+	// file, err := os.Open(event.Name)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// log.Printf("File opened")
+	// defer file.Close()
+
+	// lastLine := readLastLine(file)
+	f, _ := tail.TailFile(event.Name, tail.Config{
+		Location: &tail.SeekInfo{Offset: -200, Whence: 2},
+		Follow:   false,
+	})
+	var lastLine string
+	for line := range f.Lines {
+		//		log.Printf("Read line %s\n", line.Text)
+		lastLine = line.Text
 	}
-	defer file.Close()
-
-	lastLine := readLastLine(file)
-
+	f.Stop()
+	f.Cleanup()
+	log.Printf("Last line read %s\n", lastLine)
 	// Preparing package event
 	t, p = determineChange(lastLine)
 	if t != pkg.Nil && p != nil {
@@ -122,14 +141,15 @@ func handlePkgEvent(event fsnotify.Event) (*pkg.PackageEvent, error) {
 }
 
 func readLastLine(file *os.File) string {
-	buffsize := 100
+	var buffsize int64 = 100
 	buffer := make([]byte, buffsize) // 200 should be enough (actually 60)
-	for {
-		file.Seek(0, 2) // Seeking the end of file
+	for {                            // FIXME forever loop
+		file.Seek(-buffsize, 2) // Seeking the end of file
 		_, err := file.Read(buffer)
 
 		// If we are too far from end of file
 		if err != io.EOF {
+			log.Println("End of file is reached")
 			file.Seek(0, 2)
 			buffsize = buffsize + 100
 			buffer = make([]byte, buffsize)
@@ -138,6 +158,7 @@ func readLastLine(file *os.File) string {
 
 		// Returning the last readed line slice
 		str := string(buffer)
+		log.Printf("Read string %s", str)
 		if strings.Contains(str, "\n") {
 			sl := strings.Split(str, "\n")
 			return sl[len(sl)-1]
