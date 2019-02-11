@@ -1,11 +1,7 @@
 #!/usr/bin/env ruby
 # -*- mode: ruby -*-
 
-# require 'sysmoon'
-# require 'sysmoon/watcher'
-# require 'sysmoon/exceptions'
-# require 'sysmoon/constants'
-require 'file-tail'
+require 'sysmoon/distro'
 
 # sysmoon = Sysmoon.new(Config.new(CONFIG_FILE))
 
@@ -26,38 +22,27 @@ require 'file-tail'
 #   end
 # end
 
-que = Queue.new
+puts "sysmoond starting!"
 
-thr = Thread.new do
-  pacman_log = '/var/log/pacman.log'
+pw_que = Queue.new
 
-  File.open(pacman_log) do |log|
-    log.extend(File::Tail)
-    log.interval = 3
-    log.backward(1)
-    log.tail do |line|
-      if /(reinstall|install|remove)/.match(line) then
-        que << line.freeze
-      end
-    end
-  end
-end
+pw_thr = Thread.new { PackageWatcher.new(pw_que).run }
 
-p "sysmoond started!"
+puts "sysmoond started!"
 
 Signal.trap("TERM") do
-  p "sysmoond killed..."
-  thr.exit
+  puts "sysmoond killed..."
+  pw_thr.exit
   exit(0)
 end
 
 Signal.trap("SIGINT") do
-  p "sysmoond interrupted..."
-  thr.exit
+  puts "sysmoond interrupted..."
+  pw_thr.exit
   exit(1)
 end
 
 loop do
-  value = que.pop
-  p "Value #{value}"
+  value = pw_que.pop
+  puts "Value #{value}"
 end
