@@ -1,26 +1,63 @@
 #!/usr/bin/env ruby
 # -*- mode: ruby -*-
 
-require 'sysmoon'
-require 'sysmoon/watcher'
-require 'sysmoon/exceptions'
-require 'sysmoon/constants'
+# require 'sysmoon'
+# require 'sysmoon/watcher'
+# require 'sysmoon/exceptions'
+# require 'sysmoon/constants'
+require 'file-tail'
 
-sysmoon = Sysmoon.new(Config.new(CONFIG_FILE))
+# sysmoon = Sysmoon.new(Config.new(CONFIG_FILE))
 
-begin
-  event_handler = sysmoon.make_handler
-rescue RuntimeError => re
-  # Handle exceptions from watcher while
-  # creating inotify objects
+# begin
+#   event_handler = sysmoon.make_handler
+# rescue RuntimeError => re
+#   # Handle exceptions from watcher while
+#   # creating inotify objects
+# end
+
+# sysmoon.run do |event|
+#   begin
+#     event_handler.handle(event)
+#   rescue RuntimeError => re
+#     # Log error
+#     # Handle Error if possible
+#     # maybe rescue this file event listener
+#   end
+# end
+
+que = Queue.new
+
+thr = Thread.new do
+  pacman_log = '/var/log/pacman.log'
+
+  File.open(pacman_log) do |log|
+    log.extend(File::Tail)
+    log.interval = 3
+    log.backward(1)
+    log.tail do |line|
+      if /(reinstall|install|remove)/.match(line) then
+        que << line.freeze
+      end
+    end
+  end
 end
 
-sysmoon.run do |event|
-  begin
-    event_handler.handle(event)
-  rescue RuntimeError => re
-    # Log error
-    # Handle Error if possible
-    # maybe rescue this file event listener
-  end
+p "sysmoond started!"
+
+Signal.trap("TERM") do
+  p "sysmoond killed..."
+  thr.exit
+  exit(0)
+end
+
+Signal.trap("SIGINT") do
+  p "sysmoond interrupted..."
+  thr.exit
+  exit(1)
+end
+
+loop do
+  value = que.pop
+  p "Value #{value}"
 end

@@ -1,3 +1,3 @@
 source 'https://rubygems.org' do
-  # Nothing yet
+  gem 'file-tail'
 end

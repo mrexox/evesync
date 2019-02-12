@@ -6,7 +6,9 @@ Gem::Specification.new do |s|
 
   s.version = "0.0.0"
 
-  s.date = %q{2018-12-01}
+  s.license = 'BSD 2-Clause'
+
+  s.date = %q{2019-02-12}
 
   s.summary = %q{Sys changes monitor}
 
@@ -14,13 +16,13 @@ Gem::Specification.new do |s|
 
   s.files = FileList[
     'bin/*',
-    'ext/**/*.{rb,c,h}',
     'LICENSE',
     'Rakefile',
-    'lib/**/*.{rb,so}'
+    'lib/**/*.rb'
   ]
 
+  s.executables << 'sysmoond'
+
   s.require_paths = %w[lib src]
-  s.extensions = %w[ext/inotify/extconf.rb]
 
 end
