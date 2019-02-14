@@ -1,14 +1,23 @@
-# TODO: write package-related classes and functions
 require 'file-tail'
 require 'sysmoon/package'
 
-# Must be called as
-# Thread.new { ArchPackageWatcher.new(queue).run }
-
+##
+# Watcher for package changes for Arch Linux
+#
+# Usage:
+#  Thread.new { ArchPackageWatcher.new(queue).run }
 class ArchPackageWatcher
 
   ARCH_LOG_FILE = '/var/log/pacman.log'
-  private_constant :ARCH_LOG_FILE
+  PKG_REGEXP =
+    /(?:reinstalled|installed|removed)
+    \s*
+    (?<package>\w+)
+    \s*
+    \(   (?<version>[\w\d.-]+)   \)
+    /x
+
+  private_constant :ARCH_LOG_FILE, :PKG_REGEXP
 
   def initialize(queue)
     @queue = queue
@@ -20,12 +29,11 @@ class ArchPackageWatcher
       log.interval = 3
       log.backward(1)
       log.tail do |line|
-        if /(?:reinstalled|installed|removed)\s*
-           (?<package>\w+)\s*
-           \((?<version>[\w\d.-]+)\)/x =~ line
+        m = line.match(PKG_REGEXP)
+        if m
           @queue << Package.new(
-            name: package,
-            version: version
+            name: m[:package],
+            version: m[:version]
           )
         end
       end

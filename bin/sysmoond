@@ -2,21 +2,18 @@
 # -*- mode: ruby -*-
 
 require 'sysmoon/distro'
+require 'sysmoon/handlers'
 
+# TODO: puts -> logging
 puts "sysmoond starting!"
 
-pw_que = Queue.new
+pkg_que = Queue.new
 
-pw_thr = Thread.new { PackageWatcher.new(pw_que).run }
+threads = []
 
-ph_thr = Thread.new do
-  loop do
-    package = pw_que.pop
-    puts "Value #{package.name}-#{package.version}"
-  end
-end
+threads << Thread.new { PackageWatcher.new(pkg_que).run }
 
-threads = [pw_thr, ph_thr]
+threads << Thread.new { PackageHandler.new(pkg_que).run }
 
 puts "sysmoond started!"
 
@@ -30,4 +27,8 @@ Signal.trap("SIGINT") do
   puts "sysmoond interrupted..."
   threads.each { |thr| thr.exit }
   exit(1)
+end
+
+loop do
+  sleep 100
 end
