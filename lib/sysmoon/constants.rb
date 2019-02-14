@@ -1,1 +1,1 @@
-CONFIG_FILE = '/etc/sysmoon/conf'
+CONFIG_FILE = '/etc/sysmoon/conf'.freeze

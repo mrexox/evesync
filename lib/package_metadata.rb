@@ -1,1 +1,1 @@
-# TODO write package class (for transfering objects)
+# TODO: write package class (for transfering objects)

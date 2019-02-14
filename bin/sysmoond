@@ -3,46 +3,31 @@
 
 require 'sysmoon/distro'
 
-# sysmoon = Sysmoon.new(Config.new(CONFIG_FILE))
-
-# begin
-#   event_handler = sysmoon.make_handler
-# rescue RuntimeError => re
-#   # Handle exceptions from watcher while
-#   # creating inotify objects
-# end
-
-# sysmoon.run do |event|
-#   begin
-#     event_handler.handle(event)
-#   rescue RuntimeError => re
-#     # Log error
-#     # Handle Error if possible
-#     # maybe rescue this file event listener
-#   end
-# end
-
 puts "sysmoond starting!"
 
 pw_que = Queue.new
 
 pw_thr = Thread.new { PackageWatcher.new(pw_que).run }
 
+ph_thr = Thread.new do
+  loop do
+    package = pw_que.pop
+    puts "Value #{package.name}-#{package.version}"
+  end
+end
+
+threads = [pw_thr, ph_thr]
+
 puts "sysmoond started!"
 
 Signal.trap("TERM") do
   puts "sysmoond killed..."
-  pw_thr.exit
+  threads.each { |thr| thr.exit }
   exit(0)
 end
 
 Signal.trap("SIGINT") do
   puts "sysmoond interrupted..."
-  pw_thr.exit
+  threads.each { |thr| thr.exit }
   exit(1)
-end
-
-loop do
-  value = pw_que.pop
-  puts "Value #{value}"
 end
