@@ -1,4 +1,9 @@
-# TODO: write distro choosing and including the wanted distro libs
-require 'sysmoon/distro/arch'
+# FIXME: rewrite for more beautiful code
 
-PackageWatcher = ArchPackageWatcher
+text = File.new("/etc/os-release").read
+
+if text =~ /^ID.*(rhel|centos|fedora)/
+  require 'sysmoon/distro/rhel'
+elsif text =~ /ID.*arch/
+  require 'sysmoon/distro/arch'
+end

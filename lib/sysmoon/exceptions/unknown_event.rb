@@ -1,18 +1,4 @@
-# :markup: TomDoc
-# Public: Exception, raised on unknown event happened
-#
-# Examples
-#
-#   requrie 'unknownevent'
-#   event = get_event
-#   begin
-#     raise UnknownEvent.new event
-#   rescue UnknownEvent => e
-#     puts e.to_s
-#     handle_event(e.event)
-#   end
-#   ...
-#
+# TODO: Document me
 class UnknownEvent < StandardError
   attr_reader :event
 
