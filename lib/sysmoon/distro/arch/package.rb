@@ -10,7 +10,7 @@ class ArchPackageWatcher
 
   ARCH_LOG_FILE = '/var/log/pacman.log'
   PKG_REGEXP =
-    /(?:reinstalled|installed|removed)
+    /(?<command>reinstalled|installed|removed)
     \s*
     (?<package>\w+)
     \s*
@@ -31,9 +31,11 @@ class ArchPackageWatcher
       log.tail do |line|
         m = line.match(PKG_REGEXP)
         if m
+
           @queue << Package.new(
             name: m[:package],
-            version: m[:version]
+            version: m[:version],
+            command: m[:command]
           )
         end
       end

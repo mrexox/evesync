@@ -7,6 +7,7 @@ TAGS
 # Ignoring .so and .o files
 *.so
 *.o
+*.log
 
 # Ignoring ruby temporary files
 *.gem
