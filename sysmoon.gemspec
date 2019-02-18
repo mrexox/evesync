@@ -2,17 +2,17 @@ require 'rake' # for FileList
 
 Gem::Specification.new do |s|
 
-  s.name = %q{sysmoon}
+  s.name = %q(sysmoon)
 
-  s.version = "0.0.0"
+  s.version = %q(0.0.0)
 
-  s.license = 'BSD 2-Clause'
+  s.license = %q(BSD-2-Clause)
 
-  s.date = %q{2019-02-12}
+  s.date = %q(2019-02-12)
 
-  s.summary = %q{Sys changes monitor}
+  s.summary = %q(Sys changes monitor)
 
-  s.authors = "Kiselev Valentine"
+  s.authors = %q(Kiselev Valentine)
 
   s.files = FileList[
     'doc/*',
@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
     'lib/**/*.rb'
   ]
 
-  s.executables << 'sysmoond'
+  s.executables.append('sysmoond', 'sysdatad')
 
   s.require_paths = %w[lib src]
 

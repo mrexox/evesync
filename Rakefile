@@ -9,9 +9,7 @@ GEMFILE = "sysmoon-#{VERSION}.gem".freeze
 task default: %i[lint install clean]
 
 task :lint do
-  if find_executable 'rubocop' then
-    sh "rubocop -l"
-  end
+  if find_executable 'rubocop' then sh 'rubocop -l' end
 end
 
 task install: [:build] do

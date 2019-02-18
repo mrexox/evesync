@@ -35,23 +35,23 @@ class Rpm
       info = line.split
       snapshot[info[0]] = info[1]
     end
-    return snapshot
+
+    snapshot
   end
 
   # Parses changes, given by 'hashdiff' gem into Package array
   def parse_pkg_diff(diffs)
     packages = []
     diffs.each do |diff|
-      case diff[0]
-      when '-'
-        packages.push(removed_package(diff))
-      when '+'
-        packages.push(installed_package(diff))
-      when '~'
-        packages.push(updated_package(diff))
-      end
+      package = case diff[0]
+                when '-' then removed_package(diff)
+                when '+' then installed_package(diff)
+                when '~' then updated_package(diff)
+                end
+      packages.push(package)
     end
-    return packages
+
+    packages
   end
 
   def removed_package(diff)
@@ -71,10 +71,10 @@ class Rpm
   end
 
   def updated_package(diff)
-    if pkg_version_less(diff[2], diff[3])
-      command = Package::Command::UPDATE
+    command = if pkg_version_less(diff[2], diff[3])
+      Package::Command::UPDATE
     else
-      command = Package::Command::DOWNGRADE
+      Package::Command::DOWNGRADE
     end
 
     Package.new(

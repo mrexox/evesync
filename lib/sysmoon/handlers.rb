@@ -12,6 +12,7 @@ class PackageHandler
   def run
     loop do
       package = @queue.pop
+      # TODO: send updates to sysdatad
       puts "Value #{package.name}-#{package.version}"
     end
   end

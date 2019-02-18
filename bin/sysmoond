@@ -5,7 +5,7 @@ require 'sysmoon/distro'
 require 'sysmoon/handlers'
 
 # TODO: puts -> logging
-puts "sysmoond starting!"
+puts 'sysmoond starting!'
 
 pkg_que = Queue.new
 
@@ -15,17 +15,17 @@ threads << Thread.new { PackageWatcher.new(pkg_que).run }
 
 threads << Thread.new { PackageHandler.new(pkg_que).run }
 
-puts "sysmoond started!"
+puts 'sysmoond started!'
 
-Signal.trap("TERM") do
-  puts "sysmoond killed..."
-  threads.each { |thr| thr.exit }
+Signal.trap('TERM') do
+  puts 'sysmoond killed...'
+  threads.each(&:exit)
   exit(0)
 end
 
-Signal.trap("SIGINT") do
-  puts "sysmoond interrupted..."
-  threads.each { |thr| thr.exit }
+Signal.trap('SIGINT') do
+  puts 'sysmoond interrupted...'
+  threads.each(&:exit)
   exit(1)
 end
 

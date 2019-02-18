@@ -2,7 +2,6 @@
 require_relative './rpm'
 
 class RhelPackageWatcher
-
   def initialize(queue)
     @queue = queue
     @rpm_packages = Rpm.new

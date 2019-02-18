@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# -*- mode: ruby -*-
+
+require 'sysmoon/distro'
+
+# Start a daemon
+# Connect to MQ (ZeroMQ, RabbitMQ, ... ?)
+# Handle accepted updates
+# TODO: add logging
+#
+# ...
+# Package update:
+#   PackageManager::install(p.name, p.version)

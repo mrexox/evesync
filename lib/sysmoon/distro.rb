@@ -1,6 +1,6 @@
 # FIXME: rewrite for more beautiful code
 
-text = File.new("/etc/os-release").read
+text = File.new('/etc/os-release').read
 
 if text =~ /^ID.*(rhel|centos|fedora)/
   require 'sysmoon/distro/rhel'

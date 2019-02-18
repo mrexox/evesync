@@ -1,3 +1,5 @@
-require_relative './arch/package.rb'
+require_relative './arch/package_watcher.rb'
+require_relative './arch/package_manager.rb'
 
 PackageWatcher = ArchPackageWatcher
+PackageManager = ArchPackageManager

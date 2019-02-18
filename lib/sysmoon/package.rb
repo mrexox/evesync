@@ -12,25 +12,25 @@ class Package
   def initialize(params)
     @name = params[:name].freeze
     @version = params[:version].freeze
-    @command = parse_command(params[:command])
+    @command = parse_command(params[:command]).freeze
   end
 
   private
 
   def parse_command(command)
-    case command
-    when /^inst\w+$/
-      command = Command::INSTALL
-    when /^(remove\w*|delete\w*)$/
-      command = Command::REMOVE
-    when /^(update\w*|upgrade\w*)$/
-      command = Command::UPDATE
-    when /^downgrade\w*$/
-      command = Command::DOWNGRADE
-    else
-      command = Command::UNKNOWN
-    end
+    cmd = case command
+          when /^inst\w+$/
+            Command::INSTALL
+          when /^(remove\w*|delete\w*)$/
+            Command::REMOVE
+          when /^(update\w*|upgrade\w*)$/
+            Command::UPDATE
+          when /^downgrade\w*$/
+            Command::DOWNGRADE
+          else
+            Command::UNKNOWN
+          end
 
-    return command.to_s.freeze
+    cmd.to_s
   end
 end
