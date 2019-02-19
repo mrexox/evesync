@@ -1,5 +1,6 @@
 # TODO: add logging
 require_relative './rpm'
+require 'sysmoon/log'
 
 class RhelPackageWatcher
   def initialize(queue)
@@ -12,6 +13,7 @@ class RhelPackageWatcher
       sleep 10 # FIXME: don't use magic numbers
       @rpm_packages.changes.each do |pkg|
         @queue << pkg
+        Log.debug pkg
       end
     end
   end

@@ -15,6 +15,10 @@ class Package
     @command = parse_command(params[:command]).freeze
   end
 
+  def to_s
+    "Package(#{@command.upcase}: #{name}-#{@version})"
+  end
+
   private
 
   def parse_command(command)
@@ -33,4 +37,5 @@ class Package
 
     cmd.to_s
   end
+
 end

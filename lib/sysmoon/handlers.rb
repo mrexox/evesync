@@ -1,3 +1,5 @@
+require 'sysmoon/log'
+
 ##
 # Handles package changes, sent via Package class and queue
 #
@@ -13,7 +15,7 @@ class PackageHandler
     loop do
       package = @queue.pop
       # TODO: send updates to sysdatad
-      puts "Value #{package.name}-#{package.version}"
+      Log.info "Package Handler: #{package}"
     end
   end
 end

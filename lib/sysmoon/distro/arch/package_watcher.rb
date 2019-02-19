@@ -31,12 +31,13 @@ class ArchPackageWatcher
       log.tail do |line|
         m = line.match(PKG_REGEXP)
         if m
-
-          @queue << Package.new(
+          pkg = Package.new(
             name: m[:package],
             version: m[:version],
             command: m[:command]
           )
+          @queue << pkg
+          Log.debug pkg
         end
       end
     end

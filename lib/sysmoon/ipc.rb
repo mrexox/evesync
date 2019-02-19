@@ -1,5 +1,3 @@
-require 'cod'
-
 ##
 # IPC for sysmoon (that can be changed in future)
 # Using socket-based approach
@@ -12,6 +10,7 @@ module IPC
     else
       raise RuntimeError.new(
               "Unexpected param params[:side]=#{params[:side]}")
+    end
   end
 end
 
