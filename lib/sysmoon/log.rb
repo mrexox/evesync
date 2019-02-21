@@ -2,29 +2,17 @@ require 'logger'
 
 # This module is responsible for logging
 module Log
-  def self.debug(*args)
-    check_logger
-    @logger.debug(to_string(*args))
-  end
+  # Supported levels for logging
+  LEVELS = [:debug, :info, :warn, :error, :fatal]
 
-  def self.info(*args)
-    check_logger
-    @logger.info(to_string(*args))
-  end
+  def self.method_missing(m, *args)
+    # You cannot setup logger from anywhere
+    until LEVELS.include?(m)
+      raise NoMethodError
+    end
 
-  def self.warn(*args)
     check_logger
-    @logger.warn(to_string(*args))
-  end
-
-  def self.error(*args)
-    check_logger
-    @logger.error(to_string(*args))
-  end
-
-  def self.fatal(*args)
-    check_logger
-    @logger.fatal(to_string(*args))
+    @logger.send(m, to_string(*args))
   end
 
   def self.check_logger

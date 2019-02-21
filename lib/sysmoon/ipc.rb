@@ -2,16 +2,21 @@
 # IPC for sysmoon (that can be changed in future)
 # Using socket-based approach
 # TCP sockets are the default
-module IPC
-  def new(params)
+class IPC
+  def initialize(params)
     case params[:side]
-    when :client then IPC::Client.new(params)
-    when :server then IPC::Server.new(params)
+    when :client then @socket = IPC::Client.new(params)
+    when :server then @socket = IPC::Server.new(params)
     else
       raise RuntimeError.new(
               "Unexpected param params[:side]=#{params[:side]}")
     end
   end
+
+  def method_missing(method, *args, &block)
+    @socket.send(method, *args, &block)
+  end
+
 end
 
 class IPC::Client
@@ -21,9 +26,9 @@ class IPC::Client
 
   # A blocking method for Client side
   # If client, returns an answer (blocking)
-  # If server, ereturns FIXME: nothing? (blocking?)
+  # If server, returns FIXME: nothing? (blocking?)
   # Accepts a block. If given executes it with data recieved
-  def send(data)
+  def pass(data)
   end
 end
 
@@ -40,5 +45,4 @@ class IPC::Server
   #   end
   def recv(&block)
   end
-
 end
