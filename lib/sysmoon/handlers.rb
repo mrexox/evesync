@@ -6,26 +6,37 @@ require 'sysmoon/ipc'
 #
 # Initialized with queue. Usage:
 #  Thread.new { PackageHandler.new(queue).run }
-class PackageHandler
+class MessageHandler
 
   def initialize(queue)
     @queue = queue
-    @ipc = IPC.new(
+    @ipc_datad = IPC.new(
       side: :client,
-      host: :localhost,
-      port: 5432, # FIXME: read from config
+      connect_to: :datad,
+      protocol: :tcp
+    )
+
+    @ipc_remotes = IPC.new(
+      side: :client,
+      connect_to: :remotes,
       protocol: :tcp
     )
   end
 
   def run
     loop do
-      package = @queue.pop
+      message = @queue.pop
       # TODO: check if package was really updated (removed or has this version)
-      Log.info "Package Handler: #{package}"
+      Log.info "#{self.class.name}: #{message}"
 
-      @ipc.pass(package) do |response, chan|
-        # TODO: send updates to sysdatad
+      @ipc_datad.deliver(message) do |response|
+        if response
+          @ipc_remotes.deliver(message) do |response|
+            Log.info("Remote response:", response)
+          end
+        else
+          Log.fatal("Error with data daemon: no response")
+        end
       end
     end
   end

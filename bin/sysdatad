@@ -1,13 +1,22 @@
 #!/usr/bin/env ruby
 # -*- mode: ruby -*-
 
-require 'sysmoon/distro'
+require 'sysmoon/ipc'
+require 'sysmoon/log'
 
-# Start a daemon
-# Connect to MQ (ZeroMQ, RabbitMQ, ... ?)
-# Handle accepted updates
-# TODO: add logging
-#
-# ...
-# Package update:
-#   PackageManager::install(p.name, p.version)
+# Creating an IPC server to accept data
+server = IPC.new(
+  side: :server,
+  port: :datad,
+  procotol: :tcp
+)
+
+server.on_recieve do |message|
+  Log.info("sysdatad: #{message}")
+  # ... put into database
+end
+
+loop do
+  sleep 3600 # FIXME: 1 hour, rewrite better
+  # zip db if needed, save backup
+end

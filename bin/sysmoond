@@ -8,13 +8,13 @@ require 'sysmoon/log'
 # TODO: puts -> logging
 Log.info 'sysmoond starting!'
 
-pkg_que = Queue.new
+queue = Queue.new
 
 threads = []
 
-threads << Thread.new { PackageWatcher.new(pkg_que).run }
+threads << Thread.new(queue) { |q| MessageHandler.new(q).run }
 
-threads << Thread.new { PackageHandler.new(pkg_que).run }
+threads << Thread.new(queue) { |q| PackageWatcher.new(q).run }
 
 Log.info 'sysmoond started!'
 
@@ -27,7 +27,7 @@ end
 Signal.trap('SIGINT') do
   Log.warn 'sysmoond interrupted...'
   threads.each(&:exit)
-  exit(1)
+  exit(0)
 end
 
 loop do
