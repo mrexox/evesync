@@ -125,4 +125,8 @@ class IPC::Server
       end
     end
   end
+
+  def stop
+    @socket.close
+  end
 end

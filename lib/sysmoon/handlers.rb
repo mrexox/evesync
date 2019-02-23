@@ -1,5 +1,6 @@
 require 'sysmoon/log'
 require 'sysmoon/ipc'
+require 'sysmoon/ipc_data'
 require 'sysmoon/handlers/file'
 require 'sysmoon/handlers/package'
 
@@ -8,7 +9,7 @@ require 'sysmoon/handlers/package'
 #
 # Initialized with queue. Usage:
 #  Thread.new { PackageHandler.new(queue).run }
-class Sysmoon::MessageHandler
+class LocalMessageHandler
 
   def initialize(queue)
     @queue = queue
@@ -26,9 +27,10 @@ class Sysmoon::MessageHandler
       # TODO: check if package was really updated (removed or has this version)
       Log.info "#{self.class.name}: #{message}"
 
-      json_message = Data::to_json(message)
+      # FIXME: handle bad messages exceptions
+      ipc_message = IPCData::pack(message)
 
-      @ipc_datad.deliver(json_message) do |response|
+      @ipc_datad.deliver(ipc_message) do |response|
         if response
           Log.info("Remote response:", response)
         else
@@ -41,16 +43,17 @@ class Sysmoon::MessageHandler
 end
 
 # Handles new events, packages and file updates
-class Syshand::MessageHandler
+class RemoteMessageHandler
   def initialize
     # init package handler
-    @package_handler = Syshand::PackageHandler
+    @package_handler = RemotePackageHandler.new
     # init file handler
-    @file_handler = Syshand::FileHandler
+    @file_handler = RemoteFileHandler.new
   end
 
   def handle(message)
     Log.info "#{self.class.name}: #{message}"
+    # TODO:
     # find out what type of message it is
     # maybe: preformat message
     # delegate message to handler

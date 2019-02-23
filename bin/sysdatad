@@ -13,7 +13,7 @@ data_server = IPC.new(
   protocol: :tcp
 )
 
-datad_server.on_recieve do |message, client|
+data_server.on_recieve do |message, client|
   Log.debug("Accepted message: #{message}")
   # ... put into database
   client.puts('ok')
@@ -23,6 +23,7 @@ thr = data_server.start
 
 Signal.trap('TERM') do
   thr.exit
+  data_server.stop
   exit(0)
 end
 
@@ -36,5 +37,6 @@ begin
 rescue SignalException => e
   Log.warn("Signal got: #{e.signm}(#{signo})")
   thr.exit
+  data_server.stop
   exit(0)
 end

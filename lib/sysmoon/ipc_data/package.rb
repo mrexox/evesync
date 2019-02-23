@@ -1,4 +1,6 @@
-class Data::Package
+require 'json'
+
+class Package
   module Command
     INSTALL   = :install
     UPDATE    = :update
@@ -17,6 +19,30 @@ class Data::Package
 
   def to_s
     "Package(#{@command.upcase}: #{name}-#{@version})"
+  end
+
+  def to_hash
+    hash = {}
+    self.instance_variables.each do |var|
+      hash[var] = self.instance_variable_get var
+    end
+
+    hash
+  end
+
+  def to_json
+    to_hash.to_json
+  end
+
+  def self.from_hash(hash)
+    params = {}
+    hash.each do |key, value|
+      if key =~ /^@/
+        params[key.sub('@','')] = value
+      end
+    end
+
+    self.new(params)
   end
 
   private

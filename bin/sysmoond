@@ -12,7 +12,7 @@ queue = Queue.new
 threads = []
 
 threads << Thread.new(queue) { |q|
-  Sysmoon::MessageHandler.new(q).run
+  LocalMessageHandler.new(q).run
 }
 
 threads << Thread.new(queue) { |q|
