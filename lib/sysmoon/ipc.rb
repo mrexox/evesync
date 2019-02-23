@@ -36,20 +36,19 @@ class IPC::Client
 
     case params[:connect_to]
     when :datad
-      ip = 'localhost'
-      port = 54321  # FIXME: read from config
+      @ip = 'localhost'
+      @port = 54321  # FIXME: read from config
     else
       m = IP_regex.match(params[:connect_to])
       unless m
         raise RuntimeError.new("param :connect_to format is not ip:port")
       end
-      ip = m[:ip]
-      port = m[:port]
+      @ip = m[:ip]
+      @port = m[:port]
     end
 
     # TODO: using this var change connections and deliver methods
     @protocol = params[:protocol]
-    @socket = TCPSocket.new(ip, port)
   end
 
 
@@ -58,18 +57,29 @@ class IPC::Client
   # If server, returns FIXME: nothing? (blocking?)
   # Accepts a block. If given executes it with data recieved
   def deliver(data)
-    @socket.write(data.to_s)
+    socket = TCPSocket.new(@ip, @port)
+    socket.puts(data.to_s)
+    recieved = socket.gets.chomp
+    socket.close
+    if block_given?
+      yield recieved
+    end
+
+
+    recieved
   end
 end
 
 class IPC::Server
   def initialize(params)
-
     case params[:port]
     when :datad
       port = '54321' # FIXME: read from config
     else
-      # parse port or sent error
+      if port !~ /^\d{1,5}$/
+        raise RuntimeError.new("param: port is not 5 digit")
+      end
+      port = params[:port]
     end
 
     # TODO: using this var change connections and deliver methods
@@ -80,10 +90,28 @@ class IPC::Server
   # A blocking method for Server side
   # Recieves a message from the client and executes a block
   # Example:
-  #   ipc.recv do |data, channel|
+  #   ipc.on_recieve do |data, channel|
   #     puts data
   #     channel.put 'ok'
   #   end
+  #   thr = ipc.start
+  #   thr.join
   def on_recieve(&block)
+    @block = block
+  end
+
+  def start
+    Thread.new do
+      loop do
+        client = @socket.accept
+        Log.debug('Accepted request. Started handle thread.')
+        Thread.new(client, @block) { |cl, block|
+          message = cl.gets.chomp
+          block.call(message, client)
+          cl.close
+        }.join
+        Log.debug('Done with handle thread.')
+      end
+    end
   end
 end

@@ -15,12 +15,6 @@ class MessageHandler
       connect_to: :datad,
       protocol: :tcp
     )
-
-    @ipc_remotes = IPC.new(
-      side: :client,
-      connect_to: :remotes,
-      protocol: :tcp
-    )
   end
 
   def run
@@ -31,9 +25,7 @@ class MessageHandler
 
       @ipc_datad.deliver(message) do |response|
         if response
-          @ipc_remotes.deliver(message) do |response|
-            Log.info("Remote response:", response)
-          end
+          Log.info("Remote response:", response)
         else
           Log.fatal("Error with data daemon: no response")
         end
