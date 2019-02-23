@@ -1,4 +1,4 @@
-class Package
+class Data::Package
   module Command
     INSTALL   = :install
     UPDATE    = :update

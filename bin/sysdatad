@@ -7,35 +7,34 @@ require 'sysmoon/log'
 Log.info("starting sysdatad...")
 
 # Creating an IPC server to accept data
-server = IPC.new(
+data_server = IPC.new(
   side: :server,
   port: :datad,
   protocol: :tcp
 )
 
-server.on_recieve do |message, client|
+datad_server.on_recieve do |message, client|
   Log.debug("Accepted message: #{message}")
   # ... put into database
   client.puts('ok')
 end
 
-thr = server.start
+thr = data_server.start
 
 Signal.trap('TERM') do
-#  Log.warn 'sysdatad killed...'
   thr.exit
   exit(0)
 end
-
-Signal.trap('SIGINT') do
-#  Log.warn 'sysdatad interrupted...'
-  thr.exit
-  exit(0)
-end
-
 
 Log.info("sysdatad started!")
-loop do
-  sleep 3600 # FIXME: 1 hour, rewrite better
-  # zip db if needed, save backup
+
+begin
+  loop do
+    sleep 3600 # FIXME: 1 hour, rewrite better
+    # zip db if needed, save backup
+  end
+rescue SignalException => e
+  Log.warn("Signal got: #{e.signm}(#{signo})")
+  thr.exit
+  exit(0)
 end

@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+# -*- mode: ruby -*-
+
+require 'sysmoon/log'
+require 'sysmoon/ipc'
+require 'sysmoon/handlers'
+
+Log.info('syshand starting...')
+
+handler_server = IPC.new(
+  side: :server,
+  port: :hand,
+  protocol: :tcp
+)
+
+handler = Sysmoon::MessageHandler.new
+
+handler_server.on_recieve do |message, client|
+  Log.debug "Message recieved: #{message}"
+  ans = handler.handle(message)
+  client.puts(ans)
+  Log.debug 'Message handled'
+end
+
+handler_server.start
+
+Log.info('syshand started!')
+loop do
+  sleep 3600 # FIXME: 1 hour, rewrite better
+  # FIXME: know what to do
+end

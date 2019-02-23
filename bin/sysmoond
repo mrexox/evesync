@@ -5,31 +5,33 @@ require 'sysmoon/distro'
 require 'sysmoon/handlers'
 require 'sysmoon/log'
 
-# TODO: puts -> logging
-Log.info 'sysmoond starting!'
+Log.info 'sysmoond starting...'
 
 queue = Queue.new
 
 threads = []
 
-threads << Thread.new(queue) { |q| MessageHandler.new(q).run }
+threads << Thread.new(queue) { |q|
+  Sysmoon::MessageHandler.new(q).run
+}
 
-threads << Thread.new(queue) { |q| PackageWatcher.new(q).run }
+threads << Thread.new(queue) { |q|
+  PackageWatcher.new(q).run
+}
 
 Log.info 'sysmoond started!'
 
-Signal.trap('TERM') do
-  Log.warn 'sysmoond killed...'
-  threads.each(&:exit)
-  exit(0)
-end
-
 Signal.trap('SIGINT') do
-  Log.warn 'sysmoond interrupted...'
   threads.each(&:exit)
   exit(0)
 end
 
-loop do
-  sleep 100
+begin
+  loop do
+    sleep 100
+  end
+rescue SignalException => e
+  Log.warn("Signal got: #{e.signm}(#{signo})")
+  threads.each(&:exit)
+  exit(0)
 end

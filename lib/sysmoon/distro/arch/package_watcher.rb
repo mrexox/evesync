@@ -1,5 +1,5 @@
 require 'file-tail'
-require 'sysmoon/package'
+require 'sysmoon/data/package'
 
 ##
 # Watcher for package changes for Arch Linux
@@ -31,7 +31,7 @@ class ArchPackageWatcher
       log.tail do |line|
         m = line.match(PKG_REGEXP)
         if m
-          pkg = Package.new(
+          pkg = Data::Package.new(
             name: m[:package],
             version: m[:version],
             command: m[:command]

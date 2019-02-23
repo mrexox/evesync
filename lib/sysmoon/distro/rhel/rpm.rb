@@ -1,5 +1,5 @@
 require 'hashdiff'
-require 'sysmoon/package'
+require 'sysmoon/data/package'
 
 # Rpm packages changes watcher.
 # Yum history makes it difficult to handler package removals.
@@ -55,29 +55,29 @@ class Rpm
   end
 
   def removed_package(diff)
-    Package.new(
+    Data::Package.new(
       name: diff[1],
       version: diff[2],
-      command: Package::Command::REMOVE
+      command: Data::Package::Command::REMOVE
     )
   end
 
   def installed_package(diff)
-    Package.new(
+    Data::Package.new(
       name: diff[1],
       version: diff[2],
-      command: Package::Command::INSTALL
+      command: Data::Package::Command::INSTALL
     )
   end
 
   def updated_package(diff)
     command = if pkg_version_less(diff[2], diff[3])
-      Package::Command::UPDATE
+      Data::Package::Command::UPDATE
     else
-      Package::Command::DOWNGRADE
+      Data::Package::Command::DOWNGRADE
     end
 
-    Package.new(
+    Data::Package.new(
       name: diff[1],
       version: diff[3],
       command: command

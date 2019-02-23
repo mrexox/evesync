@@ -1,0 +1,12 @@
+#!/bin/bash
+trap 'echo Exiting; \
+	pkill sysdatad; \
+	pkill sysmoon; \
+	pkill syshand; \
+	exit 1' 2
+sysdatad &
+sysmoond &
+syshand &
+while true; do
+	sleep 100
+done

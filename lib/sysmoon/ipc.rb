@@ -1,4 +1,5 @@
 require 'socket'
+require 'sysmoon/constants'
 
 ##
 # IPC for sysmoon (that can be changed in future)
@@ -37,7 +38,10 @@ class IPC::Client
     case params[:connect_to]
     when :datad
       @ip = 'localhost'
-      @port = 54321  # FIXME: read from config
+      @port = SYSDATAD_PORT  # FIXME: read from config
+    when :hand
+      @ip = nil
+      @port = SYSHAND_PORT
     else
       m = IP_regex.match(params[:connect_to])
       unless m
@@ -56,15 +60,20 @@ class IPC::Client
   # If client, returns an answer (blocking)
   # If server, returns FIXME: nothing? (blocking?)
   # Accepts a block. If given executes it with data recieved
-  def deliver(data)
-    socket = TCPSocket.new(@ip, @port)
+  def deliver(data, ip: @ip)
+    unless ip
+      Log.debug("Given empty ip: #{ip}")
+      return
+    end
+
+    socket = TCPSocket.new(ip, @port)
     socket.puts(data.to_s)
     recieved = socket.gets.chomp
     socket.close
+
     if block_given?
       yield recieved
     end
-
 
     recieved
   end
@@ -74,7 +83,9 @@ class IPC::Server
   def initialize(params)
     case params[:port]
     when :datad
-      port = '54321' # FIXME: read from config
+      port = SYSDATAD_PORT # FIXME: read from config
+    when :hand
+      port = SYSHAND_PORT
     else
       if port !~ /^\d{1,5}$/
         raise RuntimeError.new("param: port is not 5 digit")
