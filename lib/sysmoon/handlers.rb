@@ -1,3 +1,4 @@
+require 'sysmoon/constants'
 require 'sysmoon/log'
 require 'sysmoon/ipc'
 require 'sysmoon/ipc_data'
@@ -8,7 +9,12 @@ require 'sysmoon/handlers/package'
 # Handles package changes, sent via Package class and queue
 #
 # Initialized with queue. Usage:
-#  Thread.new { PackageHandler.new(queue).run }
+#  Thread.new { LocalMessageHandler.new(queue).run }
+#
+# Sends messages to sysdatad and available syshands
+# TODO: Make anoter daemon\Thread to search for available
+# TODO: syshands daemons
+
 class LocalMessageHandler
 
   def initialize(queue)
@@ -23,18 +29,21 @@ class LocalMessageHandler
     @ipc_hand = IPC.new(
       side: :client,
       connect_to: :hand,
-      ip: 'localhost',
+      ip: IPC_HAND_IP,
       protocol: :tcp
     )
   end
 
+  ##
+  # TODO: check if package was really updated (removed or has this version)
+  # TODO: add reconnecting to sysdatad after timeout
+  # Main loop that handles messages from queue
+  # Delivers them to sysdatad and syshands
+
   def run
     loop do
       message = @queue.pop
-      # TODO: check if package was really updated (removed or has this version)
       Log.info "#{self.class.name}: #{message}"
-
-      # FIXME: handle bad messages exceptions
 
       @ipc_datad.deliver(message) do |response|
         if response
@@ -42,25 +51,28 @@ class LocalMessageHandler
           @ipc_hand.deliver(message)
         else
           Log.fatal("Error with data daemon: no response")
-          # TODO: add reconnecting after timeout
         end
       end
     end
   end
 end
 
-# Handles new events, packages and file updates
+##
+# Remote Message Handler for syshand daemon
+# Handlers available:
+#  - package updates
+#  - file updates
+# The code for updating is in particular classes
+
 class RemoteMessageHandler
   def initialize
-    # init package handler
     @package_handler = RemotePackageHandler.new
-    # init file handler
-    @file_handler = RemoteFileHandler.new
+    @file_handler    = RemoteFileHandler.new
   end
 
   def handle(message)
     Log.info "#{self.class.name}: #{message}"
-    # TODO:
+
     if message.is_a? Package
       Log.debug('Package handler')
       @package_handler.handle(message)
@@ -71,8 +83,5 @@ class RemoteMessageHandler
       Log.debug('Unknown handler')
       # TODO: delegate to another daemon
     end
-    # find out what type of message it is
-    # maybe: preformat message
-    # delegate message to handler
   end
 end

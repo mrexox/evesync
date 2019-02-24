@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.authors = %q(Kiselev Valentine)
 
   s.files = FileList[
-    'doc/*',
+    'doc/**/*',
     'bin/*',
     'LICENSE',
     'Rakefile',

@@ -6,6 +6,7 @@ require 'sysmoon/ipc_data'
 # IPC for sysmoon (that can be changed in future)
 # Using socket-based approach
 # TCP sockets are the default
+
 class IPC
   def initialize(params)
     # Checking params

@@ -14,3 +14,4 @@ TAGS
 ext/inotify/Makefile
 tmp/
 doc/
+.yardoc

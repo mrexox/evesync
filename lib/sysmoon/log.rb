@@ -25,11 +25,12 @@ module Log
     @logger.formatter = proc do |severity, datetime, _progname, msg|
       date_format = datetime.strftime("%Y-%m-%d %H:%M:%S")
       progname = File.basename($0)
-      "[#{date_format}] #{progname} #{severity.ljust(5)}: #{msg}\n"
+      "[#{date_format}] #{progname.ljust(8)} #{severity.ljust(5)}: #{msg}\n"
     end
   end
 
   def self.to_string(*args)
-    args.map(&:to_s).reduce(&:+)
+    to_s_with_space = lambda {|s| s.to_s + ' '}
+    args.map(to_s_with_space).reduce(&:+).strip
   end
 end
