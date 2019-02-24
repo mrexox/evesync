@@ -2,5 +2,7 @@
 require_relative './rhel/package_watcher.rb'
 require_relative './rhel/package_manager.rb'
 
-PackageWatcher = RhelPackageWatcher
-PackageManager = RhelPackageManager
+module Sysmoon
+  PackageWatcher = RhelPackageWatcher
+  PackageManager = RhelPackageManager
+end

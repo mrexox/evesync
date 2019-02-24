@@ -14,7 +14,7 @@ end
 
 task :rdoc do
   sh 'rdoc --ri'
-  sh 'yard doc'
+  sh 'rdoc'
 end
 
 task install: [:build] do

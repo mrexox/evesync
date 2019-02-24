@@ -3,17 +3,17 @@
 
 require 'sysmoon/log'
 require 'sysmoon/ipc'
-require 'sysmoon/handlers'
+require 'sysmoon/handler'
 
-Log.info('syshand starting...')
+Sysmoon::Log.info('syshand starting...')
 
-handler_server = IPC.new(
+handler_server = Sysmoon::IPC.new(
   side: :server,
   port: :hand,
   protocol: :tcp
 )
 
-handler = RemoteMessageHandler.new
+handler = Sysmoon::Handler::Remote.new
 
 handler_server.on_recieve do |message, client|
   Log.debug "Message recieved: #{message}"
@@ -30,7 +30,7 @@ Signal.trap('TERM') do
   exit(0)
 end
 
-Log.info('syshand started!')
+Sysmoon::Log.info('syshand started!')
 
 begin
   loop do
@@ -38,7 +38,7 @@ begin
     # FIXME: know what to do
   end
 rescue SignalException => e
-  Log.warn("Signal got: #{e.signm}(#{signo})")
+  Sysmoon::Log.warn("Signal got: #{e.signm}(#{signo})")
   thr.exit
   handler_server.stop
   exit(0)
