@@ -32,11 +32,14 @@ module IPCData
     begin
       cl = Object.const_get hash['type']
     rescue NameError => e
+      # FIXME: just sent JSON, this event will be delegated
+      # to another daemon (maybe) with fields:
+      # redirect_to_port: <port number>
       Log.fatal("Unsupported type #{hash['type']}")
       raise e
     end
 
-    unless cl.respont_to? :from_hash
+    unless cl.respond_to? :from_hash
       err_msg = "Class #{cl} must implement `self.from_hash'"
       Log.fatal(err_msg)
       raise RuntimeError.new(err_msg)

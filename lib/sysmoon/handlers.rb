@@ -19,6 +19,13 @@ class LocalMessageHandler
       connect_to: :datad,
       protocol: :tcp
     )
+
+    @ipc_hand = IPC.new(
+      side: :client,
+      connect_to: :hand,
+      ip: 'localhost',
+      protocol: :tcp
+    )
   end
 
   def run
@@ -28,11 +35,11 @@ class LocalMessageHandler
       Log.info "#{self.class.name}: #{message}"
 
       # FIXME: handle bad messages exceptions
-      ipc_message = IPCData::pack(message)
 
-      @ipc_datad.deliver(ipc_message) do |response|
+      @ipc_datad.deliver(message) do |response|
         if response
           Log.info("Remote response:", response)
+          @ipc_hand.deliver(message)
         else
           Log.fatal("Error with data daemon: no response")
           # TODO: add reconnecting after timeout
@@ -54,6 +61,16 @@ class RemoteMessageHandler
   def handle(message)
     Log.info "#{self.class.name}: #{message}"
     # TODO:
+    if message.is_a? Package
+      Log.debug('Package handler')
+      @package_handler.handle(message)
+    elsif message.is_a? File
+      Log.debug('File handler')
+      @file_handler.handle(message)
+    else
+      Log.debug('Unknown handler')
+      # TODO: delegate to another daemon
+    end
     # find out what type of message it is
     # maybe: preformat message
     # delegate message to handler

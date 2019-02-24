@@ -1,5 +1,6 @@
 require 'socket'
 require 'sysmoon/constants'
+require 'sysmoon/ipc_data'
 
 ##
 # IPC for sysmoon (that can be changed in future)
@@ -40,7 +41,7 @@ class IPC::Client
       @ip = 'localhost'
       @port = SYSDATAD_PORT  # FIXME: read from config
     when :hand
-      @ip = nil
+      @ip = params[:ip] || 'localhost'
       @port = SYSHAND_PORT
     else
       m = IP_regex.match(params[:connect_to])
@@ -67,8 +68,11 @@ class IPC::Client
     end
 
     socket = TCPSocket.new(ip, @port)
-    socket.puts(data.to_s)
+
+    socket.puts(IPCData::pack(data))
+
     recieved = socket.gets.chomp
+
     socket.close
 
     if block_given?
@@ -118,7 +122,9 @@ class IPC::Server
         Log.debug('Accepted request. Started handle thread.')
         Thread.new(client, @block) { |cl, block|
           message = cl.gets.chomp
-          block.call(message, client)
+          unpacked_message = IPCData::unpack(message)
+          Log.debug("Unpacked: #{unpacked_message}")
+          block.call(unpacked_message, client)
           cl.close
         }.join
         Log.debug('Done with handle thread.')

@@ -38,7 +38,7 @@ class Package
     params = {}
     hash.each do |key, value|
       if key =~ /^@/
-        params[key.sub('@','')] = value
+        params[key.sub('@','').to_sym] = value
       end
     end
 

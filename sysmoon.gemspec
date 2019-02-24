@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
     'lib/**/*.rb'
   ]
 
-  s.executables.append('sysmoond', 'sysdatad', 'syshand')
+  s.executables = ['sysmoond', 'sysdatad', 'syshand']
 
   s.require_paths = %w[lib src]
 
