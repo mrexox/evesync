@@ -18,6 +18,8 @@ module Sysmoon
   module Handler
     class Local
 
+      attr_reader :thread
+
       def initialize(queue)
         @queue = queue
 
@@ -42,19 +44,23 @@ module Sysmoon
       # Delivers them to sysdatad and syshands
 
       def run
-        loop do
-          message = @queue.pop
-          Log.info "#{self.class.name}: #{message}"
+        @thread = Thread.new(@queue) do |queue|
+          loop {
+            message = queue.pop
+            Log.info "#{self.class.name}: #{message}"
 
-          @ipc_datad.deliver(message) do |response|
-            if response
-              Log.info("Remote response:", response)
-              @ipc_hand.deliver(message)
-            else
-              Log.fatal("Error with data daemon: no response")
+            @ipc_datad.deliver(message) do |response|
+              if response
+                Log.info("Remote response:", response)
+                @ipc_hand.deliver(message)
+              else
+                Log.fatal("Error with data daemon: no response")
+              end
             end
-          end
+          }
         end
+
+        @thread
       end
     end
 

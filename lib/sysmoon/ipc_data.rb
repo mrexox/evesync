@@ -12,7 +12,6 @@ module Sysmoon
       end
 
       hash = message.to_hash
-      hash['type'] = message.class.to_s
 
       hash.to_json
     end

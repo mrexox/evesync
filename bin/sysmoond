@@ -11,13 +11,23 @@ queue = Queue.new
 
 threads = []
 
-threads << Thread.new(queue) { |q|
-  Sysmoon::Handler::Local.new(q).run
-}
+# Creating subtasks
+pkg_watcher = Sysmoon::PackageWatcher.new(queue)
+local_handler = Sysmoon::Handler::Local.new(queue)
 
-threads << Thread.new(queue) { |q|
-  Sysmoon::PackageWatcher.new(q).run
-}
+# Starting in separated threads
+threads << local_handler.run
+threads << pkg_watcher.run
+
+moon_server = Sysmoon::IPC.new(
+  protocol: :tcp,
+  side: :server,
+  port: :moon
+)
+
+moon_server.on_recieve do |message, client|
+
+end
 
 Sysmoon::Log.info 'sysmoond started!'
 

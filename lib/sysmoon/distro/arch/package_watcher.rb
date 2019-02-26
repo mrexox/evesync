@@ -22,28 +22,37 @@ module Sysmoon
 
     private_constant :ARCH_LOG_FILE, :PKG_REGEXP
 
+    attr_reader :thread
+
     def initialize(queue)
       @queue = queue
+      @ignore = []
+      @thread = nil
     end
 
     def run
-      File.open(ARCH_LOG_FILE) do |log|
-        log.extend(File::Tail)
-        log.interval = 3
-        log.backward(1)
-        log.tail do |line|
-          m = line.match(PKG_REGEXP)
-          if m
-            pkg = Package.new(
-              name: m[:package],
-              version: m[:version],
-              command: m[:command]
-            )
-            @queue << pkg
-            Log.debug pkg
+      @thread = Thread.new(@ignore) do |ignore_packages|
+        File.open(ARCH_LOG_FILE) do |log|
+          log.extend(File::Tail)
+          log.interval = 3
+          log.backward(1)
+          log.tail do |line|
+            m = line.match(PKG_REGEXP)
+            ignore_packages.pop # TODO: write a check if that name and version are ignored
+            if m
+              pkg = Package.new(
+                name: m[:package],
+                version: m[:version],
+                command: m[:command]
+              )
+              @queue << pkg
+              Log.debug pkg
+            end
           end
         end
       end
+
+      @thread
     end
 
   end

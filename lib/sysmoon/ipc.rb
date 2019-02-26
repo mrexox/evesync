@@ -46,6 +46,9 @@ module Sysmoon
       when :hand
         @ip = params[:ip] || 'localhost'
         @port = SYSHAND_PORT
+      when :moon
+        @ip = params[:ip] || 'localhost'
+        @port = SYSMOOND_PORT
       else
         m = IP_regex.match(params[:connect_to])
         unless m
@@ -74,11 +77,12 @@ module Sysmoon
 
       socket.puts(IPCData::pack(data))
 
-      recieved = socket.gets.chomp
+      recieved = socket.gets
 
       socket.close
 
-      if block_given?
+      if block_given? and recieved
+        recieved.chomp!
         yield recieved
       end
 
@@ -93,6 +97,8 @@ module Sysmoon
         port = SYSDATAD_PORT # FIXME: read from config
       when :hand
         port = SYSHAND_PORT
+      when :moon
+        port = SYSMOOND_PORT
       else
         if port !~ /^\d{1,5}$/
           raise RuntimeError.new("param: port is not 5 digit")
@@ -119,17 +125,22 @@ module Sysmoon
     end
 
     def start
-      Thread.new do
+      Thread.new(@socket, @block) do |socket, block|
         loop do
-          client = @socket.accept
+          client = socket.accept
+
           Log.debug('Accepted request. Started handle thread.')
-          Thread.new(client, @block) { |cl, block|
-            message = cl.gets.chomp
+
+          Thread.new(client, block) { |cl, bl|
+            message = cl.gets
+            unless message then cl.close end
+            message.chomp!
             unpacked_message = IPCData::unpack(message)
             Log.debug("Unpacked: #{unpacked_message}")
-            block.call(unpacked_message, client)
+            bl.call(unpacked_message, client)
             cl.close
           }.join
+
           Log.debug('Done with handle thread.')
         end
       end

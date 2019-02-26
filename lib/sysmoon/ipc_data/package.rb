@@ -1,7 +1,11 @@
-require 'json'
+require 'sysmoon/ipc_data/hashable'
+require 'sysmoon/ipc_data/ignore'
 
 module Sysmoon
   class Package
+    include Hashable
+    extend Unhashable
+
     module Command
       INSTALL   = :install
       UPDATE    = :update
@@ -20,30 +24,6 @@ module Sysmoon
 
     def to_s
       "Package(#{@command.upcase}: #{name}-#{@version})"
-    end
-
-    def to_hash
-      hash = {}
-      self.instance_variables.each do |var|
-        hash[var] = self.instance_variable_get var
-      end
-
-      hash
-    end
-
-    def to_json
-      to_hash.to_json
-    end
-
-    def self.from_hash(hash)
-      params = {}
-      hash.each do |key, value|
-        if key =~ /^@/
-          params[key.sub('@','').to_sym] = value
-        end
-      end
-
-      self.new(params)
     end
 
     private

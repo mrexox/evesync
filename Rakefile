@@ -6,7 +6,7 @@ VERSION = '0.0.0'.freeze
 GEMSPEC = 'sysmoon.gemspec'.freeze
 GEMFILE = "sysmoon-#{VERSION}.gem".freeze
 
-task default: %i[lint rdoc install clean]
+task default: %i[lint install clean]
 
 task :lint do
   if find_executable 'rubocop' then sh 'rubocop -l' end
