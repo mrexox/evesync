@@ -1,5 +1,4 @@
 require 'sysmoon/ipc_data/hashable'
-require 'sysmoon/ipc_data/ignore'
 
 module Sysmoon
   class Package

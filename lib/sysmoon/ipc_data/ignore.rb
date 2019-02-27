@@ -5,6 +5,8 @@ module Sysmoon
     include Hashable
     extend Unhashable
 
+    attr_reader :subject
+
     def initialize(params)
       @subject = params[:subject]
     end
