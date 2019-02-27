@@ -29,12 +29,13 @@ module Sysmoon
       end
 
       begin
+        Log.debug("Accepted basic hash #{hash}")
         cl = Object.const_get hash['type']
       rescue NameError => e
         # FIXME: just sent JSON, this event will be delegated
         # to another daemon (maybe) with fields:
         # redirect_to_port: <port number>
-        Log.fatal("Unsupported type #{hash['type']}")
+        Log.fatal("Unsupported basic type #{hash['type']}")
         raise e
       end
 

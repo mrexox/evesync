@@ -46,7 +46,7 @@ module Sysmoon
       when :hand
         @ip = params[:ip] || 'localhost'
         @port = SYSHAND_PORT
-      when :moon
+      when :moond
         @ip = params[:ip] || 'localhost'
         @port = SYSMOOND_PORT
       else
@@ -77,6 +77,8 @@ module Sysmoon
 
       socket.puts(IPCData::pack(data))
 
+      Log.debug("Message sent to #{ip}:#{@port}")
+
       recieved = socket.gets
 
       socket.close
@@ -97,7 +99,7 @@ module Sysmoon
         port = SYSDATAD_PORT # FIXME: read from config
       when :hand
         port = SYSHAND_PORT
-      when :moon
+      when :moond
         port = SYSMOOND_PORT
       else
         if port !~ /^\d{1,5}$/

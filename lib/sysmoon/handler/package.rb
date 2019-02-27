@@ -4,6 +4,7 @@ require 'sysmoon/distro'
 module Sysmoon
   class RemotePackageHandler
     def handle(message)
+      Log.debug("Handeling #{message}")
       case message.command
       when /install/
         PackageManager::install(message.name, message.version)

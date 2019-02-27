@@ -1,3 +1,4 @@
+require 'sysmoon/log'
 require 'sysmoon/ipc_data/package'
 
 module Sysmoon
@@ -22,13 +23,14 @@ module Sysmoon
         end
         hash['type'] = self.class.to_s
       end
-
+      Log.debug("Hash created: #{hash}")
       hash
     end
   end
 
   module Unhashable
     def from_hash(hash)
+      Log.debug("Hash accepted: #{hash}")
       params = {}
       hash.each do |key, value|
         unless key =~ /^@/ then next end

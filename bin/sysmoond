@@ -5,6 +5,9 @@ require 'sysmoon/distro'
 require 'sysmoon/handler'
 require 'sysmoon/log'
 
+#FIXME: delete this require, move handling to class
+require 'sysmoon/ipc_data/ignore'
+
 Sysmoon::Log.info 'sysmoond starting...'
 
 queue = Queue.new
@@ -22,12 +25,19 @@ threads << pkg_watcher.run
 moon_server = Sysmoon::IPC.new(
   protocol: :tcp,
   side: :server,
-  port: :moon
+  port: :moond
 )
 
 moon_server.on_recieve do |message, client|
-
+  Sysmoon::Log.debug("Accepted: #{message}")
+  if message.is_a? Sysmoon::Ignore
+    pkg_watcher.ignore(message)
+  end
+  client.puts("ok")
 end
+
+# FIXME: connection is set up even when server is not started
+moon_server.start
 
 Sysmoon::Log.info 'sysmoond started!'
 
