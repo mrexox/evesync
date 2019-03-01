@@ -4,7 +4,6 @@ require 'sysmoon/ipc/ipc'
 
 module Sysmoon
   module IPC
-    $SAFE = 1 # 'no eval' rule
 
     # = Synopsis
     #
@@ -33,6 +32,7 @@ module Sysmoon
     # * Handle blocks
     #
     class Server
+      include IPC
       def initialize(params)
         check_params_provided(params, [:port, :proxy])
         port = get_port params
@@ -42,10 +42,12 @@ module Sysmoon
 
       def start
         DRb.start_service(@uri, @proxy)
+        self
       end
 
       def stop
-        DRb.thread.join
+        DRb.thread.exit
+        self
       end
     end
   end

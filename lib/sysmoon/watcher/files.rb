@@ -8,7 +8,7 @@ module Sysmoon
     #     and buziness logic
     #
     class Files
-      def initialize
+      def initialize(queue)
 
       end
 

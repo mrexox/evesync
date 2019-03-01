@@ -5,8 +5,10 @@ require 'sysmoon/ipc/ipc'
 module  Sysmoon
   module IPC
     class Client
+      include IPC
       def initialize(params)
         check_params_provided(params, [:port])
+        port = get_port(params)
         ip = params[:ip] || 'localhost' # FIXME: check ip
         @uri = "druby://#{ip}:#{port}"
         # DRb.start_service # to handle callbacks

@@ -1,4 +1,5 @@
-require 'sysmoon/watcher/file'
+require 'sysmoon/log'
+require 'sysmoon/watcher/files'
 require 'sysmoon/watcher/package'
 
 module Sysmoon
@@ -25,14 +26,15 @@ module Sysmoon
         # Creating subwatchers
         @queue = Queue.new
         @pkg_watcher = Sysmoon::Watcher::Package.new(@queue)
-        @file_watcher = Sysmoon::Watcher::File.new(@queue)
-        @sysdata = IPC::Client.new(:port => :sysdatad)
+        @files_watcher = Sysmoon::Watcher::Files.new(@queue)
+        @sysdatad = IPC::Client.new(:port => :sysdatad)
         @remote_syshands = [
           IPC::Client.new(
             :port => :syshand,
-            :ip => '172.168.22.134'
+            :ip => '192.168.0.104'
           )
         ]
+        Log.debug('Watcher initialized')
       end
 
       # Starts watchers threads
@@ -40,12 +42,12 @@ module Sysmoon
       # [*Returns*] self
       def start
         @threads ||= []
-        unless @threads
-          @threads << @handler.run
+        if @threads.empty?
           @threads << @pkg_watcher.run
-          @threads << @file_watcher.run
+          @threads << @files_watcher.run
           @threads << Thread.new { loop { biz } }
         end
+        Log.debug('Watcher started')
         self
       end
 
@@ -68,7 +70,7 @@ module Sysmoon
         if response
           Log.info("Sysdata response:", response)
           @remote_syshands.each do |syshand|
-            syshand.handle(change)
+            syshand.handle(change) # FIXME: add timeout
           end
         else
           Log.fatal("Error with data daemon: no response")

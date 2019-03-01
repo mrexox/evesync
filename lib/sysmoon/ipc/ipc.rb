@@ -5,29 +5,31 @@ module Sysmoon
   #
   #   no constants yet
   module IPC
-      private
+    $SAFE = 1 # 'no eval' rule
 
-      def check_params_provided(params, keys)
-        keys.each do |param|
-          raise RuntimeError.new(":#{param} missed") unless
-            params.key?(param)
-        end
+    private
+
+    def check_params_provided(params, keys)
+      keys.each do |param|
+        raise RuntimeError.new(":#{param} missed") unless
+          params.key?(param)
       end
+    end
 
-      def get_port(params)
-        port = params[:port]
-        p = case port
-            when :sysmoond then Configuration::SYSMOOND_PORT
-            when :sysdatad then Configuration::SYSDATAD_PORT
-            when :syshand then Configuration::SYSHAND_PORT
-            else
-              port_i = port.to_i
-              unless port_i < 65535 and port_i > 49152
-                raise RuntimeError.("Port MUST be in (49152..65535)")
-              end
-              port
+    def get_port(params)
+      port = params[:port]
+      p = case port
+          when :sysmoond then Configuration::SYSMOOND_PORT
+          when :sysdatad then Configuration::SYSDATAD_PORT
+          when :syshand then Configuration::SYSHAND_PORT
+          else
+            port_i = port.to_i
+            unless port_i < 65535 and port_i > 49152
+              raise RuntimeError.("Port MUST be in (49152..65535)")
             end
-        p
-      end
+            port
+          end
+      p
+    end
   end
 end

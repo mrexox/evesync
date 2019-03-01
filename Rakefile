@@ -33,8 +33,8 @@ end
 
 task todos: :todo
 task :todo do
-  puts ":><: \033[0;31mTODOs\033[0m in code"
+  puts "==== \033[0;31mTODOs\033[0m in code"
   puts `find bin lib dockerfiles -type f -exec grep --color=always TODO   \{} \+ ||:`
-  puts ":><: \033[0;31mFIXMEs\033[0m in code"
+  puts "==== \033[0;31mFIXMEs\033[0m in code"
   puts `find bin lib dockerfiles -type f -exec grep --color=always FIXME  \{} \+ ||:`
 end

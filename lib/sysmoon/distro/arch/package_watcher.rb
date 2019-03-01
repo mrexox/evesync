@@ -1,5 +1,6 @@
 require 'file-tail'
-require 'sysmoon/ipc_data/package'
+require 'sysmoon/log'
+require 'sysmoon/ipc/data/package'
 
 module Sysmoon
 
@@ -7,7 +8,7 @@ module Sysmoon
   # Watcher for package changes for Arch Linux
   #
   # Usage:
-  #  Thread.new { ArchPackageWatcher.new(queue).run }
+  #  Thread.new { ArchIPC::Data::PackageWatcher.new(queue).run }
 
   class ArchPackageWatcher
 
@@ -22,12 +23,13 @@ module Sysmoon
 
     private_constant :ARCH_LOG_FILE, :PKG_REGEXP
 
-    attr_reader :thread
+    attr_reader :thread # FIXME: remove
 
     def initialize(queue)
       @queue = queue
       @ignore = []
       @thread = nil
+      Log.debug('Arch Package watcher initialized')
     end
 
     def ignore(package)
@@ -35,6 +37,7 @@ module Sysmoon
     end
 
     def run
+      Log.debug('Arch Package watcher started')
       @thread = Thread.new do
         File.open(ARCH_LOG_FILE) do |log|
           log.extend(File::Tail)
@@ -44,7 +47,7 @@ module Sysmoon
             m = line.match(PKG_REGEXP)
             # TODO: write a check if that name and version are ignored
             if m and process_or_ignore(m[:package], m[:version])
-              pkg = Package.new(
+              pkg = IPC::Data::Package.new(
                 name: m[:package],
                 version: m[:version],
                 command: m[:command]

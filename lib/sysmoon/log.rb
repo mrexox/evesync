@@ -22,12 +22,13 @@ module Sysmoon
       end
 
       def init_logger
-        @logger = Logger.new(STDERR) # Fixme: log into file, read from config
+        # Fixme: log into file, read from config
+        @logger = Logger.new(STDERR)
         @logger.level = Logger::DEBUG
-        @logger.formatter = proc do |severity, datetime, _progname, msg|
-          date_format = datetime.strftime("%Y-%m-%d %H:%M:%S")
-          progname = File.basename($0)
-          "[#{date_format}] #{progname.ljust(8)} #{severity.ljust(5)}: #{msg}\n"
+        @logger.formatter = proc do |sev, dtime, _prog, msg|
+          time = dtime.strftime("%Y-%m-%d %H:%M:%S")
+          prog = File.basename($0)
+          "[#{time}] #{prog.ljust(8)} #{sev.ljust(5)}: #{msg}\n"
         end
       end
 

@@ -13,7 +13,6 @@ module Sysmoon
     #  - Sysmoon::Handler::Files
     #
     # = TODO:
-    #
     #  * Delegate +handle+ to another daemon if not found
     #
     class Changes
@@ -23,10 +22,11 @@ module Sysmoon
         @sysmoon = IPC::Client.new(
           :port => :sysmoond
         )
+        Log.debug('Changes handler initialized')
       end
 
       def handle(message)
-        Log.info "#{self.class.name}: #{message}"
+        Log.info "#{self.class.name} called: #{message}"
 
         if message.is_a? IPC::Data::Package
           @package_handler.handle(message)

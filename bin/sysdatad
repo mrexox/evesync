@@ -3,26 +3,19 @@
 
 require 'sysmoon/ipc'
 require 'sysmoon/log'
+require 'sysmoon/handler/data'
 
 Sysmoon::Log.info("starting sysdatad...")
 
+data_handler = Sysmoon::Handler::Data.new # TODO: pass config
+
 # Creating an IPC server to accept data
-data_server = Sysmoon::IPC.new(
-  side: :server,
-  port: :datad,
-  protocol: :tcp
-)
-
-data_server.on_recieve do |message, client|
-  Sysmoon::Log.debug("Accepted message: #{message}")
-  # ... put into database
-  client.puts('ok')
-end
-
-thr = data_server.start
+data_server = Sysmoon::IPC::Server.new(
+  :port => :sysdatad,
+  :proxy => data_handler
+).start
 
 Signal.trap('TERM') do
-  thr.exit
   data_server.stop
   exit(0)
 end
@@ -36,7 +29,6 @@ begin
   end
 rescue SignalException => e
   Sysmoon::Log.warn("Signal got: #{e.signm}(#{signo})")
-  thr.exit
   data_server.stop
   exit(0)
 end
