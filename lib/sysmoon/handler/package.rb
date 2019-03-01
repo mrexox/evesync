@@ -5,7 +5,7 @@ module Sysmoon
   module Handler
     class Package
       def handle(message)
-        Log.debug("Handeling #{message}")
+        Log.debug("Handling #{message}")
 
         args = [message.name, message.version]
 

@@ -1,63 +1,51 @@
+require 'drb/drb'
+require 'sysmoon/log'
+require 'sysmoon/ipc/ipc'
+
 module Sysmoon
   module IPC
+    $SAFE = 1 # 'no eval' rule
+
+    # = Synopsis
+    #
+    # Server is a DRb object, using +:port+ and +:proxy+
+    # object to handle requests.
+    #
+    # = Params
+    #
+    # [*:proxy*] all methods go to this object
+    # [*:port*]  defines which port which port connect to
+    #
+    # = Example:
+    #
+    #   # Setup the server
+    #   server = Sysmoon::IPC::Server(
+    #     :port => '8089',
+    #     :proxy => SomeHandler.new
+    #   )
+    #   ...
+    #   server.start # now it starts recieving requests
+    #   ...
+    #   server.stop # main thread exits
+    #
+    # = TODO:
+    #
+    # * Handle blocks
+    #
     class Server
       def initialize(params)
-        case params[:port]
-        when :datad
-          port = SYSDATAD_PORT # FIXME: read from config
-        when :hand
-          port = SYSHAND_PORT
-        when :moond
-          port = SYSMOOND_PORT
-        else
-          if port !~ /^\d{1,5}$/
-            raise RuntimeError.new("param: port is not 5 digit")
-          end
-          port = params[:port]
-        end
-
-        # TODO: using this var change connections and deliver methods
-        @protocol = params[:protocol]
-        @socket = TCPServer.new port
-      end
-
-      # A blocking method for Server side
-      # Recieves a message from the client and executes a block
-      # Example:
-      #   ipc.on_recieve do |data, channel|
-      #     puts data
-      #     channel.put 'ok'
-      #   end
-      #   thr = ipc.start
-      #   thr.join
-      def on_recieve(&block)
-        @block = block
+        check_params_provided(params, [:port, :proxy])
+        port = get_port params
+        @uri = "druby://localhost:#{port}"
+        @proxy = params[:proxy]
       end
 
       def start
-        Thread.new(@socket, @block) do |socket, block|
-          loop do
-            client = socket.accept
-
-            Log.debug('Accepted request. Started handle thread.')
-
-            Thread.new(client, block) { |cl, bl|
-              message = cl.gets
-              unless message then cl.close end
-              message.chomp!
-              unpacked_message = IPCData::unpack(message)
-              Log.debug("Unpacked: #{unpacked_message}")
-              bl.call(unpacked_message, client)
-              cl.close
-            }.join
-
-            Log.debug('Done with handle thread.')
-          end
-        end
+        DRb.start_service(@uri, @proxy)
       end
 
       def stop
-        @socket.close
+        DRb.thread.join
       end
     end
   end

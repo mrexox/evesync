@@ -1,5 +1,4 @@
-require 'json'
-require 'sysmoon/ipc_data/package'
+require 'drb/drb'
 
 # TODO: add custom exceptions for IPCData
 module Sysmoon

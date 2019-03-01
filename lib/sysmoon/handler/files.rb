@@ -1,6 +1,6 @@
 module Sysmoon
   module Handler
-    class File
+    class Files
     end
   end
 end

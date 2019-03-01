@@ -7,10 +7,11 @@ require 'sysmoon/handler'
 
 Sysmoon::Log.info('syshand starting...')
 
-handler = Sysmoon::Handler::Remote.new
+changes_handler = Sysmoon::Handler::Changes.new
+
 handler_server = Sysmoon::IPC::Server.new(
   port: :syshand,
-  proxy: handler
+  proxy: changes_handler
 ).start
 
 Sysmoon::Log.info('syshand started!')
