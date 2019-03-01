@@ -1,4 +1,6 @@
 module Sysmoon
-  class RemoteFileHandler
+  module Handler
+    class File
+    end
   end
 end

@@ -1,65 +1,37 @@
 #!/usr/bin/env ruby
 # -*- mode: ruby -*-
 
-require 'sysmoon/distro'
-require 'sysmoon/handler'
+require 'sysmoon/watcher'
 require 'sysmoon/log'
-
-#FIXME: delete this require, move handling to class
-require 'sysmoon/ipc_data/ignore'
-require 'sysmoon/ipc_data/package'
-require 'sysmoon/ipc_data/file'
+require 'sysmoon/ipc'
 
 Sysmoon::Log.info 'sysmoond starting...'
 
-queue = Queue.new
+watcher = Sysmoon::Watcher::Main.new.start
 
-threads = []
-
-# Creating subtasks
-pkg_watcher = Sysmoon::PackageWatcher.new(queue)
-#file_watcher = Sysmoon::FileWatcher.new(queue)
-local_handler = Sysmoon::Handler::Local.new(queue)
-
-# Starting in separated threads
-threads << local_handler.run
-threads << pkg_watcher.run
-#threads << file_watcher.run
-
-moon_server = Sysmoon::IPC.new(
-  protocol: :tcp,
-  side: :server,
-  port: :moond
-)
-
-moon_server.on_recieve do |message, client|
-  Sysmoon::Log.debug("Accepted: #{message}")
-  if message.is_a? Sysmoon::Ignore
-    if message.subject.is_a? Sysmoon::Package
-      pkg_watcher.ignore(message)
-    elsif message.subject.is_a? Sysmoon::File
-      file_watcher.ignore(message)
-    end
-  end
-  client.puts("ok")
-end
-
-# FIXME: connection is set up even when server is not started
-moon_server.start
+sysmoon_server = Sysmoon::IPC::Server.new(
+  port: :sysmoond,
+  proxy: watcher
+).start
 
 Sysmoon::Log.info 'sysmoond started!'
 
+# Signal handling
+
 Signal.trap('SIGINT') do
-  threads.each(&:exit)
+  watcher.stop
+  sysmoon_server.stop
   exit(0)
 end
 
 begin
   loop do
     sleep 100
+    # FIXME: know what to do
   end
 rescue SignalException => e
   Sysmoon::Log.warn("Signal got: #{e.signm}(#{signo})")
-  threads.each(&:exit)
+  watcher.stop
+  sysmoon_server.stop
   exit(0)
 end

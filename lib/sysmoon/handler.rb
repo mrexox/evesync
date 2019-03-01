@@ -6,15 +6,21 @@ require 'sysmoon/handler/file'
 require 'sysmoon/handler/package'
 
 module Sysmoon
-  ##
-  # Handles package changes, sent via Package class and queue
+
+  # = Synopsis
   #
-  # Initialized with queue. Usage:
-  #  Thread.new { LocalMessageHandler.new(queue).run }
+  #   Handles package changes, sent via Package class and queue
+  #   Sends messages to sysdatad and available syshands
   #
-  # Sends messages to sysdatad and available syshands
-  # TODO: Make anoter daemon\Thread to search for available
-  # TODO: syshands daemons
+  # = Example:
+  #
+  #   Thread.new { LocalMessageHandler.new(queue).run }
+  #
+  # = TODO:
+  #
+  #   * Make anoter daemon\Thread to search for available
+  #     syshands daemons
+  #
   module Handler
     class Local
 
@@ -37,12 +43,15 @@ module Sysmoon
         )
       end
 
-      ##
-      # TODO: check if package was really updated (removed or has this version)
-      # TODO: add reconnecting to sysdatad after timeout
+
       # Main loop that handles messages from queue
       # Delivers them to sysdatad and syshands
-
+      #
+      # = TODO:
+      #   * check if package was really updated
+      #     (removed or has this version)
+      #   * add reconnecting to sysdatad after timeout
+      #
       def run
         @thread = Thread.new(@queue) do |queue|
           loop {
@@ -64,13 +73,14 @@ module Sysmoon
       end
     end
 
-    ##
+
     # Remote Message Handler for syshand daemon
-    # Handlers available:
+    # The code for updating is in particular classes
+    #
+    # [Handlers available:]
     #  - package updates
     #  - file updates
-    # The code for updating is in particular classes
-
+    #
     class Remote
       def initialize
         @package_handler = RemotePackageHandler.new

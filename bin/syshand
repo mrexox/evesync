@@ -7,35 +7,20 @@ require 'sysmoon/handler'
 
 Sysmoon::Log.info('syshand starting...')
 
-handler_server = Sysmoon::IPC.new(
-  side: :server,
-  port: :hand,
-  protocol: :tcp
-)
-
 handler = Sysmoon::Handler::Remote.new
+handler_server = Sysmoon::IPC::Server.new(
+  port: :syshand,
+  proxy: handler
+).start
 
-handler_server.on_recieve do |message, client|
-  Sysmoon::Log.debug "Message recieved: #{message}"
-  Sysmoon::IPC.new(
-    side: :client,
-    connect_to: :moond,
-    protocol: :tcp
-  ).deliver(Sysmoon::Ignore.new(subject: message))
-  ans = handler.handle(message)
-  client.puts(ans)
-  Sysmoon::Log.debug 'Message handled'
-end
+Sysmoon::Log.info('syshand started!')
 
-thr = handler_server.start
+# Signal handling
 
 Signal.trap('TERM') do
-  thr.exit
   handler_server.stop
   exit(0)
 end
-
-Sysmoon::Log.info('syshand started!')
 
 begin
   loop do
@@ -44,7 +29,6 @@ begin
   end
 rescue SignalException => e
   Sysmoon::Log.warn("Signal got: #{e.signm}(#{signo})")
-  thr.exit
   handler_server.stop
   exit(0)
 end
