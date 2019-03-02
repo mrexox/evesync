@@ -12,14 +12,16 @@ module Sysmoon
       @rpm_packages = Rpm.new
       @ignore = []
       @thread = nil
+      Log.debug('Rhel package watcher initialized')
     end
 
     def run
+      Log.debug('Rhel package watcher run')
       @thread = Thread.new do
         loop {
           sleep 10 # FIXME: don't use magic numbers
           @rpm_packages.changes.each do |pkg|
-            if procedd_or_ignore(pkg)
+            if process_or_ignore(pkg)
               @queue << pkg
               Log.debug pkg
             end
@@ -31,8 +33,13 @@ module Sysmoon
     end
 
     def ignore(package)
-      @ignore << package if
-        package.is_a? Sysmoon::IPC::Data::Package
+      Log.debug('Checking if package would be ignored')
+      if package.is_a? IPC::Data::Package
+        Log.debug('Package is ignored')
+        @ignore << package
+      else
+        Log.debug('Package is not an IPC::Data::Package instance')
+      end
     end
 
     private

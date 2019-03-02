@@ -1,4 +1,5 @@
 require 'sysmoon/log'
+require 'sysmoon/constants'
 require 'sysmoon/watcher/files'
 require 'sysmoon/watcher/package'
 
@@ -22,16 +23,21 @@ module Sysmoon
     #   * Remove +biz+ method, it's not save, reorganize code
     #
     class Main
+
+      WATCHER_CLASSES = [Package, Files]
+
       def initialize
         # Creating subwatchers
         @queue = Queue.new
-        @pkg_watcher = Sysmoon::Watcher::Package.new(@queue)
-        @files_watcher = Sysmoon::Watcher::Files.new(@queue)
+        @watchers = []
+        WATCHER_CLASSES.each do |w_class|
+          @watchers << w_class.new(@queue)
+        end
         @sysdatad = IPC::Client.new(:port => :sysdatad)
         @remote_syshands = [
           IPC::Client.new(
             :port => :syshand,
-            :ip => '192.168.0.104'
+            :ip => Configuration::IPC_HAND_IP
           )
         ]
         Log.debug('Watcher initialized')
@@ -43,8 +49,9 @@ module Sysmoon
       def start
         @threads ||= []
         if @threads.empty?
-          @threads << @pkg_watcher.run
-          @threads << @files_watcher.run
+          @watchers.each do |watcher|
+            @threads << watcher.run
+          end
           @threads << Thread.new { loop { biz } }
         end
         Log.debug('Watcher started')
@@ -57,8 +64,21 @@ module Sysmoon
       end
 
       def ignore(change)
-        # If Data::Package -> @package_handler.ignore
-        # If Data::Files -> @files_handler.ignore
+        Log.debug("Ignore: #{change.class.name}")
+        # FIXME: this is dirty
+        basic_class_name = change.class.name.split('::')[-1]
+
+        handler = @watchers.find { |w|
+          w.class.name.include? basic_class_name
+        }
+
+        if handler
+          handler.ignore(change)
+        else
+          # TODO: forward somewhere
+          Log.info("No watcher was notified to ignore #{change}")
+        end
+
       end
 
       private

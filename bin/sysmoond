@@ -30,7 +30,7 @@ begin
     # FIXME: know what to do
   end
 rescue SignalException => e
-  Sysmoon::Log.warn("Signal got: #{e.signm}(#{signo})")
+  Sysmoon::Log.warn("Signal got: #{e.signm}(#{e.signo})")
   watcher.stop
   sysmoon_server.stop
   exit(0)

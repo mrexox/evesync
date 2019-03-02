@@ -1,4 +1,5 @@
 require 'hashdiff'
+require 'sysmoon/log'
 # FIXME: move Package packing into another class
 require 'sysmoon/ipc/data/package'
 

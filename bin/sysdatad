@@ -28,7 +28,7 @@ begin
     # zip db if needed, save backup
   end
 rescue SignalException => e
-  Sysmoon::Log.warn("Signal got: #{e.signm}(#{signo})")
+  Sysmoon::Log.warn("Signal got: #{e.signm}(#{e.signo})")
   data_server.stop
   exit(0)
 end

@@ -36,7 +36,8 @@ module Sysmoon
       def initialize(params)
         check_params_provided(params, [:port, :proxy])
         port = get_port params
-        @uri = "druby://localhost:#{port}"
+        ip = params[:ip] || 'localhost'
+        @uri = "druby://#{ip}:#{port}"
         @proxy = params[:proxy]
       end
 

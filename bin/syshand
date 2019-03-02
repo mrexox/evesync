@@ -11,7 +11,8 @@ changes_handler = Sysmoon::Handler::Changes.new
 
 handler_server = Sysmoon::IPC::Server.new(
   port: :syshand,
-  proxy: changes_handler
+  proxy: changes_handler,
+  ip: '*' # accept remote requests
 ).start
 
 Sysmoon::Log.info('syshand started!')
@@ -29,7 +30,7 @@ begin
     # FIXME: know what to do
   end
 rescue SignalException => e
-  Sysmoon::Log.warn("Signal got: #{e.signm}(#{signo})")
+  Sysmoon::Log.warn("Signal got: #{e.signm}(#{e.signo})")
   handler_server.stop
   exit(0)
 end

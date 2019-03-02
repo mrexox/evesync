@@ -16,9 +16,11 @@ module  Sysmoon
 
       # TODO: add callbacks
       def method_missing(method, *args, &block)
+        Log.debug("Sending method #{method} to #{@uri}")
         # FIXME: don't send +start+ and +stop+ and +initialize+
         service = DRbObject.new_with_uri(@uri)
         service.send(method, *args, &block)
+        Log.debug("Method #{method} was handled by #{@uri}")
       end
     end
   end
