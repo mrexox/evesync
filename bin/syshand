@@ -2,7 +2,7 @@
 # -*- mode: ruby -*-
 
 require 'sysmoon/log'
-require 'sysmoon/ipc'
+require 'sysmoon/ipc/server'
 require 'sysmoon/handler'
 
 Sysmoon::Log.info('syshand starting...')

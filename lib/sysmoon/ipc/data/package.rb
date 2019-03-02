@@ -4,8 +4,8 @@ module Sysmoon
   module IPC
     module Data
       class Package
-        include Hashable
-        extend Unhashable
+        include Data::Hashable
+        extend Data::Unhashable
 
         module Command
           INSTALL   = :install

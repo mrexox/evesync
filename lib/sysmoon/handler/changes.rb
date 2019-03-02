@@ -1,6 +1,7 @@
 require 'sysmoon/log'
 require 'sysmoon/handler/package'
-require 'sysmoon/handler/files'
+require 'sysmoon/handler/file'
+require 'sysmoon/ipc/client'
 
 module Sysmoon
   module Handler
@@ -10,15 +11,15 @@ module Sysmoon
     #
     # [Handlers available:]
     #  - Sysmoon::Handler::Package
-    #  - Sysmoon::Handler::Files
+    #  - Sysmoon::Handler::File
     #
     # = TODO:
     #  * Delegate +handle+ to another daemon if not found
     #
     class Changes
       def initialize
-        @package_handler = Package.new
-        @files_handler = Files.new
+        @package_handler = Handler::Package.new
+        @files_handler = Handler::File.new
         @sysmoon = IPC::Client.new(
           :port => :sysmoond
         )
@@ -31,7 +32,7 @@ module Sysmoon
         @sysmoon.ignore(message)
         if message.is_a? IPC::Data::Package
           @package_handler.handle(message)
-        elsif message.is_a? IPC::Data::Files
+        elsif message.is_a? IPC::Data::File
           @files_handler.handle(message)
         else
           Log.debug('Unknown handler')

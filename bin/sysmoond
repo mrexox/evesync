@@ -3,7 +3,7 @@
 
 require 'sysmoon/watcher'
 require 'sysmoon/log'
-require 'sysmoon/ipc'
+require 'sysmoon/ipc/server'
 
 Sysmoon::Log.info 'sysmoond starting...'
 

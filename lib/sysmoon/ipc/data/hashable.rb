@@ -1,5 +1,4 @@
 require 'sysmoon/log'
-require 'sysmoon/ipc/data/package'
 
 module Sysmoon
   module IPC

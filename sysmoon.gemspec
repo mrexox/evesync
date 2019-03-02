@@ -19,7 +19,8 @@ Gem::Specification.new do |s|
     'bin/*',
     'LICENSE',
     'Rakefile',
-    'lib/**/*.rb'
+    'lib/**/*.rb',
+    'sysmoon.conf' #TODO: remove this line
   ]
 
   s.executables = ['sysmoond', 'sysdatad', 'syshand']

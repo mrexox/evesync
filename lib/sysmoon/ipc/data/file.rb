@@ -3,7 +3,7 @@ require 'sysmoon/ipc/data/hashable'
 module Sysmoon
   module IPC
     module Data
-      class Files
+      class File
         include Hashable
         extend Unhashable
 

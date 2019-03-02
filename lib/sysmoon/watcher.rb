@@ -1,6 +1,7 @@
 require 'sysmoon/log'
 require 'sysmoon/constants'
-require 'sysmoon/watcher/files'
+require 'sysmoon/ipc/client'
+require 'sysmoon/watcher/file'
 require 'sysmoon/watcher/package'
 
 module Sysmoon
@@ -24,7 +25,7 @@ module Sysmoon
     #
     class Main
 
-      WATCHER_CLASSES = [Package, Files]
+      WATCHER_CLASSES = [Watcher::Package, Watcher::File]
 
       def initialize
         # Creating subwatchers
@@ -37,7 +38,7 @@ module Sysmoon
         @remote_syshands = [
           IPC::Client.new(
             :port => :syshand,
-            :ip => Configuration::IPC_HAND_IP
+            :ip => Constants::IPC_HAND_IP
           )
         ]
         Log.debug('Watcher initialized')

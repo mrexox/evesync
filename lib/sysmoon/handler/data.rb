@@ -1,5 +1,5 @@
 require 'sysmoon/ipc/data/package'
-require 'sysmoon/ipc/data/files'
+require 'sysmoon/ipc/data/file'
 require 'sysmoon/ipc/data/ignore'
 
 module Sysmoon
