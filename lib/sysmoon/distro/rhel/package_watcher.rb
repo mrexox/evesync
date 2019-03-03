@@ -49,7 +49,7 @@ module Sysmoon
       Log.debug("Ignore aray: #{@ignore}")
 
       @ignore.each_with_index do |ignpkg, i|
-        if ignpkg.name == package.name and ignpkg.version == package.version
+        if ignpkg.name == package.name and ignpkg.version == package.version and ignpkg.command == package.command
           index = i
           break
         end

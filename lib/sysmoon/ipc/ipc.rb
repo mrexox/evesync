@@ -1,4 +1,4 @@
-require 'sysmoon/constants'
+require 'sysmoon/configuration'
 
 module Sysmoon
 
@@ -28,18 +28,15 @@ module Sysmoon
     #             or one of daemons' name
     def get_port(params)
       port = params[:port]
-      p = case port
-          when :sysmoond then Constants::SYSMOOND_PORT
-          when :sysdatad then Constants::SYSDATAD_PORT
-          when :syshand then Constants::SYSHAND_PORT
-          else
-            port_i = port.to_i
-            unless port_i < 65535 and port_i > 49152
-              raise RuntimeError.("Port MUST be in (49152..65535)")
-            end
-            port
-          end
-      p
+      if port.is_a? Symbol
+        Configuration[port.to_s]['port']
+      else
+        port_i = port.to_i
+        unless port_i < 65535 and port_i > 49152
+          raise RuntimeError.("Port MUST be in (49152..65535)")
+        end
+        port
+      end
     end
   end
 end

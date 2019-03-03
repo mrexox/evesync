@@ -1,9 +1,8 @@
 module Sysmoon
   module Constants
     CONFIG_FILE   = './sysmoon.conf'.freeze
-    SYSDATAD_PORT = '54321'
-    SYSHAND_PORT  = '55432'
-    SYSMOOND_PORT = '55443'
-    IPC_HAND_IP   = '172.16.22.134' # FIXME: from config or dynamically
+    MOOND_PORT = '55443'
+    DATAD_PORT = '54321'
+    HAND_PORT  = '55432'
   end
 end

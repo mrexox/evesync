@@ -1,5 +1,5 @@
 require 'sysmoon/log'
-require 'sysmoon/constants'
+require 'sysmoon/configuration'
 require 'sysmoon/ipc/client'
 require 'sysmoon/watcher/file'
 require 'sysmoon/watcher/package'
@@ -35,12 +35,12 @@ module Sysmoon
           @watchers << w_class.new(@queue)
         end
         @sysdatad = IPC::Client.new(:port => :sysdatad)
-        @remote_syshands = [
+        @remote_syshands = Configuration[:sysmoond]['remotes'].map {|ip|
           IPC::Client.new(
             :port => :syshand,
-            :ip => Constants::IPC_HAND_IP
+            :ip => ip
           )
-        ]
+        }
         Log.debug('Watcher initialized')
       end
 

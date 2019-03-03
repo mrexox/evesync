@@ -29,14 +29,17 @@ module Sysmoon
       def handle(message)
         Log.info "#{self.class.name} called: #{message}"
 
-        @sysmoon.ignore(message)
         if message.is_a? IPC::Data::Package
-          @package_handler.handle(message)
+          @package_handler.handle(message) &&
+            @sysmoon.ignore(message)
         elsif message.is_a? IPC::Data::File
-          @files_handler.handle(message)
+          @files_handler.handle(message) &&
+            @sysmoon.ignore(message)
         else
           Log.debug('Unknown handler')
         end
+
+        'Fine'
       end
     end
   end

@@ -21,6 +21,8 @@ module Sysmoon
         else
           Log.warn("Unknown command #{message.command}")
         end
+
+        'Fine'
       end
     end
   end
