@@ -4,5 +4,5 @@ source 'https://rubygems.org' do
   gem 'lmdb'
   gem 'rb-inotify', '0.9.9' # Last available on ruby 2.0.0
   gem 'toml'
-  gem 'rubocop', '0.42.0', require: false
+  gem 'rubocop', '0.48.0', require: false
 end
