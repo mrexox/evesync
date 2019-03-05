@@ -38,3 +38,7 @@ task :todo do
   puts "==== \033[0;31mFIXMEs\033[0m in code"
   puts `find bin lib dockerfiles -type f -exec grep --color=always FIXME  \{} \+ ||:`
 end
+
+task :lines do
+  sh 'find . -name "*.rb" -exec grep -v -E "^\s*#|^\s*$" \{} \+ | wc -l'
+end
