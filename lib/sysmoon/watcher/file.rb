@@ -1,3 +1,4 @@
+require 'date'
 require 'rb-inotify'
 require 'sysmoon/configuration'
 require 'sysmoon/ipc/data/file'
@@ -18,39 +19,26 @@ module Sysmoon
       def initialize(queue)
         @queue = queue
         @ignore = []
-        @watches = Configuration[:sysmoond]['watches']
+        @watches = Configuration[:sysmoond]['watch']
+        @peroid = Configuration[:sysmoond]['watch_period'].to_i || 2
         @inotify = INotify::Notifier.new
+        # @lock: avoid cleaning something that may be needed. May cause problems
+        @lock = false
+        @events = {}
         initialize_watcher
       end
 
-      def initialize_watcher
-        # TODO: increase mas watched files
-        # TODO: make them work fine
-        @proc_file_modified = Proc.new {|event| event.absolute_name}
-        @proc_watching_file_changed = Proc.new {|event| event.absolute_name}
-        @proc_dir_changed = Proc.new {|event| event.absolute_name}
-
-        @watches.each do |filename|
-          unless File.exist? filename
-            Log.error("#{self.class.name}: '#{filename}' absent on system")
-          end
-
-          if File.file? filename
-            watch_file filename
-          elsif File.directory? filename
-            watch_dir filename
-          else
-            Log.warn("#{self.class.name}: watching '#{filename}' is not implemented yet")
-          end
-        end
-      end
-
       def run
-        @thread = Thread.new { @inotify.run }
+        @inotify_thr = Thread.new { @inotify.run }
+        @main_thr = Thread.new {
+          sleep @peroid
+          send_events
+        }
       end
 
       def stop
-        @thread.join # FIXME: maybe exit
+        @inotify.stop
+        @inotify_thr.join # FIXME: maybe exit
       end
 
       def ignore(file)
@@ -60,18 +48,110 @@ module Sysmoon
 
       private
 
-      def watch_file(filename)
-        # add file modify watch
-        @inotify.watch(filename, :modify, &@proc_file_modified)
-        # add dir watch, that removes previous watcher
-        #   and adds another watcher
-        @inotify.watch(File.dirname(filename), :create, :move_to, &@proc_watching_file_changed)
+      # Send all events from the methods-handlers
+      # = FIXME:
+      #   * make sure @lock is working as it's expected
+      #   * maybe recall send_events if hash is updated
+      #
+      def send_events
+        while @lock do; end # wait a bit
+        @events.each do |file, _event|
+          # FIXME: do something with event array
+          ipc_event = IPC::Data::File.new(
+            :name => file,
+            :mode => ::File::Stat.new(file).mode,
+            :action => :modify,
+            :touched_at => DateTime.now.to_s,
+          )
+          @queue.push(ipc_event)
+        end
+        @events = {}
       end
 
-      def watch_dir(dirname)
-        # watch dir for created and deleted files
-        @inotify.watch(dirname, :create, :move_to, &@proc_dir_changed)
+      def initialize_watcher
+
+        @watches.each do |filename|
+          unless ::File.exist? filename
+            Log.error("#{self.class.name}: '#{filename}' absent on system")
+          end
+
+          # TODO: ignore /dev and /sys, /proc directories
+          if ::File.file? filename
+            watch_file filename
+            watch_directory_of_file filename
+          elsif ::File.directory? filename
+            watch_directory filename
+          else
+            # Seems to be a drive or
+            Log.warn("#{self.class.name}: watching '#{filename}' is not implemented yet")
+          end
+        end
       end
+
+      def watch_file(filename)
+        # add file modify watch
+        @inotify.watch(filename, :modify) { |e| h_file(e) }
+      end
+
+      def watch_directory_of_file(filename)
+        # add dir watch, that removes previous watcher
+        #   and adds another watcher
+        @inotify.watch(::File.dirname(filename),
+                       :create, :moved_to) { |e|
+          h_directory_of_file(filename, e)
+        }
+      end
+
+      def watch_directory(dirname)
+        # watch dir for created and deleted files
+        @inotify.watch(dirname,
+                       :create, :moved_to, :moved_from) { |e|
+          h_directory(e)
+        }
+      end
+
+      # Handlers of inotify changes
+
+      def h_file(event)
+        @lock = true
+        Log.debug("w_file: #{event.absolute_name}")
+        unless @events[event.absolute_name]
+          @events[event.absolute_name] = []
+        end
+        @events[event.absolute_name] << event
+        @lock = false
+      end
+
+      def h_directory_of_file(filename, event)
+        @lock = true
+        Log.debug("w_directory_of_file: #{event.absolute_name}")
+        unless @events[event.absolute_name]
+          @events[event.absolute_name] = []
+        end
+        @events[event.absolute_name] << event
+        watch_file(filename)
+        @lock = false
+      end
+
+      def h_directory(event)
+        @lock = true
+        file = event.absolute_name
+        Log.debug("w_directory: #{file}")
+
+        if ::File.file? file
+          watch_file(file)
+        elsif ::File.directory? file
+          watch_directory(file)
+        end
+        # Better pass a file
+        unless @events[file]
+          @events[file] = []
+        end
+        @events[file] << event
+
+        @lock = false
+      end
+
     end
   end
 end

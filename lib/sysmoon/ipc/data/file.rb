@@ -18,7 +18,7 @@ module Sysmoon
 
         def initialize(params)
           @name = params[:name].freeze
-          @mod = params[:mod].freeze
+          @mode = params[:mode].freeze
           @touched_at = params[:touched_at].freeze
           @action = parse_action(params[:action]).freeze
         end
