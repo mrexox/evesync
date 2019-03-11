@@ -1,3 +1,5 @@
+require 'timeout'
+require 'drb'
 require 'sysmoon/log'
 require 'sysmoon/configuration'
 require 'sysmoon/ipc/client'
@@ -91,7 +93,13 @@ module Sysmoon
         if response
           Log.info("Sysdata response:", response)
           @remote_syshands.each do |syshand|
-            syshand.handle(change) # FIXME: add timeout
+            begin
+              Timeout::timeout(3) {
+                syshand.handle(change) # FIXME: add timeout
+              }
+            rescue Timeout::Error, DRb::DRbConnError
+              Log.warn("Syshand server #{syshand.uri} is not accessible")
+            end
           end
         else
           Log.fatal("Error with data daemon: no response")

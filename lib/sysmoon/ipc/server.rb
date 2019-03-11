@@ -33,6 +33,9 @@ module Sysmoon
     #
     class Server
       include IPC
+
+      attr_reader :uri
+
       def initialize(params)
         check_params_provided(params, [:port, :proxy])
         port = get_port params

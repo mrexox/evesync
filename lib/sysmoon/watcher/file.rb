@@ -20,19 +20,22 @@ module Sysmoon
         @queue = queue
         @ignore = []
         @watches = Configuration[:sysmoond]['watch']
-        @peroid = Configuration[:sysmoond]['watch_period'].to_i || 2
+        @period = Configuration[:sysmoond]['watch_interval'].to_i || Constants::WATCH_PERIOD
         @inotify = INotify::Notifier.new
         # @lock: avoid cleaning something that may be needed. May cause problems
         @lock = false
         @events = {}
+
         initialize_watcher
       end
 
       def run
         @inotify_thr = Thread.new { @inotify.run }
         @main_thr = Thread.new {
-          sleep @peroid
-          send_events
+          loop do
+            sleep @period
+            send_events
+          end
         }
       end
 
@@ -54,15 +57,15 @@ module Sysmoon
       #   * maybe recall send_events if hash is updated
       #
       def send_events
-        while @lock do; end # wait a bit
-        @events.each do |file, _event|
-          # FIXME: do something with event array
+        @events.each do |file, _events|
+          next until ::File.exist? file
           ipc_event = IPC::Data::File.new(
             :name => file,
             :mode => ::File::Stat.new(file).mode,
             :action => :modify,
             :touched_at => DateTime.now.to_s,
           )
+          Log.debug("File #{file} modified")
           @queue.push(ipc_event)
         end
         @events = {}
@@ -113,28 +116,27 @@ module Sysmoon
       # Handlers of inotify changes
 
       def h_file(event)
-        @lock = true
         Log.debug("w_file: #{event.absolute_name}")
+
         unless @events[event.absolute_name]
           @events[event.absolute_name] = []
         end
+
         @events[event.absolute_name] << event
-        @lock = false
       end
 
       def h_directory_of_file(filename, event)
-        @lock = true
         Log.debug("w_directory_of_file: #{event.absolute_name}")
+
         unless @events[event.absolute_name]
           @events[event.absolute_name] = []
         end
+
         @events[event.absolute_name] << event
         watch_file(filename)
-        @lock = false
       end
 
       def h_directory(event)
-        @lock = true
         file = event.absolute_name
         Log.debug("w_directory: #{file}")
 
@@ -143,13 +145,13 @@ module Sysmoon
         elsif ::File.directory? file
           watch_directory(file)
         end
+
         # Better pass a file
         unless @events[file]
           @events[file] = []
         end
-        @events[file] << event
 
-        @lock = false
+        @events[file] << event
       end
 
     end
