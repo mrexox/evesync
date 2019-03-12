@@ -97,7 +97,7 @@ module Sysmoon
               Timeout::timeout(3) {
                 syshand.handle(change) # FIXME: add timeout
               }
-            rescue Timeout::Error, DRb::DRbConnError
+            rescue Timeout::Error
               Log.warn("Syshand server #{syshand.uri} is not accessible")
             end
           end
