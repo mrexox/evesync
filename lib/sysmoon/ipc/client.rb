@@ -12,9 +12,10 @@ module  Sysmoon
       def initialize(params)
         check_params_provided(params, [:port])
         port = get_port(params)
-        ip = params[:ip] || 'localhost' # FIXME: check ip
+        ip = params[:ip] || 'localhost' # TODO: check ip
         @uri = "druby://#{ip}:#{port}"
-        # DRb.start_service # to handle callbacks
+        # to remote calls for unmarshallable objects
+        DRb.start_service
       end
 
       # TODO: add callbacks
@@ -24,10 +25,9 @@ module  Sysmoon
         begin
           service = DRbObject.new_with_uri(@uri)
           service.send(method, *args, &block)
+          Log.debug("Method #{method} was handled by #{@uri}")
         rescue StandardError
           Log.warn("Couldn't establish connection")
-        else
-          Log.debug("Method #{method} was handled by #{@uri}")
         end
       end
     end

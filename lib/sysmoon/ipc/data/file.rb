@@ -10,11 +10,11 @@ module Sysmoon
         module Action
           MODIFY = :modify # File was modified
           DELETE = :delete # File was deleted
-          RENAME = :rename # File was renamed
-          ATTRIB = :attrib # Attributes (owner, mod...) changed
+          MOVED_TO = :moved_to # File was renamed
+          CREATE = :create # File was created
         end
 
-        attr_reader :name, :mod, :touched_at, :action
+        attr_reader :name, :mode, :touched_at, :action
 
         def initialize(params)
           @name = params[:name].freeze
@@ -26,15 +26,15 @@ module Sysmoon
         private
 
         def parse_action(action)
-          case action
+          case action.to_s
           when /modify/i
             result = Action::MODIFY
           when /delete/i
             result = Action::DELETE
-          when /rename/i
-            result = Action::RENAME
-          when /attrib/i
-            result = Action::ATTRIB
+          when /moved_to/i
+            result = Action::MOVED_TO
+          when /create/i
+            result = Action::CREATE
           end
 
           result

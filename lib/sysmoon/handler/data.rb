@@ -22,6 +22,10 @@ module Sysmoon
 
       def save(message)
         Log.debug("Data handler called: #{message}")
+        if message.is_a? Sysmoon::IPC::Data::File
+         Log.debug("Is a File #{message.action}")
+         Log.debug('Saving file...') unless message.action == IPC::Data::File::Action::DELETE
+        end
         'Fine'
       end
     end

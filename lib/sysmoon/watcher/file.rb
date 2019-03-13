@@ -12,8 +12,8 @@ module Sysmoon
     # configuration attribute _watch_
     #
     # = TODO:
-    #   * Make it work, add inotify, separate configuration
-    #     and business logic
+    #   * Test on various cases, make it work properly
+    #   * Find out all possible occasions
     #
     class File
       def initialize(queue)
@@ -53,17 +53,18 @@ module Sysmoon
       private
 
       # Send all events from the methods-handlers
-      # = FIXME:
-      #   * make sure @lock is working as it's expected
-      #   * maybe recall send_events if hash is updated
-      #
       def send_events
+        # Log.debug("send_events: #{@events}") # for bad debugging
         @events.each do |file, events|
-          next if not ::File.exist? file
           event = guess_event(events)
+          mode = case event
+                 when :delete then nil
+                 else ::File::Stat.new(file).mode
+                 end
+
           ipc_event = IPC::Data::File.new(
             :name => file,
-            :mode => ::File::Stat.new(file).mode,
+            :mode => mode,
             :action => event,
             :touched_at => DateTime.now.to_s,
           )
@@ -94,26 +95,17 @@ module Sysmoon
 
       def watch_file(filename)
         # add file modify watch
-        @inotify.watch(filename, :modify) { h_file(filename, [:modify]) }
-        watch_directory_of_file filename
-      end
-
-      def watch_directory_of_file(filename)
-        dir = ::File.dirname(filename)
-
-        # FIXME: some bug
-        @inotify.watch(dir, :create, :delete, :moved_to) { |e|
-          Log.debug("watch_directory_of_file #{e.absolute_name}")
-          h_directory_of_file(filename, e.flags) if e.absolute_name == filename
+        Log.debug("Added watch_file #{filename}")
+        @inotify.watch(filename, :modify) {
+          Log.debug("watch_file #{filename}")
+          h_file(filename, [:modify])
         }
       end
 
       def watch_directory(dirname)
         @inotify.watch(dirname, :create, :delete, :moved_to, :moved_from) { |e|
           Log.debug("watch_directory: #{e.absolute_name}")
-          if ::File.exist? e.absolute_name
-            h_directory(e.absolute_name, e.flags)
-          end
+          h_directory(e.absolute_name, e.flags)
         }
       end
 
@@ -145,6 +137,7 @@ module Sysmoon
 
         if ::File.file? filename
           watch_file(filename)
+          @watches << filename unless @watches.include? filename
         elsif ::File.directory? filename
           watch_directory(filename)
         end
