@@ -42,6 +42,7 @@ module Sysmoon
       def stop
         @inotify.stop
         @inotify_thr.join # FIXME: maybe exit
+        @main_thr.exit
       end
 
       def ignore(file)
@@ -57,15 +58,16 @@ module Sysmoon
       #   * maybe recall send_events if hash is updated
       #
       def send_events
-        @events.each do |file, _events|
-          next until ::File.exist? file
+        @events.each do |file, events|
+          next if not ::File.exist? file
+          event = guess_event(events)
           ipc_event = IPC::Data::File.new(
             :name => file,
             :mode => ::File::Stat.new(file).mode,
-            :action => :modify,
+            :action => event,
             :touched_at => DateTime.now.to_s,
           )
-          Log.debug("File #{file} modified")
+          Log.debug("File #{file} #{event} guessed of #{events}")
           @queue.push(ipc_event)
         end
         @events = {}
@@ -81,7 +83,6 @@ module Sysmoon
           # TODO: ignore /dev and /sys, /proc directories
           if ::File.file? filename
             watch_file filename
-            watch_directory_of_file filename
           elsif ::File.directory? filename
             watch_directory filename
           else
@@ -93,67 +94,84 @@ module Sysmoon
 
       def watch_file(filename)
         # add file modify watch
-        @inotify.watch(filename, :modify) { |e| h_file(e) }
+        @inotify.watch(filename, :modify) { h_file(filename, [:modify]) }
+        watch_directory_of_file filename
       end
 
       def watch_directory_of_file(filename)
-        # add dir watch, that removes previous watcher
-        #   and adds another watcher
-        @inotify.watch(::File.dirname(filename),
-                       :create, :moved_to) { |e|
-          h_directory_of_file(filename, e)
+        dir = ::File.dirname(filename)
+
+        # FIXME: some bug
+        @inotify.watch(dir, :create, :delete, :moved_to) { |e|
+          Log.debug("watch_directory_of_file #{e.absolute_name}")
+          h_directory_of_file(filename, e.flags) if e.absolute_name == filename
         }
       end
 
       def watch_directory(dirname)
-        # watch dir for created and deleted files
-        @inotify.watch(dirname,
-                       :create, :moved_to, :moved_from) { |e|
-          h_directory(e)
+        @inotify.watch(dirname, :create, :delete, :moved_to, :moved_from) { |e|
+          Log.debug("watch_directory: #{e.absolute_name}")
+          if ::File.exist? e.absolute_name
+            h_directory(e.absolute_name, e.flags)
+          end
         }
       end
 
       # Handlers of inotify changes
 
-      def h_file(event)
-        Log.debug("w_file: #{event.absolute_name}")
+      def h_file(filename, events)
+        Log.debug("h_file: #{filename}")
 
-        unless @events[event.absolute_name]
-          @events[event.absolute_name] = []
+        unless @events[filename]
+          @events[filename] = []
         end
 
-        @events[event.absolute_name] << event
+        @events[filename] += events
       end
 
-      def h_directory_of_file(filename, event)
-        Log.debug("w_directory_of_file: #{event.absolute_name}")
+      def h_directory_of_file(filename, events)
+        Log.debug("h_directory_of_file: #{filename}")
 
-        unless @events[event.absolute_name]
-          @events[event.absolute_name] = []
+        unless @events[filename]
+          @events[filename] = []
         end
 
-        @events[event.absolute_name] << event
+        @events[filename] += events
         watch_file(filename)
       end
 
-      def h_directory(event)
-        file = event.absolute_name
-        Log.debug("w_directory: #{file}")
+      def h_directory(filename, events)
+        Log.debug("h_directory: #{filename}")
 
-        if ::File.file? file
-          watch_file(file)
-        elsif ::File.directory? file
-          watch_directory(file)
+        if ::File.file? filename
+          watch_file(filename)
+        elsif ::File.directory? filename
+          watch_directory(filename)
         end
 
         # Better pass a file
-        unless @events[file]
-          @events[file] = []
+        unless @events[filename]
+          @events[filename] = []
         end
 
-        @events[file] << event
+        @events[filename] += events
       end
 
+      def guess_event(events)
+        if events.length == 1
+          return events.first
+        end
+
+        if events.include? :create and events.include? :modify
+          return :modify
+        end
+
+        if events.include? :delete and not events.include? :create
+          return :delete
+        end
+        # TODO: find out more logic
+        return events.last
+      end
     end
   end
 end

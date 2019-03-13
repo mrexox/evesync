@@ -6,6 +6,9 @@ module  Sysmoon
   module IPC
     class Client
       include IPC
+
+      attr_reader :uri
+
       def initialize(params)
         check_params_provided(params, [:port])
         port = get_port(params)
