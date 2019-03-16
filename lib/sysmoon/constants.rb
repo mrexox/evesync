@@ -5,5 +5,7 @@ module Sysmoon
     DATAD_PORT = '54321'
     HAND_PORT  = '55432'
     WATCH_PERIOD = 2
+    DB_PATH = '/var/lib/sysmoon/db/'
+    FILES_PATH = '/var/lib/sysmoon/files/'
   end
 end

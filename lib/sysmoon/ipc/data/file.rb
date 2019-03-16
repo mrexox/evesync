@@ -14,13 +14,26 @@ module Sysmoon
           CREATE = :create # File was created
         end
 
-        attr_reader :name, :mode, :touched_at, :action
+        attr_reader :name, :mode, :action, :timestamp
 
         def initialize(params)
           @name = params[:name].freeze
           @mode = params[:mode].freeze
-          @touched_at = params[:touched_at].freeze
           @action = parse_action(params[:action]).freeze
+          @timestamp = Time.now.to_f.to_s
+          @content = IO.read(@name).freeze if ::File.exist? @name
+        end
+
+        # == Synopsis
+        #  The content of a file for remote call. Sends as
+        #  a plain text(?), no extra calls between machines.
+        #
+        # == TODO
+        #  * Think about binary data
+        #  * Encoding information
+        #  * Large file sending
+        def content
+          @content
         end
 
         private

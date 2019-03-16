@@ -25,7 +25,8 @@ module Sysmoon
         # @lock: avoid cleaning something that may be needed. May cause problems
         @lock = false
         @events = {}
-
+        @wfiles = []
+        @wdirs = []
         initialize_watcher
       end
 
@@ -96,16 +97,31 @@ module Sysmoon
       def watch_file(filename)
         # add file modify watch
         Log.debug("Added watch_file #{filename}")
-        @inotify.watch(filename, :modify) {
-          Log.debug("watch_file #{filename}")
-          h_file(filename, [:modify])
+
+        @inotify.watch(filename, :modify) { |e|
+          Log.debug("h_file worked for #{e.absolute_name}")
+          h_file(e.absolute_name, [:modify]) # the only flag we need
         }
+
+        # Waiting for file to disappear and created again
+        @wfiles << filename unless @wfiles.include?(filename)
+        dirname = ::File.dirname(filename)
+        unless @wdirs.include?(dirname)
+          watch_directory_for_file(dirname)
+          @wdirs << dirname
+        end
       end
 
       def watch_directory(dirname)
         @inotify.watch(dirname, :create, :delete, :moved_to, :moved_from) { |e|
           Log.debug("watch_directory: #{e.absolute_name}")
           h_directory(e.absolute_name, e.flags)
+        }
+      end
+
+      def watch_directory_for_file(dirname)
+        @inotify.watch(dirname, :create, :moved_to) { |e|
+          watch_file(e.absolute_name) if @wfiles.include? e.absolute_name
         }
       end
 
@@ -121,7 +137,8 @@ module Sysmoon
         @events[filename] += events
       end
 
-      def h_directory_of_file(filename, events)
+      # FIXME: remove
+      def h_directory_for_file(filename, events)
         Log.debug("h_directory_of_file: #{filename}")
 
         unless @events[filename]

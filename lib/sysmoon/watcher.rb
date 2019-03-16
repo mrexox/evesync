@@ -70,21 +70,11 @@ module Sysmoon
       end
 
       def ignore(change)
-        Log.debug("Ignore: #{change.class.name}")
-        # FIXME: this is dirty
-        basic_class_name = change.class.name.split('::')[-1]
+        execute_on_handler(:ignore, change)
+      end
 
-        handler = @watchers.find { |w|
-          w.class.name.include? basic_class_name
-        }
-
-        if handler
-          handler.ignore(change)
-        else
-          # TODO: forward somewhere
-          Log.info("No watcher was notified to ignore #{change}")
-        end
-
+      def unignore(change)
+        execute_on_handler(:unignore, change)
       end
 
       private
@@ -106,6 +96,23 @@ module Sysmoon
           end
         else
           Log.fatal("Error with data daemon: no response")
+        end
+      end
+
+      def execute_on_handler(method, change)
+        Log.debug("#{method.capitalize}: #{change.class.name}")
+        # FIXME: this is dirty
+        basic_class_name = change.class.name.split('::')[-1]
+
+        handler = @watchers.find { |w|
+          w.class.name.include? basic_class_name
+        }
+
+        if handler
+          handler.send(method, change)
+        else
+          # TODO: forward somewhere
+          Log.error("No watcher was notified to unignore #{change}")
         end
       end
     end
