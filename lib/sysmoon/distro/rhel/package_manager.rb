@@ -1,6 +1,7 @@
 require 'sysmoon/log'
 
 # Manages package manager things
+# TODO: trigger package_watcher event to update database
 module Sysmoon
   module RhelPackageManager
     class << self

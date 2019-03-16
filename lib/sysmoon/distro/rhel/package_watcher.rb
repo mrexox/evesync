@@ -35,8 +35,8 @@ module Sysmoon
     def ignore(package)
       Log.debug('Checking if package would be ignored')
       if package.is_a? IPC::Data::Package
-        Log.debug('Package is ignored')
         @ignore << package
+        Log.debug('Package is ignored')
       else
         Log.debug('Package is not an IPC::Data::Package instance')
       end

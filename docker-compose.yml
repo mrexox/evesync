@@ -1,9 +1,10 @@
 version: '3.3'
 
 # docker-compose build
-# docker-compose run --rm centos-1
-# docker-compose run --rm centos-2
-# Then use tmux to start sysmoon and make tests
+# docker-compose up --detach
+# docker attach {hash of a container}
+# ...
+# docker-compose rm --force
 
 services:
   centos-1:
@@ -15,6 +16,7 @@ services:
       - "55432" # syshand
     tty: true
     stdin_open: true
+    entrypoint: /bin/tmux
 
   centos-2:
     build:
@@ -25,3 +27,4 @@ services:
       - "55432" # syshand
     tty: true
     stdin_open: true
+    entrypoint: /bin/tmux

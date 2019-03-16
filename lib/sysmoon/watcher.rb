@@ -45,7 +45,7 @@ module Sysmoon
               :ip => ip
             )
           end
-        }
+        }.compact
         Log.debug('Watcher initialized')
       end
 
@@ -97,7 +97,7 @@ module Sysmoon
           Log.info("Sysdata response:", response)
           @remote_syshands.each do |syshand|
             begin
-              Timeout::timeout(3) {
+              Timeout::timeout(30) {
                 syshand.handle(change) # FIXME: add timeout
               }
             rescue Timeout::Error
