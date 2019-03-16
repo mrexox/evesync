@@ -1,0 +1,27 @@
+version: '3.3'
+
+# docker-compose build
+# docker-compose run --rm centos-1
+# docker-compose run --rm centos-2
+# Then use tmux to start sysmoon and make tests
+
+services:
+  centos-1:
+    build:
+      context: .
+      dockerfile: dockerfiles/centos.dockerfile
+    image: sysmoon-centos:7.4.1708
+    ports:
+      - "55432" # syshand
+    tty: true
+    stdin_open: true
+
+  centos-2:
+    build:
+      context: .
+      dockerfile: dockerfiles/centos.dockerfile
+    image: sysmoon-centos:7.4.1708
+    ports:
+      - "55432" # syshand
+    tty: true
+    stdin_open: true

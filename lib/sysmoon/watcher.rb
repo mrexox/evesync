@@ -2,6 +2,7 @@ require 'timeout'
 require 'drb'
 require 'sysmoon/log'
 require 'sysmoon/configuration'
+require 'sysmoon/utils'
 require 'sysmoon/ipc/client'
 require 'sysmoon/watcher/file'
 require 'sysmoon/watcher/package'
@@ -38,10 +39,12 @@ module Sysmoon
         end
         @sysdatad = IPC::Client.new(:port => :sysdatad)
         @remote_syshands = Configuration[:sysmoond]['remotes'].map {|ip|
-          IPC::Client.new(
-            :port => :syshand,
-            :ip => ip
-          )
+          unless Utils::local_ip?(ip)
+            next IPC::Client.new(
+              :port => :syshand,
+              :ip => ip
+            )
+          end
         }
         Log.debug('Watcher initialized')
       end
@@ -55,7 +58,7 @@ module Sysmoon
           @watchers.each do |watcher|
             @threads << watcher.run
           end
-          @threads << Thread.new { loop { biz } }
+          @threads << (Thread.new { loop { biz } })
         end
         Log.debug('Watcher started')
         self

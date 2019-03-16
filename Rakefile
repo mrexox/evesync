@@ -42,3 +42,11 @@ end
 task :lines do
   sh 'find . -name "*.rb" -exec grep -v -E "^\s*#|^\s*$" \{} \+ | wc -l'
 end
+
+task :docker do
+  sh 'docker-compose build'
+end
+
+task :up do
+  sh 'docker-compose up -d'
+end

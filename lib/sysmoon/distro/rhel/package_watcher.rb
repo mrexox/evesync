@@ -42,18 +42,16 @@ module Sysmoon
       end
     end
 
+    def unignore(package)
+      index = find_ignore_index(package)
+      @ignore.delete_at(index)
+    end
+
     private
 
     def process_or_ignore(package)
-      index = -1
       Log.debug("Ignore aray: #{@ignore}")
-
-      @ignore.each_with_index do |ignpkg, i|
-        if ignpkg.name == package.name and ignpkg.version == package.version and ignpkg.command == package.command
-          index = i
-          break
-        end
-      end
+      index = find_ignore_index(package)
 
       if index != -1
         Log.debug("Igored package #{package}")
@@ -62,6 +60,15 @@ module Sysmoon
       end
 
       true
+    end
+
+    def find_ignore_index(package)
+      @ignore.each_with_index do |ignpkg, i|
+        if ignpkg.name == package.name and ignpkg.version == package.version and ignpkg.command == package.command
+          return i
+        end
+      end
+      -1
     end
   end
 end
