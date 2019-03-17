@@ -18,7 +18,6 @@ module Sysmoon
     class File
       def initialize(queue)
         @queue = queue
-        @ignore = []
         @watches = Config[:sysmoond]['watch']
         @period = Config[:sysmoond]['watch_interval'].to_i || Constants::WATCH_PERIOD
         @inotify = INotify::Notifier.new
@@ -32,30 +31,18 @@ module Sysmoon
 
       def run
         @inotify_thr = Thread.new { @inotify.run }
-        @main_thr = Thread.new {
-          loop do
-            sleep @period
-            send_events
-          end
-        }
       end
 
       def stop
         @inotify.stop
         @inotify_thr.join # FIXME: maybe exit
-        @main_thr.exit
-      end
-
-      def ignore(file)
-        @ignore << file if
-          file.is_a? IPC::Data::File
       end
 
       private
 
       # Send all events from the methods-handlers
       def send_events
-        # Log.debug("send_events: #{@events}") # for bad debugging
+        # Log.debug("send_events: #{@events}")
         @events.each do |file, events|
           event = guess_event(events)
           mode = case event
@@ -63,20 +50,19 @@ module Sysmoon
                  else ::File::Stat.new(file).mode
                  end
 
-          ipc_event = IPC::Data::File.new(
-            :name => file,
-            :mode => mode,
-            :action => event,
-            :touched_at => DateTime.now.to_s,
-          )
-          Log.debug("File #{file} #{event} guessed of #{events}")
-          @queue.push(ipc_event)
+          @queue.push IPC::Data::File.new(
+                        :name => file,
+                        :mode => mode,
+                        :action => event,
+                        :touched_at => DateTime.now.to_s,
+                      )
+          Log.debug("File #{file} #{event} guessed " \
+                    "of #{events}")
         end
         @events = {}
       end
 
       def initialize_watcher
-
         @watches.each do |filename|
           unless ::File.exist? filename
             Log.error("#{self.class.name}: '#{filename}' absent on system")
