@@ -23,6 +23,12 @@ module Sysmoon
           @command = parse_command(params[:command]).freeze
         end
 
+        def ==(pkg)
+          pkg.name == @name and
+            pkg.version == @version and
+            pkg.command == @command
+        end
+
         def to_s
           "Package(#{@command.upcase}: #{name}-#{@version})"
         end

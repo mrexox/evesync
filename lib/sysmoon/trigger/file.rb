@@ -11,9 +11,9 @@ module Sysmoon
         @remotes = params[:remotes]
       end
 
-      def process()
-        if save_to_db(@db)
-          send_to_remotes(@remotes)
+      def process(file_message)
+        if save_to_db(@db, file_message)
+          send_to_remotes(@remotes, file_message)
         end
       end
 
@@ -22,7 +22,8 @@ module Sysmoon
       end
 
       def unignore
-
+        # FIXME: Change in future
+        @ignore.pop
       end
     end
   end

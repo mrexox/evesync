@@ -26,4 +26,3 @@ module Sysmoon
     end
   end
 end
-end

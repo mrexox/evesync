@@ -6,13 +6,17 @@ module Sysmoon
     class Package
       include Base
 
-      def intialize
+      def intialize(params)
         @ignore = []
+        @db = params[:db]
+        @remotes = params[:remotes]
       end
 
-      def process(package)
-        if process_or_ignore(package)
-          true
+      def process(package_message)
+        if process_or_ignore(package_message)
+          if save_to_db(@db, package_message)
+            send_to_remotes(@remotes, package_message)
+          end
         else
           false
         end
@@ -50,7 +54,7 @@ module Sysmoon
 
       def find_ignore_index(package)
         @ignore.each_with_index do |ignpkg, i|
-          if ignpkg.name == package.name and ignpkg.version == package.version and ignpkg.command == package.command
+          if ignpkg == package
             return i
           end
         end

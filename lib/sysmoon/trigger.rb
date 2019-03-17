@@ -33,7 +33,7 @@ module Sysmoon
         remotes: remote_handlers
       )
 
-      @triggers = [@package_trigger, @file_trigger]
+      @triggers = [package_trigger, file_trigger]
 
       Log.debug('Trigger initialized')
     end
@@ -71,8 +71,6 @@ module Sysmoon
     # Send a method to target (choose by change class name)
     def trigger_method(method, change)
       Log.debug("#{method.capitalize}: #{change.class.name}")
-      # FIXME: this is dirty
-      basic_class_name = change.class.name.split('::')[-1]
 
       trigger = message_trigger(change)
 
