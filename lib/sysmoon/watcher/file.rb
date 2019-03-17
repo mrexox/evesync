@@ -1,10 +1,10 @@
 require 'date'
 require 'rb-inotify'
-require 'sysmoon/configuration'
+require 'sysmoon/config'
 require 'sysmoon/ipc/data/file'
 
 module Sysmoon
-  module Watcher
+  class Watcher
 
     # = Synopsis
     #
@@ -19,8 +19,8 @@ module Sysmoon
       def initialize(queue)
         @queue = queue
         @ignore = []
-        @watches = Configuration[:sysmoond]['watch']
-        @period = Configuration[:sysmoond]['watch_interval'].to_i || Constants::WATCH_PERIOD
+        @watches = Config[:sysmoond]['watch']
+        @period = Config[:sysmoond]['watch_interval'].to_i || Constants::WATCH_PERIOD
         @inotify = INotify::Notifier.new
         # @lock: avoid cleaning something that may be needed. May cause problems
         @lock = false

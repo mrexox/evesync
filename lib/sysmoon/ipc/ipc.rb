@@ -1,4 +1,4 @@
-require 'sysmoon/configuration'
+require 'sysmoon/config'
 
 module Sysmoon
 
@@ -29,7 +29,7 @@ module Sysmoon
     def get_port(params)
       port = params[:port]
       if port.is_a? Symbol
-        Configuration[port.to_s]['port']
+        Config[port.to_s]['port']
       else
         port_i = port.to_i
         unless port_i < 65535 and port_i > 49152

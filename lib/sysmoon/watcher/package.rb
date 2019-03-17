@@ -1,7 +1,7 @@
 require 'sysmoon/distro'
 
 module Sysmoon
-  module Watcher
+  class Watcher
     # Package class is a reference to Distro::PackageWatcher
     Package = Distro::PackageWatcher
   end

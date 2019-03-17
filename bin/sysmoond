@@ -1,17 +1,22 @@
 #!/usr/bin/env ruby
 # -*- mode: ruby -*-
 
-require 'sysmoon/watcher'
 require 'sysmoon/log'
 require 'sysmoon/ipc/server'
+require 'sysmoon/trigger'
+require 'sysmoon/watcher'
 
 Sysmoon::Log.info 'sysmoond starting...'
 
-watcher = Sysmoon::Watcher::Main.new.start
+queue = Queue.new
+trigger = Sysmoon::Trigger.new(queue)
+watcher = Sysmoon::Watcher.new(queue)
+
+[trigger, watcher].each(&:start)
 
 sysmoon_server = Sysmoon::IPC::Server.new(
   port: :sysmoond,
-  proxy: watcher
+  proxy: trigger
 ).start
 
 Sysmoon::Log.info 'sysmoond started!'
@@ -19,7 +24,7 @@ Sysmoon::Log.info 'sysmoond started!'
 # Signal handling
 
 Signal.trap('SIGINT') do
-  watcher.stop
+  [watcher, trigger].each(&:stop)
   sysmoon_server.stop
   exit(0)
 end

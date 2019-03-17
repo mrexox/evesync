@@ -3,7 +3,7 @@ require 'sysmoon/constants'
 require 'sysmoon/log'
 
 module Sysmoon
-  module Configuration
+  module Config
 
     def self.[](daemon)
       unless defined? @@config

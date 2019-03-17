@@ -1,7 +1,7 @@
 require 'fileutils'
 require 'json'
 require 'lmdb'
-require 'sysmoon/configuration'
+require 'sysmoon/config'
 require 'sysmoon/constants'
 require 'sysmoon/ipc/data/package'
 require 'sysmoon/ipc/data/file'
@@ -9,11 +9,11 @@ require 'sysmoon/ipc/data/ignore'
 
 
 module Sysmoon
-  module Handler
+  class Trigger
 
     # = Synopsis:
     #
-    # *Data* class is a handler for *sysdatad* daemon
+    # *Database* class is a proxy for *sysdatad* daemon
     # implements at least one method: +save+. Allows
     # Local +sysmoond+ save messages about changes
     #
@@ -22,9 +22,9 @@ module Sysmoon
     # = TODO:
     #  * Think about how it can be widened
     #
-    class Data
+    class Database
       def initialize
-        path = Configuration[:sysdatad]['db_path'] ||
+        path = Config[:sysdatad]['db_path'] ||
                Constants::DB_PATH
         unless ::File.exist? path
           # FIXME: only root. handle exception
@@ -32,7 +32,7 @@ module Sysmoon
         end
         @env = LMDB.new(path)
         @db = @env.database
-        @files_path = Configuration[:sysdatad]['db_path'] ||
+        @files_path = Config[:sysdatad]['db_path'] ||
                       Constants::FILES_PATH
       end
 

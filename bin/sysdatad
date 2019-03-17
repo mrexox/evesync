@@ -3,16 +3,16 @@
 
 require 'sysmoon/ipc/server'
 require 'sysmoon/log'
-require 'sysmoon/handler/data'
+require 'sysmoon/trigger/database'
 
 Sysmoon::Log.info("starting sysdatad...")
 
-data_handler = Sysmoon::Handler::Data.new # TODO: pass config
+database = Sysmoon::Trigger::Database.new
 
 # Creating an IPC server to accept data
 data_server = Sysmoon::IPC::Server.new(
-  :port => :sysdatad,
-  :proxy => data_handler
+  port: :sysdatad,
+  proxy: database
 ).start
 
 Signal.trap('TERM') do

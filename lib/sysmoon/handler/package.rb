@@ -2,7 +2,7 @@ require 'sysmoon/log'
 require 'sysmoon/distro'
 
 module Sysmoon
-  module Handler
+  class Handler
     class Package
       def handle(message)
         Log.debug("Handling #{message}")
