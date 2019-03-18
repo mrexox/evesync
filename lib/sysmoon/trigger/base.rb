@@ -11,11 +11,11 @@ module Sysmoon
 
       # Every element in *remotes* must have a realization
       # of _handle_ method
-      def send_to_remotes(remotes)
+      def send_to_remotes(remotes, message)
         remotes.each do |syshand|
           begin
             Timeout::timeout(30) { # FIXME: take from Config
-              syshand.handle(change)
+              syshand.handle(message)
             }
           rescue Timeout::Error
             Log.warn("Syshand server #{syshand.uri} " \

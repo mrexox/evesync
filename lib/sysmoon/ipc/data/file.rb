@@ -24,6 +24,14 @@ module Sysmoon
           @content = IO.read(@name).freeze if ::File.exist? @name
         end
 
+        def ==(other)
+          @name == other.name and
+            @mode == other.mode and
+            @action == other.action and
+            @timestamp == other.timestamp
+          # conten comparing may cost too much
+        end
+
         # == Synopsis
         #  The content of a file for remote call. Sends as
         #  a plain text(?), no extra calls between machines.

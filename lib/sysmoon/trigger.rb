@@ -65,7 +65,7 @@ module Sysmoon
       change = @watcher_queue.pop
       Log.info "#{self.class.name}: #{change}"
       trigger = message_trigger(change)
-      trigger.process change
+      trigger.process(change)
     end
 
     # Send a method to target (choose by change class name)
@@ -86,7 +86,7 @@ module Sysmoon
     def message_trigger(message)
       class_last = message.class.name.to_s.split('::')[-1]
       @triggers.find { |trigger|
-        trigger.include? class_last
+        trigger.to_s.include? class_last
       }
     end
   end

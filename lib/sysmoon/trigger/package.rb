@@ -6,59 +6,39 @@ module Sysmoon
     class Package
       include Base
 
-      def intialize(params)
+      def initialize(params)
         @ignore = []
         @db = params[:db]
         @remotes = params[:remotes]
+        @data_class = IPC::Data::Package
       end
 
       def process(package_message)
-        if process_or_ignore(package_message)
+        if ignore?(package_message)
+          unignore(package_message)
+          false
+        else
           if save_to_db(@db, package_message)
             send_to_remotes(@remotes, package_message)
+            true
           end
-        else
-          false
         end
       end
 
       def ignore(package)
-        Log.debug('Checking if package would be ignored')
-        if package.is_a? IPC::Data::Package
-          @ignore << package
-          Log.debug('Package is ignored')
-        else
-          Log.debug('Package is not an IPC::Data::Package instance')
-        end
+        @ignore << package if
+          package.is_a? @data_class
       end
 
       def unignore(package)
-        index = find_ignore_index(package)
-        @ignore.delete_at(index)
+        @ignore.delete_if { |p| p == package }
       end
 
       private
 
-      def process_or_ignore(package)
-        Log.debug("Ignore aray: #{@ignore}")
-        index = find_ignore_index(package)
-
-        if index != -1
-          Log.debug("Igored package #{package}")
-          @ignore.delete_at(index)
-          return nil
-        end
-
-        true
-      end
-
-      def find_ignore_index(package)
-        @ignore.each_with_index do |ignpkg, i|
-          if ignpkg == package
-            return i
-          end
-        end
-        -1
+      def ignore?(package)
+        Log.debug("Package ignore aray: #{@ignore}")
+        @ignore.find { |p| p == package }
       end
 
     end

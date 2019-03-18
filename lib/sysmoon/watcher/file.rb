@@ -21,8 +21,6 @@ module Sysmoon
         @watches = Config[:sysmoond]['watch']
         @period = Config[:sysmoond]['watch_interval'].to_i || Constants::WATCH_PERIOD
         @inotify = INotify::Notifier.new
-        # @lock: avoid cleaning something that may be needed. May cause problems
-        @lock = false
         @events = {}
         @wfiles = []
         @wdirs = []
@@ -31,18 +29,24 @@ module Sysmoon
 
       def run
         @inotify_thr = Thread.new { @inotify.run }
+        @main_thr = Thread.new {
+          loop {
+            sleep @period
+            send_events
+          }
+        }
       end
 
       def stop
         @inotify.stop
         @inotify_thr.join # FIXME: maybe exit
+        @main_thr.exit
       end
 
       private
 
       # Send all events from the methods-handlers
       def send_events
-        # Log.debug("send_events: #{@events}")
         @events.each do |file, events|
           event = guess_event(events)
           mode = case event
@@ -50,12 +54,13 @@ module Sysmoon
                  else ::File::Stat.new(file).mode
                  end
 
-          @queue.push IPC::Data::File.new(
-                        :name => file,
-                        :mode => mode,
-                        :action => event,
-                        :touched_at => DateTime.now.to_s,
-                      )
+          msg = IPC::Data::File.new(
+                :name => file,
+                :mode => mode,
+                :action => event,
+                :touched_at => DateTime.now.to_s,
+          )
+          @queue.push msg
           Log.debug("File #{file} #{event} guessed " \
                     "of #{events}")
         end
