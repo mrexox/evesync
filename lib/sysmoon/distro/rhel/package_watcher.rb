@@ -10,8 +10,6 @@ module Sysmoon
     def initialize(queue)
       @queue = queue
       @rpm_packages = Rpm.new
-      @ignore = []
-      @thread = nil
       Log.debug('Rhel package watcher initialized')
     end
 
@@ -21,10 +19,8 @@ module Sysmoon
         loop {
           sleep 10 # FIXME: don't use magic numbers
           @rpm_packages.changes.each do |pkg|
-            if process_or_ignore(pkg)
-              @queue << pkg
-              Log.debug pkg
-            end
+            @queue << pkg
+            Log.debug pkg
           end
         }
       end
