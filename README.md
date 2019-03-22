@@ -1,3 +1,8 @@
+# Sysmoon
+[![Build Status](https://travis-ci.org/mrexox/sysmoon.svg?branch=master)](https://travis-ci.org/mrexox/sysmoon)
+
+A simple ruby-written service for automation files and packages changes between similar hosts.
+
 ### Testing
 
 #### Starting containers with sysmoon service

@@ -9,13 +9,14 @@ COPY Gemfile /sysmoon/Gemfile
 WORKDIR /sysmoon
 
 # Installing other stuff
-RUN bundle
+RUN bundle install
+RUN gem install rake
 
 # Adding all other files
 COPY . /sysmoon
 COPY ./sysmoon.conf /etc/sysmoon.conf
 
-RUN rake
+RUN rake build
 RUN rake install
 
 EXPOSE "55432"
