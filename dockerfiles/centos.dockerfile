@@ -16,6 +16,7 @@ COPY . /sysmoon
 COPY ./sysmoon.conf /etc/sysmoon.conf
 
 RUN rake
+RUN rake install
 
 EXPOSE "55432"
 

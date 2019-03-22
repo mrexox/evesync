@@ -5,8 +5,6 @@ require 'sysmoon/ipc/data/package'
 module Sysmoon
   class RhelPackageWatcher
 
-    attr_reader :thread # FIXME: remove
-
     def initialize(queue)
       @queue = queue
       @rpm_packages = Rpm.new
@@ -27,6 +25,5 @@ module Sysmoon
 
       @thread
     end
-
   end
 end
