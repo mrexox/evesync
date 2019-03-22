@@ -14,7 +14,7 @@ RUN gem install rake
 
 # Adding all other files
 COPY . /sysmoon
-COPY ./sysmoon.conf /etc/sysmoon.conf
+COPY ./config/example.conf /etc/sysmoon.conf
 
 RUN rake build
 RUN rake install
