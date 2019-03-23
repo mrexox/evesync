@@ -2,7 +2,8 @@ FROM debian:latest
 
 RUN apt update
 RUN apt install -y \
-    build-essential iproute ruby-dev tmux
+    build-essential iproute ruby-dev screen procps
+
 
 COPY Gemfile /sysmoon/Gemfile
 
@@ -22,4 +23,4 @@ RUN rake install
 
 EXPOSE "55432"
 
-ENTRYPOINT ["/bin/tmux"]
+ENTRYPOINT ["screen"]

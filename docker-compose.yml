@@ -7,24 +7,23 @@ version: '3.3'
 # docker-compose rm --force
 
 services:
-  centos-1:
+  debian-1:
     build:
       context: .
-      dockerfile: dockerfiles/centos.dockerfile
-    image: sysmoon-centos:7.4.1708
+      dockerfile: dockerfiles/debian.dockerfile
+    image: sysmoon-debian:latest
     ports:
       - "55432" # syshand
     tty: true
     stdin_open: true
-    entrypoint: /bin/tmux
 
-  centos-2:
+
+  debian-2:
     build:
       context: .
-      dockerfile: dockerfiles/centos.dockerfile
-    image: sysmoon-centos:7.4.1708
+      dockerfile: dockerfiles/debian.dockerfile
+    image: sysmoon-debian:latest
     ports:
       - "55432" # syshand
     tty: true
     stdin_open: true
-    entrypoint: /bin/tmux

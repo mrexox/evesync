@@ -1,6 +1,6 @@
 module Sysmoon
   module Constants
-    CONFIG_FILE   = './sysmoon.conf'.freeze
+    CONFIG_FILE   = '/etc/sysmoon.conf'.freeze
     MOOND_PORT = '55443'
     DATAD_PORT = '54321'
     HAND_PORT  = '55432'
