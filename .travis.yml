@@ -24,10 +24,26 @@ script:
 jobs:
   include:
     - stage: docker
-      name: "Building sysmoon in a container"
+      name: "Building sysmoon in a CentOS container"
       script:
         - |
           docker build \
           --file dockerfiles/centos.dockerfile \
-          --tag sysmoon:latest \
+          --tag sysmoon-rhel:latest \
+          .
+    - stage: docker
+      name: "Building sysmoon in a Debian container"
+      script:
+        - |
+          docker build \
+          --file dockerfiles/debian.dockerfile \
+          --tag sysmoon-deb:latest \
+          .
+    - stage: docker
+      name: "Building sysmoon in a ArchLinux container"
+      script:
+        - |
+          docker build \
+          --file dockerfiles/archlinux.dockerfile \
+          --tag sysmoon-arch:latest \
           .

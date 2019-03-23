@@ -23,6 +23,34 @@ module Sysmoon
           end
         end
       end
+
+      def process(message)
+        if ignore?(message)
+          unignore(message)
+          false
+        else
+          if save_to_db(@db, message)
+            send_to_remotes(@remotes, message)
+            true
+          end
+        end
+      end
+
+      def ignore(ipc_data)
+        @ignore << ipc_data if
+          ipc_data.is_a? @@data_class
+      end
+
+      def unignore(ipc_data)
+        @ignore.delete_if { |d| d == ipc_data }
+      end
+
+      private
+
+      def ignore?(ipc_data)
+        Log.debug("File ignore aray: #{@ignore}")
+        @ignore.find { |d| d == ipc_data }
+      end
     end
   end
 end

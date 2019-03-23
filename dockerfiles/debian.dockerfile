@@ -1,16 +1,17 @@
-FROM centos:7.4.1708
+FROM debian:latest
 
-# Installing dependencies first
-RUN yum install -y ruby ruby-devel rubygem-bundler \
-    make gcc g++ tmux iproute
+RUN apt update
+RUN apt install -y \
+    build-essential iproute ruby-dev tmux
 
 COPY Gemfile /sysmoon/Gemfile
 
 WORKDIR /sysmoon
 
 # Installing other stuff
-RUN gem install rake
+RUN gem install rake bundler
 RUN bundle install
+
 
 # Adding all other files
 COPY . /sysmoon

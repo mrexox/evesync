@@ -1,15 +1,17 @@
-FROM centos:7.4.1708
+FROM archlinux/base
 
-# Installing dependencies first
-RUN yum install -y ruby ruby-devel rubygem-bundler \
-    make gcc g++ tmux iproute
+RUN pacman -Sy --noconfirm \
+    grep iproute2 ruby ruby-bundler \
+    ruby-rake make gcc awk diffutils tmux
+
+
+
 
 COPY Gemfile /sysmoon/Gemfile
 
 WORKDIR /sysmoon
 
 # Installing other stuff
-RUN gem install rake
 RUN bundle install
 
 # Adding all other files

@@ -12,15 +12,6 @@ module Sysmoon
         ::File.write(name, content)
         'Fine'
       end
-
-      def ignore(file)
-        Log.debug("Yuuuuaaa ignoring #{file}")
-      end
-
-      def unignore(file)
-        Log.debug("Oooooyeeee unignoring #{file}")
-        'Oops'
-      end
     end
   end
 end
