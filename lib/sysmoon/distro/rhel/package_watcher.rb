@@ -1,6 +1,5 @@
 require_relative './rpm'
 require 'sysmoon/log'
-require 'sysmoon/ipc/data/package'
 
 module Sysmoon
   module Distro
@@ -14,7 +13,7 @@ module Sysmoon
 
       def run
         Log.debug('Rhel package watcher run')
-        @thread = Thread.new do
+        Thread.new do
           loop {
             sleep 10 # FIXME: don't use magic numbers
             @rpm_packages.changes.each do |pkg|
@@ -23,8 +22,6 @@ module Sysmoon
             end
           }
         end
-
-        @thread
       end
     end
   end

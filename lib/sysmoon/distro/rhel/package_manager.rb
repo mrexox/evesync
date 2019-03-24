@@ -34,7 +34,7 @@ module Sysmoon
 
         def exist?(name, version)
           Log.debug("Checking if #{name}-#{version} exists")
-          %x(rpm -q #{name}-#{version})
+          %x(rpm -q #{name}-#{version} >/dev/null 2>&1)
           $? == 0
         end
       end

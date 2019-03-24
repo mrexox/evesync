@@ -10,8 +10,10 @@ module Sysmoon
         @ignore = []
         @db = params[:db]
         @remotes = params[:remotes]
-        @@data_class = IPC::Data::File
       end
+
+      def data_class; IPC::Data::File; end
+
     end
   end
 end

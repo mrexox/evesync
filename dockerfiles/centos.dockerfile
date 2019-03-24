@@ -16,7 +16,7 @@ RUN bundle install
 COPY . /sysmoon
 COPY ./config/example.conf /etc/sysmoon.conf
 
-RUN rake build
+RUN rake
 RUN rake install
 
 EXPOSE "55432"

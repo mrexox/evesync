@@ -75,7 +75,7 @@ module Sysmoon
       trigger = message_trigger(change)
 
       if trigger
-        trigger.send(method, change)
+        trigger.send(method, change) && true
       else
         # TODO: forward somewhere
         Log.error("No watcher was notified to unignore " \

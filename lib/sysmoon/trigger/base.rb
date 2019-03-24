@@ -38,7 +38,7 @@ module Sysmoon
 
       def ignore(ipc_data)
         @ignore << ipc_data if
-          ipc_data.is_a? @@data_class
+          ipc_data.is_a? data_class
       end
 
       def unignore(ipc_data)

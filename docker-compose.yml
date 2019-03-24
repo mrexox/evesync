@@ -7,7 +7,7 @@ version: '3.3'
 # docker-compose rm --force
 
 services:
-  debian-1:
+  node-1:
     build:
       context: .
       dockerfile: dockerfiles/debian.dockerfile
@@ -17,8 +17,7 @@ services:
     tty: true
     stdin_open: true
 
-
-  debian-2:
+  node-2:
     build:
       context: .
       dockerfile: dockerfiles/debian.dockerfile
