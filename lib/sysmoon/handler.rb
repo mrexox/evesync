@@ -8,15 +8,32 @@ module Sysmoon
   # = Synopsis:
   #
   #   Handles package changes, sent via Package class and queue
-  #   Sends messages to sysdatad and available syshands
+  #   Sends messages to sysdatad and available syshands.
+  # [See]
+  #     - *Sysmoon::Trigger::File*
+  #     - *Sysmoon::Trigger::Package*
   #
   # [Handlers available:]
-  #   - Sysmoon::Handler::Package
-  #   - Sysmoon::Handler::File
+  #   - *Sysmoon::Handler::Package*
+  #   - *Sysmoon::Handler::File*
   #
   # = Example:
   #
-  #   thread = Sysmoon::Handler::Changes.new(queue).run
+  #   handler = Sysmoon::Handler.new(queue)
+  #   Sysmoon::IPC::Server.new(
+  #     :proxy => handler,
+  #     ...
+  #   )
+  #
+  # = Example call:
+  #
+  #   Sysmoon::IPC::Client.new(
+  #     :port => :syshand
+  #   ).handle(IPC::Data::Package.new(
+  #     :name => 'tree',
+  #     :version => '0.0.1',
+  #     :command => :install
+  #   )
   #
   # = TODO:
   #
@@ -49,6 +66,11 @@ module Sysmoon
         return
       end
       @sysmoon.ignore(message)
+
+      # TODO: add PackageManagerLock exception
+      # FIXME: package manger may be locked
+      # Add sleep and ones again try if PackageManagerLock
+      # exception is cought
       handler.handle(message) || @sysmoon.unignore(message)
 
       'Fine'

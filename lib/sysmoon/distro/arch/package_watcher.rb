@@ -1,5 +1,6 @@
 require 'file-tail'
 require 'sysmoon/log'
+require 'sysmoon/config'
 require 'sysmoon/ipc/data/package'
 
 module Sysmoon
@@ -34,7 +35,7 @@ module Sysmoon
         Thread.new do
           File.open(ARCH_LOG_FILE) do |log|
             log.extend(File::Tail)
-            log.interval = 3
+            log.interval = Config[:sysmoond]['watch-interval']
             log.backward(1)
             log.tail do |line|
               m = line.match(PKG_REGEXP)
