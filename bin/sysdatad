@@ -5,7 +5,7 @@ require 'sysmoon/ipc/server'
 require 'sysmoon/log'
 require 'sysmoon/trigger/database'
 
-Sysmoon::Log.info("starting sysdatad...")
+Sysmoon::Log.info('starting sysdatad...')
 
 database = Sysmoon::Trigger::Database.new
 
@@ -20,7 +20,7 @@ Signal.trap('TERM') do
   exit(0)
 end
 
-Sysmoon::Log.info("sysdatad started!")
+Sysmoon::Log.info('sysdatad started!')
 
 begin
   loop do

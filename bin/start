@@ -1,12 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 trap 'echo Exiting; \
 	pkill sysdatad; \
 	pkill sysmoon; \
 	pkill syshand; \
+	pkill syssyncd
 	exit 1' 2
 sysdatad &
 sysmoond &
 syshand &
+syssyncd &
+
 while true; do
-	sleep 100
+    sleep 1000
 done
