@@ -7,13 +7,13 @@ module  Sysmoon
     class Client
       include IPC
 
-      attr_reader :uri
+      attr_reader :ip, :uri
 
       def initialize(params)
         check_params_provided(params, [:port])
         port = get_port(params)
-        ip = params[:ip] || 'localhost' # TODO: check ip
-        @uri = "druby://#{ip}:#{port}"
+        @ip = params[:ip] || 'localhost' # TODO: check ip
+        @uri = "druby://#{@ip}:#{port}"
         # to remote calls for unmarshallable objects
         DRb.start_service
       end

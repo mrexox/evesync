@@ -6,6 +6,7 @@ module Sysmoon
     HAND_PORT  = '55432'
     WATCH_PERIOD = 2
     DB_PATH = '/var/lib/sysmoon/db/'
+    DISCOVER_TIMEOUT = 3600
     FILES_PATH = '/var/lib/sysmoon/files/'
   end
 end

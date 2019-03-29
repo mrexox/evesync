@@ -14,6 +14,7 @@ module Sysmoon
         @@config['sysmoond']['port'] ||= Constants::MOOND_PORT
         @@config['sysdatad']['port'] ||= Constants::DATAD_PORT
         @@config['syshand']['port']  ||= Constants::HAND_PORT
+        @@config['sysmoond']['discover_timeout'] ||= Constants::DISCOVER_TIMEOUT
       end
 
       @@config[daemon.to_s]

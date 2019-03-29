@@ -39,6 +39,7 @@ module Sysmoon
             log.backward(1)
             log.tail do |line|
               m = line.match(PKG_REGEXP)
+              next unless m
               pkg = IPC::Data::Package.new(
                 name: m[:package],
                 version: m[:version],

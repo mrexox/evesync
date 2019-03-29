@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+# -*- mode: ruby -*-
+
+require 'sysmoon/log'
+require 'sysmoon/sync'
+require 'sysmoon/config'
+
+# Exiting if `auto_discover = false'
+unless Sysmoon::Config[:sysmoond]['auto_discover']
+  Sysmoon::Log.info('syssyncd is not required')
+  exit(0)
+end
+
+Sysmoon::Log.info('starting syssyncd...')
+
+sync = Sysmoon::Sync.new
+
+Signal.trap('TERM') do
+  exit(0)
+end
+
+Sysmoon::Log.info('syssync started!')
+
+begin
+  loop do
+    sync.synchronize
+    sleep Sysmoon::Config[:sysmoond]['discover_timeout'].to_i
+  end
+rescue SignalException
+  exit(0)
+end

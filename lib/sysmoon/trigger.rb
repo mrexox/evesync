@@ -13,24 +13,18 @@ module Sysmoon
       # Local Data daemon
       sysdatad = IPC::Client.new(:port => :sysdatad)
 
-      # Helper triggers
-
-      remote_handlers = Config[:sysmoond]['remotes'].map {|ip|
-        unless Utils::local_ip?(ip)
-          next IPC::Client.new(
-                 :port => :syshand,
-                 :ip => ip
-               )
-        end
+      @remote_handlers = Config[:sysmoond]['remotes'].map {|ip|
+        new_remote_handler(ip)
       }.compact                 # remove nils
 
+      # Helper triggers
       package_trigger = Trigger::Package.new(
         db: sysdatad,
-        remotes: remote_handlers
+        remotes: @remote_handlers
       )
       file_trigger = Trigger::File.new(
         db: sysdatad,
-        remotes: remote_handlers
+        remotes: @remote_handlers
       )
 
       @triggers = [package_trigger, file_trigger]
@@ -56,6 +50,13 @@ module Sysmoon
 
     def unignore(change)
       trigger_method(:unignore, change)
+    end
+
+    def add_remote_node(ip)
+      unless @remote_handlers.find { |h| h.ip == ip }
+        @remote_handlers.push new_remote_handler(ip)
+      end
+      true
     end
 
     private
@@ -88,6 +89,15 @@ module Sysmoon
       @triggers.find { |trigger|
         trigger.to_s.include? class_last
       }
+    end
+
+    def new_remote_handler(ip)
+      unless Utils::local_ip?(ip)
+        IPC::Client.new(
+          :port => :syshand,
+          :ip => ip
+        )
+      end
     end
   end
 end

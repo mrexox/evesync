@@ -17,11 +17,12 @@ task :rdoc do
   sh 'rdoc'
 end
 
-task install: [:build] do
+task install: [GEMFILE] do
   sh "gem install --local #{GEMFILE}"
 end
 
-task :build do
+task build: GEMFILE
+file GEMFILE do
   sh "gem build #{GEMSPEC}"
 end
 
