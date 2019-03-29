@@ -48,6 +48,9 @@ module Sysmoon
       @sysmoon = IPC::Client.new(
         :port => :sysmoond
       )
+      @sysdata = IPC::Client.new(
+        :port => :sysdatad
+      )
       Log.debug('Changes handler initialized')
     end
 
@@ -72,6 +75,7 @@ module Sysmoon
       # Add sleep and ones again try if PackageManagerLock
       # exception is cought
       handler.handle(message) || @sysmoon.unignore(message)
+      @sysdata.save(message)
 
       'Fine'
     end

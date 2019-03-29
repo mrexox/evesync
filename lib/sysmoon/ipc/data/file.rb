@@ -26,8 +26,8 @@ module Sysmoon
 
         def ==(other)
           @name == other.name and
-            @action == other.action
-          # mode - do not care
+            @action == other.action and
+            @mode == other.mode
           # timestamps may differ
           # conten comparing may cost too much
         end

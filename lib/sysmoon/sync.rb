@@ -1,6 +1,7 @@
 require 'socket'
 require 'sysmoon/log'
 require 'sysmoon/ipc/client'
+require 'sysmoon/utils'
 
 module Sysmoon
   class Sync
@@ -21,6 +22,31 @@ module Sysmoon
       @discovery.send_discovery_message
       # Check for uncatched events
       # Fetch these events if there are some
+    end
+
+    private
+
+    # We only recieve, dont push events to synchronize.
+    # This is because some node may be setted not to
+    # synchronize, so we don't want to make them synching.
+    def get_unrecieved_events
+      # get events diff
+      # pull only unrecieved
+    end
+
+    # Using Longest common subsequence problem solution
+    # we find timestamps that are absent in our database.
+    #
+    # Order doesn't matter because we sort events
+    #
+    # May be consider using any existing solution
+    def get_events_diff
+      # Get a list of local events
+      # Get a list of remote events
+      # Find a diff
+      #  Build a table
+      #  Compose a longest common subsequence
+      #  Find the diff using it
     end
   end
 
@@ -59,6 +85,8 @@ module Sysmoon
       loop do
         data, recvdata = udp_sock.recvfrom(1024)
         node_ip = recvdata[-1]
+
+        next if Utils::local_ip?(node_ip)
 
         if [DISCOVERY_REQ, DISCOVERY_ANS].include? data
           # Push new node_ip to trigger

@@ -15,12 +15,13 @@ module Sysmoon
           UNKNOWN   = :unknown
         end
 
-        attr_reader :name, :version, :command
+        attr_reader :name, :version, :command, :timestamp
 
         def initialize(params)
           @name = params[:name].freeze
           @version = params[:version].freeze
           @command = parse_command(params[:command]).freeze
+          @timestamp = Time.now.to_f.to_s
         end
 
         def ==(pkg)

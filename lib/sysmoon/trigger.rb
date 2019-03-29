@@ -54,9 +54,9 @@ module Sysmoon
 
     def add_remote_node(ip)
       unless @remote_handlers.find { |h| h.ip == ip }
-        @remote_handlers.push new_remote_handler(ip)
+        @remote_handlers << new_remote_handler(ip)
       end
-      true
+      Log.debug(@remote_handlers.map {|r| r.ip})
     end
 
     private
