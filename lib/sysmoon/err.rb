@@ -15,10 +15,13 @@ module Sysmoon
     #    end
     #    ...
     #  end
-    class Base < StandardError
+    class Base < RuntimeError
       def initialize(message)
         super(message)
       end
+    end
+
+    class Db::SaveError < Base
     end
 
   end

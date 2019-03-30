@@ -1,3 +1,4 @@
+require_relative 'spec_helper'
 require 'sysmoon/trigger/database'
 require 'sysmoon/ipc/data/package'
 

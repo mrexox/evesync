@@ -63,6 +63,8 @@ module Sysmoon
       @sysmoon = IPC::Client.new(
         port: :sysmoond
       )
+      @listen_sock = UDPSocket.new
+      @listen_sock.bind('0.0.0.0', @port)
     end
 
     # UDP on broadcast
@@ -80,10 +82,8 @@ module Sysmoon
     private
 
     def listen_discovery
-      udp_sock = UDPSocket.new
-      udp_sock.bind('0.0.0.0', @port)
       loop do
-        data, recvdata = udp_sock.recvfrom(1024)
+        data, recvdata = @listen_sock.recvfrom(1024)
         node_ip = recvdata[-1]
 
         next if Utils::local_ip?(node_ip)
