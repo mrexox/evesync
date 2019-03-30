@@ -5,7 +5,7 @@ require 'sysmoon/ipc/data/package'
 module Sysmoon
 
   describe Trigger::Database do
-    let (:db) { Trigger::Database.allocate }
+    let(:db) { Trigger::Database.allocate }
 
     context "empty db" do
       it "should add entry based on timestamp and name" do

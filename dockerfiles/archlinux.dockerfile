@@ -12,7 +12,7 @@ COPY Gemfile /sysmoon/Gemfile
 WORKDIR /sysmoon
 
 # Installing other stuff
-RUN bundle install
+RUN bundle install --without development
 
 # Adding all other files
 COPY . /sysmoon

@@ -4,9 +4,9 @@ require 'sysmoon/sync'
 
 module Sysmoon
   describe Discovery do
-    let (:discovery) { Discovery.allocate }
-    let (:sysmoon) { double('IPC::Client of sysmoon') }
-    let (:socket) { double('Listen socket') }
+    let(:discovery) { Discovery.allocate }
+    let(:sysmoon) { double('IPC::Client of sysmoon') }
+    let(:socket) { double('Listen socket') }
 
     context 'fine behaviour' do
       it 'should add node ip to known' do

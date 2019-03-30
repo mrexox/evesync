@@ -3,8 +3,8 @@ require 'sysmoon/trigger/package'
 
 module Sysmoon
   describe Trigger::Base do
-    let (:trigger) { Trigger::Package.new({}) }
-    let (:message) { double('IPC::Data::Package') }
+    let(:trigger) { Trigger::Package.new({}) }
+    let(:message) { double('IPC::Data::Package') }
 
     context 'no ignore packages' do
       it 'should send_to_remotes' do
@@ -17,8 +17,8 @@ module Sysmoon
     end
 
     context 'some ignoring packages' do
-      let (:db) { double('Database') }
-      let (:trigger) { Trigger::Package.new(:db => db) }
+      let(:db) { double('Database') }
+      let(:trigger) { Trigger::Package.new(:db => db) }
 
       it 'should unignore' do
         # Preparing

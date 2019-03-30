@@ -11,7 +11,7 @@ WORKDIR /sysmoon
 
 # Installing other stuff
 RUN gem install rake bundler
-RUN bundle install
+RUN bundle install --without development
 
 
 # Adding all other files
