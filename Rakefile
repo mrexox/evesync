@@ -1,3 +1,4 @@
+require 'rspec/core/rake_task'
 require 'find'
 require 'mkmf'
 
@@ -25,6 +26,10 @@ task build: GEMFILE
 file GEMFILE do
   sh "gem build #{GEMSPEC}"
 end
+
+RSpec::Core::RakeTask.new(:spec)
+
+task :test => :spec
 
 task :clean do
   rm_rf('tmp')

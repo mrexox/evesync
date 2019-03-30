@@ -77,7 +77,7 @@ module Sysmoon
       handler.handle(message) || @sysmoon.unignore(message)
       @sysdata.save(message)
 
-      'Fine'
+      true
     end
   end
 end

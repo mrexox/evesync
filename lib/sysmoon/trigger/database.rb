@@ -54,7 +54,9 @@ module Sysmoon
 
       def db_add_entry(message)
         Log.debug('Adding DB entry')
-        @db[message.timestamp] = message.to_hash.to_json
+        key = message.timestamp.to_s + '_' + message.name.to_s
+        value = message.to_hash.to_json
+        @db[key] = value
         Log.debug('DB entry added')
       end
 
