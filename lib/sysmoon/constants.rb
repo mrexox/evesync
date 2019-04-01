@@ -4,6 +4,7 @@ module Sysmoon
     MOOND_PORT = '55443'
     DATAD_PORT = '54321'
     HAND_PORT  = '55432'
+    SYNC_PORT  = '64653'
     WATCH_PERIOD = 2
     DB_PATH = '/var/lib/sysmoon/db/'
     DISCOVER_TIMEOUT = 3600

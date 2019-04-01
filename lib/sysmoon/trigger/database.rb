@@ -50,14 +50,37 @@ module Sysmoon
         'Fine'
       end
 
+      def events
+        events = {}
+        @db.each do |key, _|
+          object, timestamp = parse_event(key)
+          events[object] ||= []
+          events[object].push(timestamp)
+        end
+        events
+      end
+
       private
 
       def db_add_entry(message)
         Log.debug('Adding DB entry')
-        key = message.timestamp.to_s + '_' + message.name.to_s
-        value = message.to_hash.to_json
+        key = create_key(message)
+        value = create_value(message)
         @db[key] = value
         Log.debug('DB entry added')
+      end
+
+
+      def create_key(message)
+        "#{message.timestamp.to_s}_#{message.name.to_s}"
+      end
+
+      def create_value(message)
+        message.to_hash.to_json
+      end
+
+      def parse_event(key)
+        key.split('_')
       end
 
       def save_file(file)

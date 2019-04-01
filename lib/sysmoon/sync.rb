@@ -1,5 +1,6 @@
 require 'socket'
 require 'sysmoon/log'
+require 'sysmoon/config'
 require 'sysmoon/ipc/client'
 require 'sysmoon/utils'
 
@@ -58,7 +59,7 @@ module Sysmoon
     def initialize
       # Starting thread that sends and accepts UDP-packages.
       # This is how a node can say that it's online
-      @port = 77342
+      @port = Config[:sync]['port']
       @listen_thread = Thread.new { listen_discovery }
       @sysmoon = IPC::Client.new(
         port: :sysmoond
@@ -67,7 +68,8 @@ module Sysmoon
       @listen_sock.bind('0.0.0.0', @port)
     end
 
-    # UDP on broadcast
+    # Sending UDP message on broadcast
+    # Discovering our nodes
     def send_discovery_message(ip='<broadcast>', message=DISCOVERY_REQ)
       udp_sock = UDPSocket.new
       if ip == '<broadcast>'
