@@ -1,4 +1,6 @@
 require_relative 'spec_helper'
+require 'lmdb'
+require 'fileutils'
 require 'sysmoon/trigger/database'
 require 'sysmoon/ipc/data/package'
 
@@ -39,6 +41,43 @@ module Sysmoon
         expect(db).to receive(:db_add_entry).with(file)
         db.save(file)
       end
+    end
+
+    context "real db" do
+      before(:all) {
+        FileUtils.mkdir_p 'tmp'
+      }
+
+      # after(:all) {
+      #   FileUtils.rm_rf 'tmp'
+      # }
+
+      let(:message) {
+        p = IPC::Data::Package.new(
+          name: 'package',
+          version: '0.0.1',
+          command: IPC::Data::Package::Command::INSTALL)
+        p.instance_variable_set(:@timestamp, '1')
+        p
+      }
+
+      before(:each) {
+        FileUtils.rm_f 'tmp/*'
+        env = LMDB.new('tmp')
+        db.instance_variable_set(:@db, env.database)
+        db.save(message)
+        # Changing timestamp but not an object
+        message.instance_variable_set(:@timestamp, '2')
+        db.save(message)
+      }
+
+
+      it 'should save 2 timestamps for 1 object' do
+        events = db.events
+        expect(events.values).to match_array [['1', '2']]
+        expect(events.keys).to match_array [message.name]
+      end
+
     end
   end
 end

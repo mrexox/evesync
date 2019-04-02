@@ -53,7 +53,7 @@ module Sysmoon
       def events
         events = {}
         @db.each do |key, _|
-          object, timestamp = parse_event(key)
+          timestamp, object = parse_event(key)
           events[object] ||= []
           events[object].push(timestamp)
         end
@@ -69,7 +69,6 @@ module Sysmoon
         @db[key] = value
         Log.debug('DB entry added')
       end
-
 
       def create_key(message)
         "#{message.timestamp.to_s}_#{message.name.to_s}"
