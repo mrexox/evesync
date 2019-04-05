@@ -71,7 +71,7 @@ module Sysmoon
       end
 
       def create_key(message)
-        "#{message.timestamp.to_s}_#{message.name.to_s}"
+        "#{message.timestamp}_#{message.name}"
       end
 
       def create_value(message)
