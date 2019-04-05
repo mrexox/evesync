@@ -1,0 +1,10 @@
+[Unit]
+Requries=sysmoon.service
+PartOf=moon.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/sysdatad
+
+[Install]
+WantedBy=moon.target

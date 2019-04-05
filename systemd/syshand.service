@@ -1,0 +1,10 @@
+[Unit]
+Requires=sysmoon.service
+PartOf=moon.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/syshand
+
+[Install]
+WantedBy=moon.target

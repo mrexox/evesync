@@ -1,0 +1,6 @@
+[Unit]
+Description=Sysmoon base target
+After=multi-user.target
+
+[Install]
+WantedBy=multi-user.target
