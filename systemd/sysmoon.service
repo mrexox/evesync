@@ -1,5 +1,4 @@
 [Unit]
-RequiredBy=syshand.service sysdata.service
 PartOf=moon.target
 
 [Service]
