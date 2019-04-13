@@ -6,6 +6,7 @@ GEM
     ffi (1.10.0)
     file-tail (1.2.0)
       tins (~> 1.0)
+    full_dup (1.0.0)
     hashdiff (0.3.8)
     jaro_winkler (1.5.2)
     lmdb (0.4.8)
@@ -50,6 +51,7 @@ PLATFORMS
 
 DEPENDENCIES
   file-tail!
+  full_dup!
   hashdiff!
   lmdb!
   rake!

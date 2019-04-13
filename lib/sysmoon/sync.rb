@@ -1,4 +1,5 @@
 require 'socket'
+require 'full_dup'
 require 'sysmoon/log'
 require 'sysmoon/config'
 require 'sysmoon/ipc/client'
@@ -8,6 +9,12 @@ module Sysmoon
   class Sync
     def initialize
       @discovery = Discovery.new
+      @sysmoon = IPC::Client.new(
+        port: :sysmoond
+      )
+      @local_sysdata = IPC::Client.new(
+        port: :sysdatad
+      )
     end
 
     # = Synopsis
@@ -18,11 +25,15 @@ module Sysmoon
     #
     # = TODO
     #
-    # * Catch the time when an event is sent while synchronizing
+    # * Catch the time when an event is sent while
+    #   synchronizing
+    #
     def synchronize
       @discovery.send_discovery_message
-      # Check for uncatched events
-      # Fetch these events if there are some
+      events = missed_events
+      if not events.empty?
+        fetch_events events
+      end
     end
 
     private
@@ -30,9 +41,17 @@ module Sysmoon
     # We only recieve, dont push events to synchronize.
     # This is because some node may be setted not to
     # synchronize, so we don't want to make them synching.
-    def get_unrecieved_events
-      # get events diff
-      # pull only unrecieved
+    def missed_events
+      remote_events = {}
+      @sysmoon.remote_handlers.each do |handler|
+        events[handler.ip] = handler.db.events
+      end
+      local_events = @sysdata.events
+
+      events_diff(
+        local: local_events,
+        remote: remote_events
+      )
     end
 
     # Using Longest common subsequence problem solution
@@ -41,13 +60,37 @@ module Sysmoon
     # Order doesn't matter because we sort events
     #
     # May be consider using any existing solution
-    def get_events_diff
-      # Get a list of local events
-      # Get a list of remote events
-      # Find a diff
-      #  Build a table
-      #  Compose a longest common subsequence
-      #  Find the diff using it
+    def events_diff(params)
+      # params:
+      #   local = {object [...events]}
+      #   remote = {ip => {object => [...events]}
+      # convert to
+      #   remote = {object => {event => [..ips]}}
+      # then
+      #   use remote part {object => [...events]} and
+      #   compare to local, then get object-event that are
+      #   going to be fetched and apply ips (the choice may be random)
+      #   that can be used to fetch these events
+      local = params[:local]
+      remote = params[:remote]
+
+      # Transforming data
+      remote_objects = {}
+      remote.each do |ip, objects|
+        objects.each do |object, events|
+          remote_objects[object] ||= {}
+          events.each do |event|
+            remote_objects[object][event] ||= []
+            remote_objects[object][event].push(ip)
+          end
+        end
+      end
+
+      # Applying algorithm
+      # ...
+
+      remote_diff = remote_objects.full_dup
+      remote_diff
     end
   end
 

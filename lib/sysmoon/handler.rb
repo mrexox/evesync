@@ -68,6 +68,7 @@ module Sysmoon
       unless handler
         return
       end
+
       @sysmoon.ignore(message)
 
       # TODO: add PackageManagerLock exception
@@ -79,5 +80,9 @@ module Sysmoon
 
       true
     end
+
+    # For syncing and other remove db access
+    def db; @sysdata; end
+
   end
 end

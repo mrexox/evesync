@@ -7,6 +7,9 @@ require 'sysmoon/utils'
 
 module Sysmoon
   class Trigger
+
+    attr_reader :remote_handlers
+
     def initialize(watcher_queue)
       @watcher_queue = watcher_queue
 
