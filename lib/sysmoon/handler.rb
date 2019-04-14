@@ -46,10 +46,10 @@ module Sysmoon
       @package_handler = Handler::Package.new
       @files_handler = Handler::File.new
       @sysmoon = IPC::Client.new(
-        :port => :sysmoond
+        port: :sysmoond
       )
       @sysdata = IPC::Client.new(
-        :port => :sysdatad
+        port: :sysdatad
       )
       Log.debug('Changes handler initialized')
     end
@@ -82,7 +82,7 @@ module Sysmoon
     end
 
     # For syncing and other remove db access
-    def db; @sysdata; end
+    def events; @sysdata.events; end
 
   end
 end

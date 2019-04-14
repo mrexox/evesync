@@ -24,10 +24,12 @@ module  Sysmoon
         # FIXME: don't send +start+ and +stop+ and +initialize+
         begin
           service = DRbObject.new_with_uri(@uri)
-          service.send(method, *args, &block)
+          res = service.send(method, *args, &block)
           Log.debug("Method #{method} was handled by #{@uri}")
+          return res
         rescue StandardError
           Log.warn("Couldn't establish connection")
+          nil
         end
       end
     end

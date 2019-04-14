@@ -4,7 +4,7 @@ require 'logger'
 module Sysmoon
   module Log
     # Supported levels for logging
-    LEVELS = [:debug, :info, :warn, :error, :fatal]
+    LEVELS = %i(debug info warn error fatal).freeze
 
     class << self
       def method_missing(m, *args)

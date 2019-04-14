@@ -8,8 +8,6 @@ require 'sysmoon/utils'
 module Sysmoon
   class Trigger
 
-    attr_reader :remote_handlers
-
     def initialize(watcher_queue)
       @watcher_queue = watcher_queue
 
@@ -57,9 +55,14 @@ module Sysmoon
 
     def add_remote_node(ip)
       unless @remote_handlers.find { |h| h.ip == ip }
-        @remote_handlers << new_remote_handler(ip)
+        remote_handler = new_remote_handler(ip)
+        @remote_handlers << remote_handler if remote_handler
       end
       Log.debug(@remote_handlers.map {|r| r.ip})
+    end
+
+    def remote_handlers
+      @remote_handlers
     end
 
     private

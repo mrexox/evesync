@@ -21,10 +21,15 @@ end
 
 Sysmoon::Log.info('syssync started!')
 
+
+a_second = Sysmoon::Config[:sysmoond]['discover_timeout'].to_i
+
 begin
   loop do
-    sync.synchronize
-    sleep Sysmoon::Config[:sysmoond]['discover_timeout'].to_i
+   sync.discover
+   sleep a_second
+   sync.synchronize
+   sleep a_second
   end
 rescue SignalException
   exit(0)

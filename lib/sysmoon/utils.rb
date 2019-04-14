@@ -18,3 +18,12 @@ module Sysmoon
 
   end
 end
+
+# For ruby < 2.1
+class Array
+  unless defined? to_h
+    def to_h
+      Hash[*self.flatten(1)]
+    end
+  end
+end

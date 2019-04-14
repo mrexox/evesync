@@ -12,6 +12,9 @@ module Sysmoon
       @sysmoon = IPC::Client.new(
         port: :sysmoond
       )
+      @sysdata = IPC::Client.new(
+        port: :sysdatad
+      )
       @local_sysdata = IPC::Client.new(
         port: :sysdatad
       )
@@ -29,11 +32,16 @@ module Sysmoon
     #   synchronizing
     #
     def synchronize
-      @discovery.send_discovery_message
+      Log.debug('Synchronizing... start')
       events = missed_events
       if not events.empty?
         fetch_events events
       end
+      Log.debug('Synchronizing... end')
+    end
+
+    def discover
+      @discovery.send_discovery_message
     end
 
     private
@@ -43,9 +51,20 @@ module Sysmoon
     # synchronize, so we don't want to make them synching.
     def missed_events
       remote_events = {}
-      @sysmoon.remote_handlers.each do |handler|
-        events[handler.ip] = handler.db.events
+      remote_handlers = @sysmoon.remote_handlers
+
+      unless remote_handlers.respond_to? :each
+        return Hash.new
       end
+
+      remote_handlers.each do |handler|
+        remote_events[handler.ip] = handler.events || {}
+      end
+
+      if remote_events.empty?
+        return Hash.new
+      end
+
       local_events = @sysdata.events
 
       events_diff(
@@ -73,7 +92,7 @@ module Sysmoon
       #   that can be used to fetch these events
       local = params[:local]
       remote = params[:remote]
-
+      Log.debug('Remote:', remote)
       # Transforming data
       remote_objects = {}
       remote.each do |ip, objects|
@@ -87,28 +106,70 @@ module Sysmoon
       end
 
       # Applying algorithm
-      # ...
+      diff = diff_missed(
+        v1: local,
+        v2: remote_objects.map { |k,v|
+          [k, v.keys]
+        }.to_h)
 
-      remote_diff = remote_objects.full_dup
-      remote_diff
+
+      # Returning duplicate
+      #remote_diff = remote_objects.full_dup
+      #remote_diff
+      diff.map do |obj, tms|
+        [
+          obj,                  # 1
+          tms.map do |t|
+            [t, remote_objects[obj][t]]
+          end.to_h              # 2
+        ]
+      end.to_h
+    end
+
+    # Diffs missed of `v1' that `v2' contain
+    def diff_missed(params)
+      v1 = params[:v1]
+      v2 = params[:v2]
+
+      Log.debug(v1)
+      Log.debug(v2)
+      # Fully missed objects
+      fully_missed = v2.select { |k| not v1.include?(k) }
+
+      # Included in both, but may be missed in `v1'
+      maybe_missed = v2.select { |k| v1.include?(k) }
+
+      not_relevant = maybe_missed.select do |k,v|
+        v.max > v1[k].max
+      end
+
+      partially_missed = not_relevant.map do |k,v|
+        [k, v.select { |tms| tms > v1[k].max }]
+      end.to_h
+
+      fully_missed.merge(partially_missed)
+    end
+
+    def fetch_events(events_diff)
+
     end
   end
 
   class Discovery
 
-    DISCOVERY_REQ = 'SYSMOON'
-    DISCOVERY_ANS = 'DISCOVERED'
+    DISCOVERY_REQ = 'SYSMOON'.freeze
+    DISCOVERY_ANS = 'DISCOVERED'.freeze
 
     def initialize
       # Starting thread that sends and accepts UDP-packages.
       # This is how a node can say that it's online
-      @port = Config[:sync]['port']
-      @listen_thread = Thread.new { listen_discovery }
       @sysmoon = IPC::Client.new(
         port: :sysmoond
       )
+      @port = Config[:sync]['port']
       @listen_sock = UDPSocket.new
       @listen_sock.bind('0.0.0.0', @port)
+      @listen_thread = Thread.new { listen_discovery }
     end
 
     # Sending UDP message on broadcast
@@ -140,10 +201,10 @@ module Sysmoon
 
         case data
         when DISCOVERY_REQ
-          Log.info("Host found: #{node_ip}")
+          Log.info("Discovery host found: #{node_ip}")
           send_discovery_message(node_ip, DISCOVERY_ANS)
         when DISCOVERY_ANS
-          Log.info("Host answered: #{node_ip}")
+          Log.info("Discovery host answered: #{node_ip}")
         end
       end
     end

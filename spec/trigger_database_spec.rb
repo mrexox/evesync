@@ -74,7 +74,7 @@ module Sysmoon
 
       it 'should save 2 timestamps for 1 object' do
         events = db.events
-        expect(events.values).to match_array [['1', '2']]
+        expect(events.values).to match_array [%w(1 2)]
         expect(events.keys).to match_array [message.name]
       end
 

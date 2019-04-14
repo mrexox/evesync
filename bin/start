@@ -8,7 +8,7 @@ trap 'echo Exiting; \
 sysdatad &
 sysmoond &
 syshand &
-sleep 2
+sleep 3s
 syssyncd &
 
 while true; do
