@@ -1,4 +1,5 @@
 require 'sysmoon/log'
+require 'json'
 
 module Sysmoon
   module IPC

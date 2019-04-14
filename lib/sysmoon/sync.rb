@@ -4,6 +4,7 @@ require 'sysmoon/discover'
 require 'sysmoon/log'
 require 'sysmoon/config'
 require 'sysmoon/ipc/client'
+require 'sysmoon/ipc/data/hashable'
 require 'sysmoon/utils'
 
 module Sysmoon

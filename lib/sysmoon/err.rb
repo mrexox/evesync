@@ -20,7 +20,7 @@ module Sysmoon
       end
     end
 
-    class Db::SaveError < Base
+    class SaveError < Base
     end
   end
 end

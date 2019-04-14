@@ -78,7 +78,7 @@ module Sysmoon
 
       it 'should give requested messages' do
         events = db.messages('package' => '2')
-
+        puts(events)
         expect(events).to include('package')
         expect(events['package']).to include('2')
         expect(events['package']['2']).to eq(message
