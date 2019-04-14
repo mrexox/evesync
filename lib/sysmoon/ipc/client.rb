@@ -26,7 +26,7 @@ module  Sysmoon
           service = DRbObject.new_with_uri(@uri)
           res = service.send(method, *args, &block)
           Log.debug("Method #{method} was handled by #{@uri}")
-          return res
+          res
         rescue StandardError
           Log.warn("Couldn't establish connection")
           nil

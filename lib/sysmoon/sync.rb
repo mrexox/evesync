@@ -1,5 +1,6 @@
 require 'socket'
 require 'full_dup'
+require 'sysmoon/discover'
 require 'sysmoon/log'
 require 'sysmoon/config'
 require 'sysmoon/ipc/client'
@@ -8,7 +9,7 @@ require 'sysmoon/utils'
 module Sysmoon
   class Sync
     def initialize
-      @discovery = Discovery.new
+      @discovery = Discover.new
       @sysmoon = IPC::Client.new(
         port: :sysmoond
       )
@@ -58,7 +59,7 @@ module Sysmoon
       end
 
       remote_handlers.each do |handler|
-        remote_events[handler.ip] = handler.events || {}
+        remote_events[handler.ip] = handler.db.events || {}
       end
 
       if remote_events.empty?
@@ -131,8 +132,8 @@ module Sysmoon
       v1 = params[:v1]
       v2 = params[:v2]
 
-      Log.debug(v1)
-      Log.debug(v2)
+      Log.debug('Local  events', v1)
+      Log.debug('Remote events', v2)
       # Fully missed objects
       fully_missed = v2.select { |k| not v1.include?(k) }
 
@@ -150,63 +151,14 @@ module Sysmoon
       fully_missed.merge(partially_missed)
     end
 
+    # Fetch events from given diff.
+    # TODO: intellectual choosing the nodes to fetch msgs from
     def fetch_events(events_diff)
-
+      events_diff
+      # TODO: fetch events
+      # parse them into objects
+      # local @syshand -> handle(message)
     end
   end
 
-  class Discovery
-
-    DISCOVERY_REQ = 'SYSMOON'.freeze
-    DISCOVERY_ANS = 'DISCOVERED'.freeze
-
-    def initialize
-      # Starting thread that sends and accepts UDP-packages.
-      # This is how a node can say that it's online
-      @sysmoon = IPC::Client.new(
-        port: :sysmoond
-      )
-      @port = Config[:sync]['port']
-      @listen_sock = UDPSocket.new
-      @listen_sock.bind('0.0.0.0', @port)
-      @listen_thread = Thread.new { listen_discovery }
-    end
-
-    # Sending UDP message on broadcast
-    # Discovering our nodes
-    def send_discovery_message(ip='<broadcast>', message=DISCOVERY_REQ)
-      udp_sock = UDPSocket.new
-      if ip == '<broadcast>'
-        udp_sock.setsockopt(
-          Socket::SOL_SOCKET, Socket::SO_BROADCAST, true
-        )
-      end
-      udp_sock.send(message, 0, ip, @port)
-      udp_sock.close
-    end
-
-    private
-
-    def listen_discovery
-      loop do
-        data, recvdata = @listen_sock.recvfrom(1024)
-        node_ip = recvdata[-1]
-
-        next if Utils::local_ip?(node_ip)
-
-        if [DISCOVERY_REQ, DISCOVERY_ANS].include? data
-          # Push new node_ip to trigger
-          @sysmoon.add_remote_node(node_ip)
-        end
-
-        case data
-        when DISCOVERY_REQ
-          Log.info("Discovery host found: #{node_ip}")
-          send_discovery_message(node_ip, DISCOVERY_ANS)
-        when DISCOVERY_ANS
-          Log.info("Discovery host answered: #{node_ip}")
-        end
-      end
-    end
-  end
 end

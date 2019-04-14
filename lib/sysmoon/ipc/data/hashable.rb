@@ -56,7 +56,15 @@ module Sysmoon
             end
           end
 
-          self.new(params)
+          begin
+            # If the `type' is imported it will be used
+            cl = Object.const_get hash['type']
+          rescue TypeError, NameError
+            # Or the base class will be the type
+            cl = self
+          end
+
+          cl.new(params)
         end
       end
     end

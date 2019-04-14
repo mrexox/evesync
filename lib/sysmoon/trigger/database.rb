@@ -36,6 +36,7 @@ module Sysmoon
                       Constants::FILES_PATH
       end
 
+      # Save message to database, key is timestamp+object
       def save(message)
         Log.debug("Data handler called: #{message}")
         db_add_entry(message)
@@ -50,6 +51,7 @@ module Sysmoon
         'Fine'
       end
 
+      # Events simplified: object => [timestamp...]
       def events
         events = {}
         @db.each do |key, _|
@@ -58,6 +60,21 @@ module Sysmoon
           events[object].push(timestamp)
         end
         events
+      end
+
+      # Messages for events: object => {timestamp => message}
+      def messages(events)
+        ev_msgs = {}
+        @db.each do |key, message|
+          timestamp, object = parse_event(key)
+          if events.include?(object)
+            ev_msgs[object] ||= {}
+            if events[object].include?(timestamp)
+              ev_msgs[object][timestamp] = message
+            end
+          end
+        end
+        ev_msgs
       end
 
       private

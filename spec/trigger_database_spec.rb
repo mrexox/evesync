@@ -9,8 +9,8 @@ module Sysmoon
   describe Trigger::Database do
     let(:db) { Trigger::Database.allocate }
 
-    context "empty db" do
-      it "should add entry based on timestamp and name" do
+    context 'empty db' do
+      it 'should add entry based on timestamp and name' do
         db.instance_variable_set(:@db, {})
 
         package = instance_double('Sysmoon::IPC::Data::Package')
@@ -30,7 +30,7 @@ module Sysmoon
 
       end
 
-      it "sould save a file" do
+      it 'sould save a file' do
         file = instance_double('Sysmoon::IPC::Data::File')
         allow(file).to receive(:action).and_return('not delete')
         allow(file).to receive(:is_a?)
@@ -43,14 +43,14 @@ module Sysmoon
       end
     end
 
-    context "real db" do
+    context 'real small db' do
       before(:all) {
         FileUtils.mkdir_p 'tmp'
       }
 
-      # after(:all) {
-      #   FileUtils.rm_rf 'tmp'
-      # }
+      after(:all) {
+        FileUtils.rm_rf 'tmp'
+      }
 
       let(:message) {
         p = IPC::Data::Package.new(
@@ -78,6 +78,15 @@ module Sysmoon
         expect(events.keys).to match_array [message.name]
       end
 
+      it 'should give requested messages' do
+        events = db.messages({'package' => '2'})
+
+        expect(events).to include('package')
+        expect(events['package']).to include('2')
+        expect(events['package']['2']).to eq(message
+                                               .to_hash
+                                               .to_json)
+      end
     end
   end
 end

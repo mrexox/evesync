@@ -15,6 +15,7 @@ module Sysmoon
 
         check_logger
         @logger.send(m, to_string(*args))
+        nil
       end
 
       def check_logger

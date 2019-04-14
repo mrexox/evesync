@@ -82,7 +82,6 @@ module Sysmoon
     end
 
     # For syncing and other remove db access
-    def events; @sysdata.events; end
-
+    def db; @sysdata; end
   end
 end
