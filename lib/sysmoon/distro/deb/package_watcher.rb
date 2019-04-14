@@ -13,13 +13,13 @@ module Sysmoon
       def run
         Log.debug('Debian Package watcher started')
         Thread.new do
-          loop {
+          loop do
             sleep 10
             @dpkg.changes.each do |pkg|
               @queue << pkg
               Log.debug pkg
             end
-          }
+          end
         end
       end
     end

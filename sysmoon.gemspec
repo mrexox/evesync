@@ -1,37 +1,35 @@
 require 'rake' # for FileList
 
 Gem::Specification.new do |s|
+  s.name = 'sysmoon'
 
-  s.name = %q(sysmoon)
-  
-  s.version = %q(0.0.0)
+  s.version = '0.0.0'
 
-  s.license = %q(BSD-2-Clause)
+  s.license = 'BSD-2-Clause'
 
-  s.date = %q(2019-02-12)
+  s.date = '2019-02-12'
 
-  s.summary = %q(Sys changes monitor)
+  s.summary = 'Sys changes monitor'
 
-  s.authors = %q(Kiselev Valentine)
-  s.email = %q(mrexox@yahoo.com)
-  s.homepage = %q(https://mrexox.github.io)
-  s.description = %q(System monitor and synchronization daemons)
+  s.authors = 'Kiselev Valentine'
+  s.email = 'mrexox@yahoo.com'
+  s.homepage = 'https://mrexox.github.io'
+  s.description = 'System monitor and synchronization daemons'
   s.files = FileList[
     'doc/**/*',
     'bin/*',
     'LICENSE',
     'Rakefile',
     'lib/**/*.rb',
-    'config/*.conf' #TODO: remove this line
+    'config/*.conf' # TODO: remove this line
   ]
 
-  s.executables = [
-    'sysmoond', 
-    'sysdatad', 
-    'syshand',
-    'syssyncd',
+  s.executables = %w[
+    sysmoond
+    sysdatad
+    syshand
+    syssyncd
   ]
 
   s.require_paths = %w[lib src]
-
 end

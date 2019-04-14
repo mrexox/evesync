@@ -1,7 +1,6 @@
 require 'sysmoon/config'
 
 module Sysmoon
-
   #
   # Constants and helpful functions for Sysmoon::IPC module.
   #
@@ -16,7 +15,7 @@ module Sysmoon
     #             keys
     def check_params_provided(params, keys)
       keys.each do |param|
-        raise RuntimeError.new(":#{param} missed") unless
+        raise ":#{param} missed" unless
           params.key?(param)
       end
     end
@@ -32,9 +31,10 @@ module Sysmoon
         Config[port.to_s]['port']
       else
         port_i = port.to_i
-        unless port_i < 65535 and port_i > 49152
-          raise RuntimeError.("Port MUST be in (49152..65535)")
+        unless (port_i < 65_535) && (port_i > 49_152)
+          raise RuntimeError.call('Port MUST be in (49152..65535)')
         end
+
         port
       end
     end

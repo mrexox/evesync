@@ -13,7 +13,7 @@ module Sysmoon
 
         def remove(*args)
           yum('remove', *args)
-          not exist?(*args)
+          !exist?(*args)
         end
 
         def update(*args)
@@ -26,7 +26,6 @@ module Sysmoon
           exist?(*args)
         end
 
-
         def yum(cmd, name, version)
           Log.debug("Calling '#{cmd}' on #{name}-#{version}")
           system("yum --assumeyes #{cmd} #{name}-#{version}")
@@ -34,8 +33,8 @@ module Sysmoon
 
         def exist?(name, version)
           Log.debug("Checking if #{name}-#{version} exists")
-          %x(rpm -q #{name}-#{version} >/dev/null 2>&1)
-          $? == 0
+          `rpm -q #{name}-#{version} >/dev/null 2>&1`
+          $CHILD_STATUS == 0
         end
       end
     end

@@ -4,7 +4,6 @@ require 'sysmoon/handler/file'
 require 'sysmoon/ipc/client'
 
 module Sysmoon
-
   # = Synopsis:
   #
   #   Handles package changes, sent via Package class and queue
@@ -41,7 +40,6 @@ module Sysmoon
   #     syshands daemons
   #   * Delegate +handle+ to another daemon if not found
   class Handler
-
     def initialize
       @package_handler = Handler::Package.new
       @files_handler = Handler::File.new
@@ -65,9 +63,7 @@ module Sysmoon
                   Log.error('Unknown handler')
                   nil
                 end
-      unless handler
-        return
-      end
+      return unless handler
 
       @sysmoon.ignore(message)
 
@@ -82,6 +78,8 @@ module Sysmoon
     end
 
     # For syncing and other remove db access
-    def db; @sysdata; end
+    def db
+      @sysdata
+    end
   end
 end

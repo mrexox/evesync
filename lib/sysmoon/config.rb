@@ -4,11 +4,10 @@ require 'sysmoon/log'
 
 module Sysmoon
   module Config
-
     def self.[](daemon)
       unless defined? @@config
         Log.info("Reading configuration file #{Constants::CONFIG_FILE}")
-        @@config = TOML::load_file(Constants::CONFIG_FILE)
+        @@config = TOML.load_file(Constants::CONFIG_FILE)
 
         # Setting unset defaults
         @@config['sysmoond']['port'] ||= Constants::MOOND_PORT

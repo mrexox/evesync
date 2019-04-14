@@ -7,10 +7,8 @@ require 'sysmoon/ipc/data/package'
 require 'sysmoon/ipc/data/file'
 require 'sysmoon/ipc/data/ignore'
 
-
 module Sysmoon
   class Trigger
-
     # = Synopsis:
     #
     # *Database* class is a proxy for *sysdatad* daemon
@@ -67,11 +65,11 @@ module Sysmoon
         ev_msgs = {}
         @db.each do |key, message|
           timestamp, object = parse_event(key)
-          if events.include?(object)
-            ev_msgs[object] ||= {}
-            if events[object].include?(timestamp)
-              ev_msgs[object][timestamp] = message
-            end
+          next unless events.include?(object)
+
+          ev_msgs[object] ||= {}
+          if events[object].include?(timestamp)
+            ev_msgs[object][timestamp] = message
           end
         end
         ev_msgs

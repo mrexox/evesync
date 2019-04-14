@@ -25,9 +25,9 @@ module Sysmoon
         end
 
         def ==(other)
-          @name == other.name and
-            @action == other.action and
-            @mode == other.mode
+          (@name == other.name) &&
+            (@action == other.action) &&
+            (@mode == other.mode)
           # timestamps may differ
           # conten comparing may cost too much
         end
@@ -40,9 +40,7 @@ module Sysmoon
         #  * Think about binary data
         #  * Encoding information
         #  * Large file sending
-        def content
-          @content
-        end
+        attr_reader :content
 
         private
 

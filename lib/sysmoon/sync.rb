@@ -35,9 +35,7 @@ module Sysmoon
     def synchronize
       Log.debug('Synchronizing... start')
       events = missed_events
-      if not events.empty?
-        fetch_events events
-      end
+      fetch_events events unless events.empty?
       Log.debug('Synchronizing... end')
     end
 
@@ -54,17 +52,13 @@ module Sysmoon
       remote_events = {}
       remote_handlers = @sysmoon.remote_handlers
 
-      unless remote_handlers.respond_to? :each
-        return Hash.new
-      end
+      return {} unless remote_handlers.respond_to? :each
 
       remote_handlers.each do |handler|
         remote_events[handler.ip] = handler.db.events || {}
       end
 
-      if remote_events.empty?
-        return Hash.new
-      end
+      return {} if remote_events.empty?
 
       local_events = @sysdata.events
 
@@ -109,14 +103,14 @@ module Sysmoon
       # Applying algorithm
       diff = diff_missed(
         v1: local,
-        v2: remote_objects.map { |k,v|
+        v2: remote_objects.map do |k, v|
           [k, v.keys]
-        }.to_h)
-
+        end.to_h
+      )
 
       # Returning duplicate
-      #remote_diff = remote_objects.full_dup
-      #remote_diff
+      # remote_diff = remote_objects.full_dup
+      # remote_diff
       diff.map do |obj, tms|
         [
           obj,                  # 1
@@ -135,16 +129,16 @@ module Sysmoon
       Log.debug('Local  events', v1)
       Log.debug('Remote events', v2)
       # Fully missed objects
-      fully_missed = v2.select { |k| not v1.include?(k) }
+      fully_missed = v2.select { |k| !v1.include?(k) }
 
       # Included in both, but may be missed in `v1'
       maybe_missed = v2.select { |k| v1.include?(k) }
 
-      not_relevant = maybe_missed.select do |k,v|
+      not_relevant = maybe_missed.select do |k, v|
         v.max > v1[k].max
       end
 
-      partially_missed = not_relevant.map do |k,v|
+      partially_missed = not_relevant.map do |k, v|
         [k, v.select { |tms| tms > v1[k].max }]
       end.to_h
 
@@ -160,5 +154,4 @@ module Sysmoon
       # local @syshand -> handle(message)
     end
   end
-
 end

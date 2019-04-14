@@ -14,12 +14,12 @@ module Sysmoon
       def send_to_remotes(remotes, message)
         remotes.each do |syshand|
           begin
-            Timeout::timeout(30) { # FIXME: take from Config
+            Timeout.timeout(30) do # FIXME: take from Config
               syshand.handle(message)
-            }
+            end
           rescue Timeout::Error
             Log.warn("Syshand server #{syshand.uri} " \
-                     "is not accessible")
+                     'is not accessible')
           end
         end
       end

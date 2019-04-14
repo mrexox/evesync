@@ -4,7 +4,6 @@ require 'sysmoon/ipc/data/package'
 module Sysmoon
   module Distro
     module BasePackageManager
-
       def initialize
         @packages = make_pkg_snapshot
       end
@@ -20,11 +19,10 @@ module Sysmoon
         # FIXME: wait if the changes were saved
         #        and properly handled
         @packages = snapshot
-        return packages
+        packages
       end
 
       private
-
 
       # Parses changes, given by 'hashdiff' gem into
       # IPC::Data::Package array

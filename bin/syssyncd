@@ -21,7 +21,6 @@ end
 
 Sysmoon::Log.info('syssync started!')
 
-
 few_seconds = Sysmoon::Config[:sysmoond]['discover_timeout'].to_i
 
 sync.discover                   # discovering nodes

@@ -4,7 +4,6 @@ module Sysmoon
   class Handler
     class File
       def handle(file)
-
         Log.debug("#{self.class.name} handling")
         content = file.content
         name = file.name

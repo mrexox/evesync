@@ -9,7 +9,7 @@ module Sysmoon
 
         def remove(*args)
           apt_get('remove', *args)
-          not exist?(*args)
+          !exist?(*args)
         end
 
         def update(*args)
@@ -22,7 +22,6 @@ module Sysmoon
           exist?(*args)
         end
 
-
         def apt_get(cmd, name, version)
           Log.debug("Calling '#{cmd}' on #{name}=#{version}")
           system("apt-get --assume-yes #{cmd} #{name}=#{version}")
@@ -30,10 +29,9 @@ module Sysmoon
 
         def exist?(name, version)
           Log.debug("Checking if #{name}-#{version} exists")
-          %x(dpkg-query -l #{name})
-          $? == 0
+          `dpkg-query -l #{name}`
+          $CHILD_STATUS == 0
         end
-
       end
     end
   end

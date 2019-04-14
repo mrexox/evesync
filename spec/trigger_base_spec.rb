@@ -18,13 +18,13 @@ module Sysmoon
 
     context 'some ignoring packages' do
       let(:db) { double('Database') }
-      let(:trigger) { Trigger::Package.new(:db => db) }
+      let(:trigger) { Trigger::Package.new(db: db) }
 
       it 'should unignore' do
         # Preparing
         allow(message).to receive(:is_a?)
-                           .with(IPC::Data::Package)
-                           .and_return(true)
+          .with(IPC::Data::Package)
+          .and_return(true)
         allow(message).to receive(:==).and_return(true)
         trigger.ignore(message)
 
@@ -35,8 +35,8 @@ module Sysmoon
 
       it 'should save message with db' do
         expect(trigger).to receive(:save_to_db)
-                              .with(db, message)
-                              .and_call_original
+          .with(db, message)
+          .and_call_original
         expect(db).to receive(:save).with(message)
 
         # TODO: raise and catch exception

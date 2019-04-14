@@ -12,8 +12,9 @@ module Sysmoon
         @remotes = params[:remotes]
       end
 
-      def data_class; IPC::Data::Package; end
-
+      def data_class
+        IPC::Data::Package
+      end
     end
   end
 end

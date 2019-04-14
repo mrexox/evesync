@@ -10,8 +10,8 @@ module Sysmoon
       module Hashable
         def to_hash
           hash = {}
-          self.instance_variables.each do |var|
-            value = self.instance_variable_get(var)
+          instance_variables.each do |var|
+            value = instance_variable_get(var)
 
             if value.respond_to? :to_hash
               # FIXME: if it wasn't implemented it'll be an error
@@ -33,7 +33,8 @@ module Sysmoon
           Log.debug("Hash accepted: #{hash}")
           params = {}
           hash.each do |key, value|
-            unless key =~ /^@/ then next end
+            next unless key =~ /^@/
+
             if value.is_a? Hash
               # FIXME: code dumplication ipc_data.rb:31
               begin
@@ -46,13 +47,13 @@ module Sysmoon
               unless cl.respond_to? :from_hash
                 err_msg = "Class #{cl} must implement `self.from_hash'"
                 Log.fatal(err_msg)
-                raise RuntimeError.new(err_msg)
+                raise err_msg
               end
 
               complex_value = cl.from_hash value
-              params[key.sub('@','').to_sym] = complex_value
+              params[key.sub('@', '').to_sym] = complex_value
             else
-              params[key.sub('@','').to_sym] = value
+              params[key.sub('@', '').to_sym] = value
             end
           end
 

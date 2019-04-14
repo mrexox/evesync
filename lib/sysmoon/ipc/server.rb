@@ -4,7 +4,6 @@ require 'sysmoon/ipc/ipc'
 
 module Sysmoon
   module IPC
-
     # = Synopsis
     #
     # Server is a DRb object, using +:port+ and +:proxy+
@@ -37,7 +36,7 @@ module Sysmoon
       attr_reader :uri
 
       def initialize(params)
-        check_params_provided(params, [:port, :proxy])
+        check_params_provided(params, %i[port proxy])
         port = get_port params
         ip = params[:ip] || 'localhost'
         @uri = "druby://#{ip}:#{port}"

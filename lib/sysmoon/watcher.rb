@@ -24,12 +24,10 @@ module Sysmoon
   #   * Remove +biz+ method, it's not save, reorganize code
   #
   class Watcher
-
-
     WATCHER_CLASSES = [
       Watcher::Package,
       Watcher::File
-    ]
+    ].freeze
 
     def initialize(queue)
       # Creating subwatchers
@@ -60,6 +58,5 @@ module Sysmoon
       @threads.each(&:exit)
       Log.debug('Watcher stopped')
     end
-
   end
 end

@@ -25,9 +25,9 @@ module Sysmoon
         end
 
         def ==(pkg)
-          pkg.name == @name and
-            pkg.version == @version and
-            pkg.command == @command
+          (pkg.name == @name) &&
+            (pkg.version == @version) &&
+            (pkg.command == @command)
         end
 
         def to_s
@@ -52,7 +52,6 @@ module Sysmoon
 
           cmd.to_s
         end
-
       end
     end
   end

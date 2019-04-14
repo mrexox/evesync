@@ -7,7 +7,7 @@ module Sysmoon
       unless message.respond_to? :to_hash
         err_msg = "Instance #{message} must implement `to_hash'"
         Log.fatal(err_msg)
-        raise RuntimeError.new(err_msg)
+        raise err_msg
       end
 
       hash = message.to_hash
@@ -17,7 +17,7 @@ module Sysmoon
 
     def self.unpack(message)
       unless message.is_a? String
-        raise RuntimeError.new("message #{message} must be of type String")
+        raise "message #{message} must be of type String"
       end
 
       begin
@@ -41,7 +41,7 @@ module Sysmoon
       unless cl.respond_to? :from_hash
         err_msg = "Class #{cl} must implement `self.from_hash'"
         Log.fatal(err_msg)
-        raise RuntimeError.new(err_msg)
+        raise err_msg
       end
 
       cl.from_hash hash

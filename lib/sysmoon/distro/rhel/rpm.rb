@@ -1,11 +1,8 @@
 require 'sysmoon/log'
 require 'sysmoon/distro/base_package_manager'
 
-
-
 module Sysmoon
   module Distro
-
     # = Synopsis:
     #
     # Rpm packages changes watcher. Yum history makes it
@@ -26,7 +23,7 @@ module Sysmoon
     class Rpm
       include BasePackageManager
       # Query for rpm list
-      PKG_QUERY = 'rpm -qa --queryformat "%{NAME} %{VERSION}-%{RELEASE}.%{ARCH}\n"'
+      PKG_QUERY = 'rpm -qa --queryformat "%{NAME} %{VERSION}-%{RELEASE}.%{ARCH}\n"'.freeze
 
       private_constant :PKG_QUERY
 

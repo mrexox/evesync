@@ -7,7 +7,7 @@ module Sysmoon
     class Dpkg
       include BasePackageManager
 
-      PKG_QUERY = 'dpkg-query -l'
+      PKG_QUERY = 'dpkg-query -l'.freeze
 
       private_constant :PKG_QUERY
 

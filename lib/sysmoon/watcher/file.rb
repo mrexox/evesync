@@ -5,7 +5,6 @@ require 'sysmoon/ipc/data/file'
 
 module Sysmoon
   class Watcher
-
     # = Synopsis
     #
     # Watches the files and directories, defined in
@@ -29,12 +28,12 @@ module Sysmoon
 
       def run
         @inotify_thr = Thread.new { @inotify.run }
-        @main_thr = Thread.new {
-          loop {
+        @main_thr = Thread.new do
+          loop do
             sleep @period
             send_events
-          }
-        }
+          end
+        end
       end
 
       def stop
@@ -55,10 +54,10 @@ module Sysmoon
                  end
 
           msg = IPC::Data::File.new(
-                :name => file,
-                :mode => mode,
-                :action => event,
-                :touched_at => DateTime.now.to_s,
+            name: file,
+            mode: mode,
+            action: event,
+            touched_at: DateTime.now.to_s
           )
           @queue.push msg
           Log.debug("File #{file} #{event} guessed " \
@@ -89,10 +88,10 @@ module Sysmoon
         # add file modify watch
         Log.debug("Added watch_file #{filename}")
 
-        @inotify.watch(filename, :modify) { |e|
+        @inotify.watch(filename, :modify) do |e|
           Log.debug("h_file worked for #{e.absolute_name}")
           h_file(e.absolute_name, [:modify]) # the only flag we need
-        }
+        end
 
         # Waiting for file to disappear and created again
         @wfiles << filename unless @wfiles.include?(filename)
@@ -104,16 +103,16 @@ module Sysmoon
       end
 
       def watch_directory(dirname)
-        @inotify.watch(dirname, :create, :delete, :moved_to, :moved_from) { |e|
+        @inotify.watch(dirname, :create, :delete, :moved_to, :moved_from) do |e|
           Log.debug("watch_directory: #{e.absolute_name}")
           h_directory(e.absolute_name, e.flags)
-        }
+        end
       end
 
       def watch_directory_for_file(dirname)
-        @inotify.watch(dirname, :create, :moved_to) { |e|
+        @inotify.watch(dirname, :create, :moved_to) do |e|
           watch_file(e.absolute_name) if @wfiles.include? e.absolute_name
-        }
+        end
       end
 
       # Handlers of inotify changes
@@ -121,9 +120,7 @@ module Sysmoon
       def h_file(filename, events)
         Log.debug("h_file: #{filename}")
 
-        unless @events[filename]
-          @events[filename] = []
-        end
+        @events[filename] = [] unless @events[filename]
 
         @events[filename] += events
       end
@@ -132,9 +129,7 @@ module Sysmoon
       def h_directory_for_file(filename, events)
         Log.debug("h_directory_of_file: #{filename}")
 
-        unless @events[filename]
-          @events[filename] = []
-        end
+        @events[filename] = [] unless @events[filename]
 
         @events[filename] += events
         watch_file(filename)
@@ -151,27 +146,20 @@ module Sysmoon
         end
 
         # Better pass a file
-        unless @events[filename]
-          @events[filename] = []
-        end
+        @events[filename] = [] unless @events[filename]
 
         @events[filename] += events
       end
 
       def guess_event(events)
-        if events.length == 1
-          return events.first
-        end
+        return events.first if events.length == 1
 
-        if events.include? :create and events.include? :modify
-          return :modify
-        end
+        return :modify if events.include?(:create) && events.include?(:modify)
 
-        if events.include? :delete and not events.include? :create
-          return :delete
-        end
+        return :delete if events.include?(:delete) && (!events.include? :create)
+
         # TODO: find out more logic
-        return events.last
+        events.last
       end
     end
   end

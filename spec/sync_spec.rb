@@ -14,12 +14,12 @@ module Sysmoon
         discovery.instance_variable_set(:@sysmoon, sysmoon)
         expect(discovery).to receive(:loop).and_yield
         expect(socket).to receive(:recvfrom)
-                            .and_return([Discover::DISCOVERY_REQ, ['ip']])
+          .and_return([Discover::DISCOVERY_REQ, ['ip']])
         expect(Utils).to receive(:local_ip?).and_return(false)
 
         expect(sysmoon).to receive(:add_remote_node).with('ip')
         expect(discovery).to receive(:send_discovery_message)
-                               .with('ip', Discover::DISCOVERY_ANS)
+          .with('ip', Discover::DISCOVERY_ANS)
         discovery.send(:listen_discovery)
       end
     end

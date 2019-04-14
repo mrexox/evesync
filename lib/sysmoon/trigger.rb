@@ -7,16 +7,15 @@ require 'sysmoon/utils'
 
 module Sysmoon
   class Trigger
-
     def initialize(watcher_queue)
       @watcher_queue = watcher_queue
 
       # Local Data daemon
-      sysdatad = IPC::Client.new(:port => :sysdatad)
+      sysdatad = IPC::Client.new(port: :sysdatad)
 
-      @remote_handlers = Config[:sysmoond]['remotes'].map {|ip|
+      @remote_handlers = Config[:sysmoond]['remotes'].map do |ip|
         new_remote_handler(ip)
-      }.compact                 # remove nils
+      end.compact # remove nils
 
       # Helper triggers
       package_trigger = Trigger::Package.new(
@@ -34,9 +33,9 @@ module Sysmoon
     end
 
     def start
-      @thr = Thread.new {
+      @thr = Thread.new do
         loop { biz }
-      }
+      end
       Log.debug('Trigger started')
     end
 
@@ -58,12 +57,10 @@ module Sysmoon
         remote_handler = new_remote_handler(ip)
         @remote_handlers << remote_handler if remote_handler
       end
-      Log.debug(@remote_handlers.map {|r| r.ip})
+      Log.debug(@remote_handlers.map(&:ip))
     end
 
-    def remote_handlers
-      @remote_handlers
-    end
+    attr_reader :remote_handlers
 
     private
 
@@ -85,23 +82,23 @@ module Sysmoon
         trigger.send(method, change) && true
       else
         # TODO: forward somewhere
-        Log.error("No watcher was notified to unignore " \
+        Log.error('No watcher was notified to unignore ' \
                   "#{change}")
       end
     end
 
     def message_trigger(message)
       class_last = message.class.name.to_s.split('::')[-1]
-      @triggers.find { |trigger|
+      @triggers.find do |trigger|
         trigger.to_s.include? class_last
-      }
+      end
     end
 
     def new_remote_handler(ip)
-      unless Utils::local_ip?(ip)
+      unless Utils.local_ip?(ip)
         IPC::Client.new(
-          :port => :syshand,
-          :ip => ip
+          port: :syshand,
+          ip: ip
         )
       end
     end

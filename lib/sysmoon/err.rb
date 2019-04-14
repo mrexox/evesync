@@ -1,7 +1,6 @@
 # TODO: move to a err directory
 module Sysmoon
   module Err
-
     # = Synopsis:
     #
     #   Base Sysmoon error class.
@@ -23,6 +22,5 @@ module Sysmoon
 
     class Db::SaveError < Base
     end
-
   end
 end

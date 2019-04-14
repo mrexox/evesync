@@ -11,13 +11,13 @@ module Sysmoon
 
         case message.command
         when /install/
-          Distro::PackageManager::install(*args)
+          Distro::PackageManager.install(*args)
         when /remove/
-          Distro::PackageManager::remove(*args)
+          Distro::PackageManager.remove(*args)
         when /update/
-          Distro::PackageManager::update(*args)
+          Distro::PackageManager.update(*args)
         when /downgrade/
-          Distro::PackageManager::downgrade(*args)
+          Distro::PackageManager.downgrade(*args)
         else
           Log.warn("Unknown command #{message.command}")
         end

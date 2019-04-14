@@ -4,7 +4,6 @@ require 'sysmoon/config'
 
 module Sysmoon
   class Discover
-
     DISCOVERY_REQ = 'SYSMOON'.freeze
     DISCOVERY_ANS = 'DISCOVERED'.freeze
 
@@ -22,7 +21,7 @@ module Sysmoon
 
     # Sending UDP message on broadcast
     # Discovering our nodes
-    def send_discovery_message(ip='<broadcast>', message=DISCOVERY_REQ)
+    def send_discovery_message(ip = '<broadcast>', message = DISCOVERY_REQ)
       udp_sock = UDPSocket.new
       if ip == '<broadcast>'
         udp_sock.setsockopt(
@@ -40,7 +39,7 @@ module Sysmoon
         data, recvdata = @listen_sock.recvfrom(1024)
         node_ip = recvdata[-1]
 
-        next if Utils::local_ip?(node_ip)
+        next if Utils.local_ip?(node_ip)
 
         if [DISCOVERY_REQ, DISCOVERY_ANS].include? data
           # Push new node_ip to trigger
@@ -57,5 +56,4 @@ module Sysmoon
       end
     end
   end
-
 end

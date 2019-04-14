@@ -10,7 +10,7 @@ GEMFILE = "sysmoon-#{VERSION}.gem".freeze
 task default: %i[lint build]
 
 task :lint do
-  if find_executable 'rubocop' then sh 'rubocop -l' end
+  sh 'rubocop -l' if find_executable 'rubocop'
 end
 
 task :rdoc do
@@ -29,7 +29,7 @@ end
 
 RSpec::Core::RakeTask.new(:spec)
 
-task :test => :spec
+task test: :spec
 
 task :clean do
   rm_rf('tmp')
