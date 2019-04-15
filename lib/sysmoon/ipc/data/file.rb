@@ -20,8 +20,8 @@ module Sysmoon
           @name = params[:name].freeze
           @mode = params[:mode].freeze
           @action = parse_action(params[:action]).freeze
-          @timestamp = Time.now.to_f.to_s
-          @content = IO.read(@name).freeze if ::File.exist? @name
+          @timestamp = params[:timestamp] || Time.now.to_f.to_s
+          @content = params[:content] || IO.read(@name).freeze if ::File.exist? @name
         end
 
         def ==(other)

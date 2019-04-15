@@ -20,9 +20,8 @@ module Sysmoon
           Distro::PackageManager.downgrade(*args)
         else
           Log.warn("Unknown command #{message.command}")
+          return false
         end
-
-        'Fine'
       end
     end
   end

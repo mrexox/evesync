@@ -21,7 +21,7 @@ module Sysmoon
           @name = params[:name].freeze
           @version = params[:version].freeze
           @command = parse_command(params[:command]).freeze
-          @timestamp = Time.now.to_f.to_s
+          @timestamp = params[:timestamp] || Time.now.to_f.to_s
         end
 
         def ==(pkg)

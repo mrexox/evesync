@@ -135,8 +135,6 @@ module Sysmoon
       v1 = params[:v1]
       v2 = params[:v2]
 
-      Log.debug('Local  events', v1)
-      Log.debug('Remote events', v2)
       # Fully missed objects
       fully_missed = v2.reject { |k| v1.include?(k) }
 

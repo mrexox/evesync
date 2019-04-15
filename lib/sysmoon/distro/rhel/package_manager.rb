@@ -7,6 +7,7 @@ module Sysmoon
     module PackageManager
       class << self
         def install(*args)
+          return false if exist?(*args)
           yum('install', *args)
           exist?(*args)
         end
@@ -33,8 +34,7 @@ module Sysmoon
 
         def exist?(name, version)
           Log.debug("Checking if #{name}-#{version} exists")
-          `rpm -q #{name}-#{version} >/dev/null 2>&1`
-          $CHILD_STATUS == 0
+          system("rpm -q #{name}-#{version} >/dev/null 2>&1")
         end
       end
     end
