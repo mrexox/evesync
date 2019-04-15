@@ -4,7 +4,7 @@ require 'sysmoon/discover'
 require 'sysmoon/log'
 require 'sysmoon/config'
 require 'sysmoon/ipc/client'
-require 'sysmoon/ipc/data/hashable'
+require 'sysmoon/ipc/data/utils'
 require 'sysmoon/utils'
 
 module Sysmoon
@@ -16,6 +16,9 @@ module Sysmoon
       )
       @sysdata = IPC::Client.new(
         port: :sysdatad
+      )
+      @syshand = IPC::Client.new(
+        port: :syshand
       )
       @local_sysdata = IPC::Client.new(
         port: :sysdatad
@@ -161,16 +164,21 @@ module Sysmoon
       end
 
       # Mapping events to nodes: {ip => {object => [events...]}}
-      nodes_events = map_nodes_for_events(evnts_diff, handlers)
+      nodes_events = map_nodes_for_events(events_diff, handlers)
 
       # Fetch...
-
+      messages = {}
+      nodes_events.each do |ip, events|
+        messages.merge! handlers[ip].messages(events)
+      end
+      Log.debug('Messages got:', messages)
       # Apply...
-
-      Log.debug('Events to fetch:', events_to_fetch)
-      # TODO: fetch events
-      # parse them into objects
-      # local @syshand -> handle(message)
+      messages.each do |_, message|
+        message.values.each do |json|
+          ipc_message = IPC::Data.from_json(json)
+          @syshand.handle(ipc_message)
+        end
+      end
     end
 
     # Map events to appropriate nodes that can be used to

@@ -25,11 +25,10 @@ few_seconds = Sysmoon::Config[:sysmoond]['discover_timeout'].to_i
 
 sync.discover                   # discovering nodes
 sleep 3                         # giving 3 seconds to complete
-sync.synchronize                # updating this node
 
 begin
   loop do
-    sync.discover               # lokup for other nodes
+    sync.synchronize                # updating this node
     sleep few_seconds           # ... in some interval
   end
 rescue SignalException
