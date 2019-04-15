@@ -56,7 +56,12 @@ module Sysmoon
       return {} unless remote_handlers.respond_to? :each
 
       remote_handlers.each do |handler|
-        remote_events[handler.ip] = handler.db.events || {}
+        begin
+          Log.debug('Remote ip to sync:', handler.ip)
+          remote_events[handler.ip] = handler.events || {}
+        rescue
+          next
+        end
       end
 
       return {} if remote_events.empty?
@@ -130,7 +135,7 @@ module Sysmoon
       Log.debug('Local  events', v1)
       Log.debug('Remote events', v2)
       # Fully missed objects
-      fully_missed = v2.select { |k| !v1.include?(k) }
+      fully_missed = v2.reject { |k| v1.include?(k) }
 
       # Included in both, but may be missed in `v1'
       maybe_missed = v2.select { |k| v1.include?(k) }
@@ -147,12 +152,46 @@ module Sysmoon
     end
 
     # Fetch events from given diff.
-    # TODO: intellectual choosing the nodes to fetch msgs from
+    #   events_diff: {object => {event => [ip..]}}
     def fetch_events(events_diff)
-      events_diff
+      # Getting {ip => handler} map
+      handlers = {}
+      @sysmoon.remote_handlers.each do |handler|
+        handlers[handler.ip] = handler
+      end
+
+      # Mapping events to nodes: {ip => {object => [events...]}}
+      nodes_events = map_nodes_for_events(evnts_diff, handlers)
+
+      # Fetch...
+
+      # Apply...
+
+      Log.debug('Events to fetch:', events_to_fetch)
       # TODO: fetch events
       # parse them into objects
       # local @syshand -> handle(message)
+    end
+
+    # Map events to appropriate nodes that can be used to
+    # fetch events.
+    # TODO: intellectual choosing the nodes to fetch msgs from.
+    # Now choosing the firs matched one for most of the events.
+    def map_nodes_for_events(events_diff, handlers)
+      nodes_events = {}
+      events_diff.each do |object, events|
+        events.each do |event, nodes|
+          handlers.keys.each do |ip|
+            if nodes.include?(ip)
+              nodes_events[ip] ||= {}
+              nodes_events[ip][object] ||= []
+              nodes_events[ip][object].push(event)
+              break
+            end
+          end
+        end
+      end
+      nodes_events
     end
   end
 end
