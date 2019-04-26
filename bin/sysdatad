@@ -3,11 +3,11 @@
 
 require 'sysmoon/ipc/server'
 require 'sysmoon/log'
-require 'sysmoon/trigger/database'
+require 'sysmoon/database'
 
 Sysmoon::Log.info('starting sysdatad...')
 
-database = Sysmoon::Trigger::Database.new
+database = Sysmoon::Database.new
 
 # Creating an IPC server to accept data
 data_server = Sysmoon::IPC::Server.new(

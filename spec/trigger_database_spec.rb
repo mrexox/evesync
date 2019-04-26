@@ -1,12 +1,12 @@
 require_relative 'spec_helper'
 require 'lmdb'
 require 'fileutils'
-require 'sysmoon/trigger/database'
+require 'sysmoon/database'
 require 'sysmoon/ipc/data/package'
 
 module Sysmoon
-  describe Trigger::Database do
-    let(:db) { Trigger::Database.allocate }
+  describe Database do
+    let(:db) { Database.allocate }
 
     context 'empty db' do
       it 'should add entry based on timestamp and name' do
