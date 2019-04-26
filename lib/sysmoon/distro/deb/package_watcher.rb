@@ -17,7 +17,7 @@ module Sysmoon
             sleep 10
             @dpkg.changes.each do |pkg|
               @queue << pkg
-              Log.debug pkg
+              Log.debug 'Debian Package watcher enqued:', pkg
             end
           end
         end

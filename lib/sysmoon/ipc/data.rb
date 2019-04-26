@@ -5,7 +5,7 @@ module Sysmoon
   module IPCData
     def self.pack(message)
       unless message.respond_to? :to_hash
-        err_msg = "Instance #{message} must implement `to_hash'"
+        err_msg = "IPC ERROR Instance #{message} must implement `to_hash'"
         Log.fatal(err_msg)
         raise err_msg
       end
@@ -17,18 +17,18 @@ module Sysmoon
 
     def self.unpack(message)
       unless message.is_a? String
-        raise "message #{message} must be of type String"
+        raise "IPC ERROR message #{message} must be of type String"
       end
 
       begin
         hash = JSON.parse(message)
       rescue JSON::ParseError => e
-        Log.fatal("Unable to parse message #{message}")
+        Log.fatal("IPC ERROR Unable to parse message #{message}")
         raise e
       end
 
       begin
-        Log.debug("Accepted basic hash #{hash}")
+        Log.debug("IPC Accepted basic hash #{hash}")
         cl = Object.const_get hash['type']
       rescue NameError => e
         # FIXME: just sent JSON, this event will be delegated
@@ -39,7 +39,7 @@ module Sysmoon
       end
 
       unless cl.respond_to? :from_hash
-        err_msg = "Class #{cl} must implement `self.from_hash'"
+        err_msg = "IPC ERROR Class #{cl} must implement `self.from_hash'"
         Log.fatal(err_msg)
         raise err_msg
       end

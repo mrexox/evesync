@@ -7,11 +7,11 @@ require 'sysmoon/config'
 
 # Exiting if `auto_discover = false'
 unless Sysmoon::Config[:sysmoond]['auto_discover']
-  Sysmoon::Log.info('syssyncd is not required')
+  Sysmoon::Log.info('Synchronizing not required')
   exit(0)
 end
 
-Sysmoon::Log.info('starting syssyncd...')
+Sysmoon::Log.info('Synchronizing daemon starting...')
 
 sync = Sysmoon::Sync.new
 
@@ -19,7 +19,7 @@ Signal.trap('TERM') do
   exit(0)
 end
 
-Sysmoon::Log.info('syssync started!')
+Sysmoon::Log.info('Synchronizing daemon started!')
 
 few_seconds = Sysmoon::Config[:sysmoond]['discover_timeout'].to_i
 

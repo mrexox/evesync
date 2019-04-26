@@ -4,10 +4,10 @@ module Sysmoon
   class Handler
     class File
       def handle(file)
-        Log.debug("#{self.class.name} handling")
+        Log.debug("Handler File handling started...")
         content = file.content
         name = file.name
-        Log.debug("Writing #{content} to #{name}")
+        Log.debug("Handler File writing received content to #{name}")
 
         if file.action == IPC::Data::File::Action::DELETE
           ::File.delete(name)
@@ -20,6 +20,7 @@ module Sysmoon
         end
 
         # Returning all fine!
+        Log.debug("Handler File handling done!")
         true
       end
     end

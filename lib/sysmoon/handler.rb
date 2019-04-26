@@ -49,18 +49,18 @@ module Sysmoon
       @sysdata = IPC::Client.new(
         port: :sysdatad
       )
-      Log.debug('Changes handler initialized')
+      Log.debug('Handler initialization done!')
     end
 
     def handle(message)
-      Log.info "#{self.class.name} called: #{message}"
+      Log.info "Handler triggered with: #{message}"
 
       handler = if message.is_a? IPC::Data::Package
                   @package_handler
                 elsif message.is_a? IPC::Data::File
                   @files_handler
                 else
-                  Log.error('Unknown handler')
+                  Log.error('Handler: unknown message type')
                   nil
                 end
       return unless handler

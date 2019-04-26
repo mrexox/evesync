@@ -23,12 +23,12 @@ module Sysmoon
         end
 
         def apt_get(cmd, name, version)
-          Log.debug("Calling '#{cmd}' on #{name}=#{version}")
+          Log.debug("Apt-get command: '#{cmd}' on #{name}=#{version}")
           system("apt-get --assume-yes #{cmd} #{name}=#{version}")
         end
 
         def exist?(name, version)
-          Log.debug("Checking if #{name}-#{version} exists")
+          Log.debug("Dpkg checking if exists: #{name}-#{version}")
           `dpkg-query -l #{name}`
           $CHILD_STATUS == 0
         end

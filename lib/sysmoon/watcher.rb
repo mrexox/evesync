@@ -31,12 +31,13 @@ module Sysmoon
 
     def initialize(queue)
       # Creating subwatchers
+      Log.debug('Watcher initialization started...')
       @queue = queue
       @watchers = []
       WATCHER_CLASSES.each do |w_class|
         @watchers << w_class.new(@queue)
       end
-      Log.debug('Watcher initialized')
+      Log.debug('Watcher initialization done!')
     end
 
     # Starts watchers threads
@@ -49,14 +50,14 @@ module Sysmoon
           @threads << watcher.run
         end
       end
-      Log.debug('Watcher started')
+      Log.debug('Watcher thread started')
       self
     end
 
     # Stops all watcher threads
     def stop
       @threads.each(&:exit)
-      Log.debug('Watcher stopped')
+      Log.debug('Watcher thread stopped')
     end
   end
 end

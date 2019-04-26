@@ -37,10 +37,10 @@ module Sysmoon
     #   synchronizing
     #
     def synchronize
-      Log.debug('Synchronizing... start')
+      Log.debug('Synchronizing started...')
       events = missed_events
       fetch_events events unless events.empty?
-      Log.debug('Synchronizing... end')
+      Log.debug('Synchronizing finished!')
     end
 
     def discover
@@ -60,7 +60,7 @@ module Sysmoon
 
       remote_handlers.each do |handler|
         begin
-          Log.debug('Remote ip to sync:', handler.ip)
+          Log.debug('Synchronizing with host (IP):', handler.ip)
           remote_events[handler.ip] = handler.events || {}
         rescue
           next
@@ -96,7 +96,7 @@ module Sysmoon
       #   that can be used to fetch these events
       local = params[:local]
       remote = params[:remote]
-      Log.debug('Remote:', remote)
+      Log.debug('Synchronizing remote objects:', remote)
       # Transforming data
       remote_objects = {}
       remote.each do |ip, objects|
@@ -169,7 +169,7 @@ module Sysmoon
       nodes_events.each do |ip, events|
         messages.merge! handlers[ip].messages(events)
       end
-      Log.debug('Messages got:', messages)
+      Log.debug('Synchronizing fetched events:', messages)
       # Apply...
       messages.each do |_, message|
         message.values.each do |json|

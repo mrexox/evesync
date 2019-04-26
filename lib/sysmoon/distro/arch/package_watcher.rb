@@ -44,7 +44,7 @@ module Sysmoon
                 command: m[:command]
               )
               @queue << pkg
-              Log.debug pkg
+              Log.debug 'Arch package watcher enqued:', pkg
             end
           end
         end

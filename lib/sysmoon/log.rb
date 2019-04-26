@@ -1,4 +1,5 @@
 require 'logger'
+require 'sysmoon/config'
 
 # This module is responsible for logging
 module Sysmoon
@@ -21,9 +22,8 @@ module Sysmoon
       end
 
       def init_logger
-        # FIXME: log into file, read from config
         @logger = Logger.new(STDERR)
-        @logger.level = Logger::DEBUG
+        @logger.level = read_loglevel
         @logger.formatter = proc do |sev, dtime, _prog, msg|
           time = dtime.strftime('%Y-%m-%d %H:%M:%S')
           prog = File.basename($PROGRAM_NAME)
@@ -34,6 +34,18 @@ module Sysmoon
       def to_string(*args)
         to_s_with_space = ->(s) { s.to_s + ' ' }
         args.map(&to_s_with_space).reduce(&:+).strip
+      end
+
+      private
+
+      def read_loglevel
+        level = Config[:sysmoond]['loglevel'] || 'debug'
+        begin
+          return Logger.const_get(level.upcase)
+        rescue NameError
+          # TODO: log about it
+          return Logger::DEBUG
+        end
       end
     end
   end

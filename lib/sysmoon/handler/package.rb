@@ -5,7 +5,7 @@ module Sysmoon
   class Handler
     class Package
       def handle(message)
-        Log.debug("Handling #{message}")
+        Log.debug('Handler Package handling started...')
 
         args = [message.name, message.version]
 
@@ -19,9 +19,11 @@ module Sysmoon
         when /downgrade/
           Distro::PackageManager.downgrade(*args)
         else
-          Log.warn("Unknown command #{message.command}")
+          Log.warn("Handler Package command unknown: #{message.command}")
           return false
         end
+        Log.debug('Handler Package handling done!')
+        true
       end
     end
   end

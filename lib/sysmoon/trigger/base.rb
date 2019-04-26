@@ -18,7 +18,7 @@ module Sysmoon
               syshand.handle(message)
             end
           rescue Timeout::Error
-            Log.warn("Syshand server #{syshand.uri} " \
+            Log.warn("Trigger remote timeout: server #{syshand.uri} " \
                      'is not accessible')
           end
         end

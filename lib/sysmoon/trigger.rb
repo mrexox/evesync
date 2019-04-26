@@ -29,7 +29,7 @@ module Sysmoon
 
       @triggers = [package_trigger, file_trigger]
 
-      Log.debug('Trigger initialized')
+      Log.debug('Trigger initialization done!')
     end
 
     def start
@@ -57,7 +57,7 @@ module Sysmoon
         remote_handler = new_remote_handler(ip)
         @remote_handlers << remote_handler if remote_handler
       end
-      Log.debug(@remote_handlers.map(&:ip))
+      Log.debug 'Trigger actual remote nodes:', @remote_handlers.map(&:ip)
     end
 
     attr_reader :remote_handlers
@@ -67,14 +67,14 @@ module Sysmoon
     # Main thread business logic goes here
     def biz
       change = @watcher_queue.pop
-      Log.info "#{self.class.name}: #{change}"
+      Log.info "Trigger dequed event: #{change}"
       trigger = message_trigger(change)
       trigger.process(change)
     end
 
     # Send a method to target (choose by change class name)
     def trigger_method(method, change)
-      Log.debug("#{method.capitalize}: #{change.class.name}")
+      Log.debug("Trigger calling #{method.capitalize} on #{change.class.name}")
 
       trigger = message_trigger(change)
 
@@ -82,7 +82,7 @@ module Sysmoon
         trigger.send(method, change) && true
       else
         # TODO: forward somewhere
-        Log.error('No watcher was notified to unignore ' \
+        Log.error('Trigger: no watchers will be notified on ' \
                   "#{change}")
       end
     end

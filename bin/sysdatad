@@ -5,7 +5,7 @@ require 'sysmoon/ipc/server'
 require 'sysmoon/log'
 require 'sysmoon/database'
 
-Sysmoon::Log.info('starting sysdatad...')
+Sysmoon::Log.info('Database daemon starting...')
 
 database = Sysmoon::Database.new
 
@@ -20,7 +20,7 @@ Signal.trap('TERM') do
   exit(0)
 end
 
-Sysmoon::Log.info('sysdatad started!')
+Sysmoon::Log.info('Database daemon started!')
 
 begin
   loop do
@@ -28,7 +28,7 @@ begin
     # zip db if needed, save backup
   end
 rescue SignalException => e
-  Sysmoon::Log.warn("Signal got: #{e.signm}(#{e.signo})")
+  Sysmoon::Log.warn("Database daemon received signal: #{e.signm}(#{e.signo})")
   data_server.stop
   exit(0)
 end

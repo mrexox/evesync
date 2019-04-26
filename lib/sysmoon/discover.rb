@@ -48,10 +48,10 @@ module Sysmoon
 
         case data
         when DISCOVERY_REQ
-          Log.info("Discovery host found: #{node_ip}")
+          Log.info("Discover host request got: #{node_ip}")
           send_discovery_message(node_ip, DISCOVERY_ANS)
         when DISCOVERY_ANS
-          Log.info("Discovery host answered: #{node_ip}")
+          Log.info("Discover host response got: #{node_ip}")
         end
       end
     end

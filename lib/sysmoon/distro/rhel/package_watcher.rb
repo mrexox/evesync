@@ -7,17 +7,17 @@ module Sysmoon
       def initialize(queue)
         @queue = queue
         @rpm_packages = Rpm.new
-        Log.debug('Rhel package watcher initialized')
+        Log.debug('Rhel Package watcher initialized')
       end
 
       def run
-        Log.debug('Rhel package watcher run')
+        Log.debug('Rhel Package watcher started')
         Thread.new do
           loop do
             sleep 10 # FIXME: don't use magic numbers
             @rpm_packages.changes.each do |pkg|
               @queue << pkg
-              Log.debug pkg
+              Log.debug 'Rhel Package watcher enqued:', pkg
             end
           end
         end

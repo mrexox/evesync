@@ -28,12 +28,12 @@ module Sysmoon
         end
 
         def yum(cmd, name, version)
-          Log.debug("Calling '#{cmd}' on #{name}-#{version}")
+          Log.debug("Yum command: '#{cmd}' on #{name}-#{version}")
           system("yum --assumeyes #{cmd} #{name}-#{version}")
         end
 
         def exist?(name, version)
-          Log.debug("Checking if #{name}-#{version} exists")
+          Log.debug("Yum checking if exists: #{name}-#{version}")
           system("rpm -q #{name}-#{version} >/dev/null 2>&1")
         end
       end

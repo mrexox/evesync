@@ -6,7 +6,7 @@ require 'sysmoon/ipc/server'
 require 'sysmoon/trigger'
 require 'sysmoon/watcher'
 
-Sysmoon::Log.info 'sysmoond starting...'
+Sysmoon::Log.info 'Monitoring daemon starting...'
 
 queue = Queue.new
 trigger = Sysmoon::Trigger.new(queue)
@@ -19,7 +19,7 @@ sysmoon_server = Sysmoon::IPC::Server.new(
   proxy: trigger
 ).start
 
-Sysmoon::Log.info 'sysmoond started!'
+Sysmoon::Log.info 'Monitoring daemon started!'
 
 # Signal handling
 
@@ -35,7 +35,7 @@ begin
     # FIXME: know what to do
   end
 rescue SignalException => e
-  Sysmoon::Log.warn("Signal got: #{e.signm}(#{e.signo})")
+  Sysmoon::Log.warn("Monitoring daemon received signal: #{e.signm}(#{e.signo})")
   watcher.stop
   sysmoon_server.stop
   exit(0)

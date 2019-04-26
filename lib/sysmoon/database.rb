@@ -36,17 +36,17 @@ module Sysmoon
 
     # Save message to database, key is timestamp+object
     def save(message)
-      Log.debug("Data handler called: #{message}")
+      Log.debug("Database save: #{message}")
       db_add_entry(message)
 
       if message.is_a? Sysmoon::IPC::Data::File
-        Log.debug("Is a File #{message.action}")
+        Log.debug("Database save file action: #{message.action}")
         unless message.action ==
                IPC::Data::File::Action::DELETE
           save_file(message)
         end
       end
-      'Fine'
+      true
     end
 
     # Events simplified: object => [timestamp...]
@@ -78,11 +78,11 @@ module Sysmoon
     private
 
     def db_add_entry(message)
-      Log.debug('Adding DB entry')
+      Log.debug('Database adding entry...')
       key = create_key(message)
       value = create_value(message)
       @db[key] = value
-      Log.debug('DB entry added')
+      Log.debug('Database adding entry done!')
     end
 
     def create_key(message)
@@ -98,12 +98,12 @@ module Sysmoon
     end
 
     def save_file(file)
-      Log.debug('Saving file...')
+      Log.debug('Database saving file...')
       fulldest = File.join(@files_path,
                            file.name + ".#{file.timestamp}")
       FileUtils.mkdir_p(File.dirname(fulldest))
       FileUtils.cp(file.name, fulldest)
-      Log.debug('File saved!')
+      Log.debug('Database saving file done!')
     end
   end
 end

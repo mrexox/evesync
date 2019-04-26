@@ -5,7 +5,7 @@ require 'sysmoon/log'
 require 'sysmoon/ipc/server'
 require 'sysmoon/handler'
 
-Sysmoon::Log.info('syshand starting...')
+Sysmoon::Log.info('Handle daemon starting...')
 
 all_handler = Sysmoon::Handler.new
 
@@ -15,7 +15,7 @@ handler_server = Sysmoon::IPC::Server.new(
   ip: '*' # accept remote requests
 ).start
 
-Sysmoon::Log.info('syshand started!')
+Sysmoon::Log.info('Handle daemon started!')
 
 # Signal handling
 
@@ -30,7 +30,7 @@ begin
     # FIXME: know what to do
   end
 rescue SignalException => e
-  Sysmoon::Log.warn("Signal got: #{e.signm}(#{e.signo})")
+  Sysmoon::Log.warn("Received signal: #{e.signm}(#{e.signo})")
   handler_server.stop
   exit(0)
 end

@@ -24,14 +24,14 @@ module Sysmoon
             end
             hash['type'] = self.class.to_s
           end
-          Log.debug("Hash created: #{hash}")
+          Log.debug("IPC Data message hash created: #{hash}")
           hash
         end
       end
 
       module Unhashable
         def from_hash(hash)
-          Log.debug("Hash accepted: #{hash}")
+          Log.debug("IPC Data message hash parsing: #{hash}")
           params = {}
           hash.each do |key, value|
             next unless key =~ /^@/
@@ -41,12 +41,12 @@ module Sysmoon
               begin
                 cl = Object.const_get value['type']
               rescue NameError => e
-                Log.fatal("Unsupported type #{hash['type']}")
+                Log.fatal("IPC Data Unsupported type: #{hash['type']}")
                 raise e
               end
 
               unless cl.respond_to? :from_hash
-                err_msg = "Class #{cl} must implement `self.from_hash'"
+                err_msg = "IPC Data ERROR Class #{cl} must implement `self.from_hash'"
                 Log.fatal(err_msg)
                 raise err_msg
               end

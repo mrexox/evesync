@@ -60,8 +60,8 @@ module Sysmoon
             touched_at: DateTime.now.to_s
           )
           @queue.push msg
-          Log.debug("File #{file} #{event} guessed " \
-                    "of #{events}")
+          Log.debug("Watcher File guessed event #{event} " \
+                    "from #{events} on #{file}")
         end
         @events = {}
       end
@@ -69,7 +69,7 @@ module Sysmoon
       def initialize_watcher
         @watches.each do |filename|
           unless ::File.exist? filename
-            Log.error("#{self.class.name}: '#{filename}' absent on system")
+            Log.error("Watcher File: '#{filename}' absent on system")
           end
 
           # TODO: ignore /dev and /sys, /proc directories
@@ -79,17 +79,17 @@ module Sysmoon
             watch_directory filename
           else
             # Seems to be a drive or
-            Log.warn("#{self.class.name}: watching '#{filename}' is not implemented yet")
+            Log.warn("Watcher File: watching '#{filename}' is not implemented yet")
           end
         end
       end
 
       def watch_file(filename)
         # add file modify watch
-        Log.debug("Added watch_file #{filename}")
+        Log.debug("Watcher File watching #{filename}")
 
         @inotify.watch(filename, :modify) do |e|
-          Log.debug("h_file worked for #{e.absolute_name}")
+          Log.debug("Watcher File: MODIFIED #{e.absolute_name}")
           h_file(e.absolute_name, [:modify]) # the only flag we need
         end
 
@@ -104,7 +104,7 @@ module Sysmoon
 
       def watch_directory(dirname)
         @inotify.watch(dirname, :create, :delete, :moved_to, :moved_from) do |e|
-          Log.debug("watch_directory: #{e.absolute_name}")
+          Log.debug("Watcher File: DIRECTORY #{e.absolute_name}")
           h_directory(e.absolute_name, e.flags)
         end
       end
@@ -118,26 +118,13 @@ module Sysmoon
       # Handlers of inotify changes
 
       def h_file(filename, events)
-        Log.debug("h_file: #{filename}")
-
         @events[filename] = [] unless @events[filename]
 
         @events[filename] += events
-      end
-
-      # FIXME: remove
-      def h_directory_for_file(filename, events)
-        Log.debug("h_directory_of_file: #{filename}")
-
-        @events[filename] = [] unless @events[filename]
-
-        @events[filename] += events
-        watch_file(filename)
+        Log.debug("Watcher File added events for file #{filename}")
       end
 
       def h_directory(filename, events)
-        Log.debug("h_directory: #{filename}")
-
         if ::File.file? filename
           watch_file(filename)
           @watches << filename unless @watches.include? filename
@@ -149,6 +136,7 @@ module Sysmoon
         @events[filename] = [] unless @events[filename]
 
         @events[filename] += events
+        Log.debug("Watcher File added events for directory #{filename}")
       end
 
       def guess_event(events)
