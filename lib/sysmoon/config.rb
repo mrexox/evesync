@@ -1,23 +1,30 @@
-require 'toml'
+require 'toml-rb'
 require 'sysmoon/constants'
 require 'sysmoon/log'
 
 module Sysmoon
   module Config
     def self.[](daemon)
-      unless defined? @@config
-        Log.info("Config reading...: #{Constants::CONFIG_FILE}")
-        @@config = TOML.load_file(Constants::CONFIG_FILE)
-
-        # Setting unset defaults
-        @@config['sysmoond']['port'] ||= Constants::MOOND_PORT
-        @@config['sysdatad']['port'] ||= Constants::DATAD_PORT
-        @@config['syshand']['port']  ||= Constants::HAND_PORT
-        @@config['sync']['port'] ||= Constants::SYNC_PORT
-        @@config['sysmoond']['discover_timeout'] ||= Constants::DISCOVER_TIMEOUT
-      end
+      read_config if needs_reading
 
       @@config[daemon.to_s]
+    end
+
+    private
+
+    def self.read_config
+      @@config = TomlRB.load_file(Constants::CONFIG_FILE)
+      # Setting unset defaults
+      @@config['sysmoond']['port'] ||= Constants::MOOND_PORT
+      @@config['sysdatad']['port'] ||= Constants::DATAD_PORT
+      @@config['syshand']['port']  ||= Constants::HAND_PORT
+      @@config['sync']['port'] ||= Constants::SYNC_PORT
+      @@config['sysmoond']['discover_timeout'] ||= Constants::DISCOVER_TIMEOUT
+      Log.info("Config read: #{Constants::CONFIG_FILE}")
+    end
+
+    def self.needs_reading
+      ! defined? @@config
     end
   end
 end

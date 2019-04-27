@@ -20,12 +20,12 @@ module  Sysmoon
 
       # TODO: add callbacks
       def method_missing(method, *args, &block)
-        Log.debug("RPC Client calling #{method} on #{@uri}")
+        Log.debug("RPC Client calling '#{method}' on #{@uri}")
         # FIXME: don't send +start+ and +stop+ and +initialize+
         begin
           service = DRbObject.new_with_uri(@uri)
           res = service.send(method, *args, &block)
-          Log.debug("RPC Client method #{method} handled on #{@uri}")
+          Log.debug("RPC Client method '#{method}' handled on #{@uri}")
           res
         rescue StandardError
           Log.warn("RPC Client ERROR: no connection")

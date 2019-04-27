@@ -1,5 +1,6 @@
 require 'logger'
 require 'sysmoon/config'
+require 'sysmoon/constants'
 
 # This module is responsible for logging
 module Sysmoon
@@ -23,23 +24,23 @@ module Sysmoon
 
       def init_logger
         @logger = Logger.new(STDERR)
-        @logger.level = read_loglevel
         @logger.formatter = proc do |sev, dtime, _prog, msg|
           time = dtime.strftime('%Y-%m-%d %H:%M:%S')
           prog = File.basename($PROGRAM_NAME)
           "[#{time}] #{prog.ljust(8)} #{sev.ljust(5)}: #{msg}\n"
         end
+        @logger.level = read_loglevel
       end
 
       def to_string(*args)
-        to_s_with_space = ->(s) { s.to_s + ' ' }
+        to_s_with_space = ->(s) { "#{s} " }
         args.map(&to_s_with_space).reduce(&:+).strip
       end
 
       private
 
       def read_loglevel
-        level = Config[:sysmoond]['loglevel'] || 'debug'
+        level = Config['loglevel'] || Constants::DEFAULT_LOGLEVE
         begin
           return Logger.const_get(level.upcase)
         rescue NameError

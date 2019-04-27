@@ -74,7 +74,7 @@ module Sysmoon
 
     # Send a method to target (choose by change class name)
     def trigger_method(method, change)
-      Log.debug("Trigger calling #{method.capitalize} on #{change.class.name}")
+      Log.debug("Trigger calling '#{method}' on '#{change.class.name}'")
 
       trigger = message_trigger(change)
 
