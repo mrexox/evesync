@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+# -*- mode: ruby -*-
+
+require 'evesync/ipc/server'
+require 'evesync/log'
+require 'evesync/database'
+
+Evesync::Log.info('Database daemon starting...')
+
+database = Evesync::Database.new
+
+# Creating an IPC server to accept data
+data_server = Evesync::IPC::Server.new(
+  port: :evedatad,
+  proxy: database
+).start
+
+Signal.trap('TERM') do
+  data_server.stop
+  exit(0)
+end
+
+Evesync::Log.info('Database daemon started!')
+
+begin
+  loop do
+    sleep 3600 # FIXME: 1 hour, rewrite better
+    # zip db if needed, save backup
+  end
+rescue SignalException => e
+  Evesync::Log.warn("Database daemon received signal: #{e.signm}(#{e.signo})")
+  data_server.stop
+  exit(0)
+end

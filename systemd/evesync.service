@@ -1,0 +1,10 @@
+[Unit]
+Requires=evesync.service
+PartOf=moon.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/evesyncd
+
+[Install]
+WantedBy=moon.target

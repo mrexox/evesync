@@ -5,9 +5,9 @@ RUN apt install -y \
     build-essential iproute ruby-dev screen procps
 
 
-COPY Gemfile /sysmoon/Gemfile
+COPY Gemfile /evesync/Gemfile
 
-WORKDIR /sysmoon
+WORKDIR /evesync
 
 # Installing other stuff
 RUN gem install rake bundler
@@ -15,8 +15,8 @@ RUN bundle install --without development
 
 
 # Adding all other files
-COPY . /sysmoon
-COPY ./config/example.conf /etc/sysmoon.conf
+COPY . /evesync
+COPY ./config/example.conf /etc/evesync.conf
 
 RUN rake
 RUN rake install

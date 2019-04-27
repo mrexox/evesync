@@ -1,10 +1,10 @@
 require_relative 'spec_helper'
 require 'lmdb'
 require 'fileutils'
-require 'sysmoon/database'
-require 'sysmoon/ipc/data/package'
+require 'evesync/database'
+require 'evesync/ipc/data/package'
 
-module Sysmoon
+module Evesync
   describe Database do
     let(:db) { Database.allocate }
 
@@ -12,7 +12,7 @@ module Sysmoon
       it 'should add entry based on timestamp and name' do
         db.instance_variable_set(:@db, {})
 
-        package = instance_double('Sysmoon::IPC::Data::Package')
+        package = instance_double('Evesync::IPC::Data::Package')
         allow(package).to receive(:name)
           .and_return('name')
         allow(package).to receive(:timestamp)
@@ -29,7 +29,7 @@ module Sysmoon
       end
 
       it 'sould save a file' do
-        file = instance_double('Sysmoon::IPC::Data::File')
+        file = instance_double('Evesync::IPC::Data::File')
         allow(file).to receive(:action).and_return('not delete')
         allow(file).to receive(:is_a?)
           .with(IPC::Data::File)

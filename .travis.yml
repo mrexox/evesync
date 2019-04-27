@@ -24,26 +24,26 @@ script:
 jobs:
   include:
     - stage: docker
-      name: "Building sysmoon in a CentOS container"
+      name: "Building evesync in a CentOS container"
       script:
         - |
           docker build \
           --file dockerfiles/centos.dockerfile \
-          --tag sysmoon-rhel:latest \
+          --tag evesync-rhel:latest \
           .
     - stage: docker
-      name: "Building sysmoon in a Debian container"
+      name: "Building evesync in a Debian container"
       script:
         - |
           docker build \
           --file dockerfiles/debian.dockerfile \
-          --tag sysmoon-deb:latest \
+          --tag evesync-deb:latest \
           .
     - stage: docker
-      name: "Building sysmoon in a ArchLinux container"
+      name: "Building evesync in a ArchLinux container"
       script:
         - |
           docker build \
           --file dockerfiles/archlinux.dockerfile \
-          --tag sysmoon-arch:latest \
+          --tag evesync-arch:latest \
           .

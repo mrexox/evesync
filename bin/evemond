@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+# -*- mode: ruby -*-
+
+require 'evesync/log'
+require 'evesync/ipc/server'
+require 'evesync/trigger'
+require 'evesync/watcher'
+
+Evesync::Log.info 'Monitoring daemon starting...'
+
+queue = Queue.new
+trigger = Evesync::Trigger.new(queue)
+watcher = Evesync::Watcher.new(queue)
+
+[trigger, watcher].each(&:start)
+
+evesync_server = Evesync::IPC::Server.new(
+  port: :evemond,
+  proxy: trigger
+).start
+
+Evesync::Log.info 'Monitoring daemon started!'
+
+# Signal handling
+
+Signal.trap('SIGINT') do
+  [watcher, trigger].each(&:stop)
+  evesync_server.stop
+  exit(0)
+end
+
+begin
+  loop do
+    sleep 100
+    # FIXME: know what to do
+  end
+rescue SignalException => e
+  Evesync::Log.warn("Monitoring daemon received signal: #{e.signm}(#{e.signo})")
+  watcher.stop
+  evesync_server.stop
+  exit(0)
+end

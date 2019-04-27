@@ -1,9 +1,9 @@
 require 'rspec/mocks/standalone'
-require 'sysmoon/log'
+require 'evesync/log'
 
 RSpec.configure do |config|
   config.before(:all) do
-    allow(Sysmoon::Log).to receive(:method_missing)
+    allow(Evesync::Log).to receive(:method_missing)
       .and_return(nil)
   end
 end

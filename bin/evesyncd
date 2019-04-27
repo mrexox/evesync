@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+# -*- mode: ruby -*-
+
+require 'evesync/log'
+require 'evesync/sync'
+require 'evesync/config'
+
+# Exiting if `auto_discover = false'
+unless Evesync::Config['auto_discover']
+  Evesync::Log.info('Synchronizing not required')
+  exit(0)
+end
+
+Evesync::Log.info('Synchronizing daemon starting...')
+
+sync = Evesync::Sync.new
+
+Signal.trap('TERM') do
+  exit(0)
+end
+
+Evesync::Log.info('Synchronizing daemon started!')
+
+few_seconds = Evesync::Config['discover_timeout'].to_i
+
+sync.discover                   # discovering nodes
+sleep 3                         # giving 3 seconds to complete
+
+begin
+  loop do
+    sync.synchronize                # updating this node
+    sleep few_seconds           # ... in some interval
+  end
+rescue SignalException
+  exit(0)
+end

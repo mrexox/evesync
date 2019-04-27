@@ -1,0 +1,10 @@
+[Unit]
+Requries=evesync.service
+PartOf=moon.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/evedatad
+
+[Install]
+WantedBy=moon.target

@@ -1,0 +1,9 @@
+[Unit]
+PartOf=moon.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/evemond
+
+[Install]
+WantedBy=moon.target

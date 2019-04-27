@@ -1,7 +1,7 @@
 require_relative 'spec_helper'
-require 'sysmoon/trigger/package'
+require 'evesync/trigger/package'
 
-module Sysmoon
+module Evesync
   describe Trigger::Base do
     let(:trigger) { Trigger::Package.new({}) }
     let(:message) { double('IPC::Data::Package') }

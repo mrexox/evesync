@@ -8,7 +8,7 @@ RUN gem install rake
 
 RUN printf "install: --no-rdoc --no-ri\nupdate:  --no-rdoc --no-ri" > /root/.gemrc
 
-WORKDIR /sysmoon
+WORKDIR /evesync
 
 EXPOSE "55432"
 
@@ -19,8 +19,8 @@ COPY Gemfile ./Gemfile
 RUN bundle install --without development
 
 # Adding all other files
-COPY . /sysmoon
-COPY ./config/example.conf /etc/sysmoon.conf
+COPY . /evesync
+COPY ./config/example.conf /etc/evesync.conf
 
 RUN rake
 RUN rake install

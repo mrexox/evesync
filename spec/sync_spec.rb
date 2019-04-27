@@ -1,23 +1,23 @@
 require_relative 'spec_helper'
-require 'sysmoon/utils'
-require 'sysmoon/discover'
+require 'evesync/utils'
+require 'evesync/discover'
 
-module Sysmoon
+module Evesync
   describe Discover do
     let(:discovery) { Discover.allocate }
-    let(:sysmoon) { double('IPC::Client of sysmoon') }
+    let(:evesync) { double('IPC::Client of evesync') }
     let(:socket) { double('Listen socket') }
 
     context 'fine behaviour' do
       it 'should add node ip to known' do
         discovery.instance_variable_set(:@listen_sock, socket)
-        discovery.instance_variable_set(:@sysmoon, sysmoon)
+        discovery.instance_variable_set(:@evesync, evesync)
         expect(discovery).to receive(:loop).and_yield
         expect(socket).to receive(:recvfrom)
           .and_return([Discover::DISCOVERY_REQ, ['ip']])
         expect(Utils).to receive(:local_ip?).and_return(false)
 
-        expect(sysmoon).to receive(:add_remote_node).with('ip')
+        expect(evesync).to receive(:add_remote_node).with('ip')
         expect(discovery).to receive(:send_discovery_message)
           .with('ip', Discover::DISCOVERY_ANS)
         discovery.send(:listen_discovery)

@@ -1,8 +1,8 @@
 require_relative 'spec_helper'
-require 'sysmoon/utils'
-require 'sysmoon/sync'
+require 'evesync/utils'
+require 'evesync/sync'
 
-module Sysmoon
+module Evesync
   describe Sync do
     let(:syncer) { Sync.allocate }
 

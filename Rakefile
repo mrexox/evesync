@@ -2,10 +2,10 @@ require 'rspec/core/rake_task'
 require 'find'
 require 'mkmf'
 
-VERSION = '0.0.0'.freeze
+VERSION = '1.0.0'.freeze
 
-GEMSPEC = 'sysmoon.gemspec'.freeze
-GEMFILE = "sysmoon-#{VERSION}.gem".freeze
+GEMSPEC = 'evesync.gemspec'.freeze
+GEMFILE = "evesync-#{VERSION}.gem".freeze
 
 task default: %i[lint build]
 

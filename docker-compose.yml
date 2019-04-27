@@ -11,9 +11,9 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/centos.dockerfile
-    image: sysmoon-debian:latest
+    image: evesync-debian:latest
     ports:
-      - "55432" # syshand
+      - "55432" # evehand
     tty: true
     stdin_open: true
 
@@ -21,8 +21,8 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/centos.dockerfile
-    image: sysmoon-debian:latest
+    image: evesync-debian:latest
     ports:
-      - "55432" # syshand
+      - "55432" # evehand
     tty: true
     stdin_open: true
