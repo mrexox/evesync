@@ -18,7 +18,7 @@ module Evesync
       def initialize(queue)
         @queue = queue
         @watches = Config[:evemond]['watch']
-        @period = Config[:evemond]['watch_interval'].to_i || Constants::WATCH_PERIOD
+        @period = Config[:evemond]['watch_interval'].to_i
         @inotify = INotify::Notifier.new
         @events = {}
         @wfiles = []

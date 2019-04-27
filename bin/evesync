@@ -6,7 +6,7 @@ require 'socket'
 require 'evesync'
 require 'evesync/utils'
 
-$opts = {}
+opts = {}
 program = File.basename($0)
 OptionParser.new do |parser|
   parser.banner = "#{program} [OPTIONS...]
@@ -15,7 +15,7 @@ OptionParser.new do |parser|
   parser.summary_width = 20
 
   parser.on('-l', '--load FILE', 'Arhive file to load events from') do |f|
-    $opts['file'] = f
+    opts['file'] = f
   end
 
   parser.on('-z', '--zip [OUTFILE]', 'Zip current database') do |zo|
@@ -24,7 +24,7 @@ OptionParser.new do |parser|
     hostname = hostname == 'localhost' \
                 ? Evesync::Utils::local_ip : hostname
     time_now = Time.now.strftime('%Y.%m.%d-%H:%M:%S')
-    $opts['zip'] = zo || "#{program}_#{hostname}_#{time_now}.zip"
+    opts['zip'] = zo || "#{program}_#{hostname}_#{time_now}.zip"
 
     # Validation
     unless File.directory? File.dirname $opts['zip']
@@ -34,7 +34,7 @@ OptionParser.new do |parser|
   end
 
   parser.on('-s', '--sync', 'Enforce synchronization') do
-    $opts['sync'] = true
+    opts['sync'] = true
   end
 
   parser.on_tail('-v', '--version', "Version of #{program}") do
@@ -46,6 +46,10 @@ OptionParser.new do |parser|
     puts parser
     exit
   end
-end.parse!
+end.parse
 
-puts $opts
+def evesync(opts)
+  # ...
+end
+
+evesync opts

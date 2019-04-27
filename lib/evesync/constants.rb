@@ -5,7 +5,7 @@ module Evesync
     DATAD_PORT = '54321'.freeze
     HAND_PORT  = '55432'.freeze
     SYNC_PORT  = '64653'.freeze
-    WATCH_PERIOD = 2
+    WATCH_INTERVAL = 2
     DB_PATH = '/var/lib/evesync/db/'.freeze
     DISCOVER_TIMEOUT = 3600
     FILES_PATH = '/var/lib/evesync/files/'.freeze

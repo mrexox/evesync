@@ -40,7 +40,7 @@ module Evesync
       private
 
       def read_loglevel
-        level = Config['loglevel'] || Constants::DEFAULT_LOGLEVE
+        level = Config['loglevel'] || Constants::DEFAULT_LOGLEVEL
         begin
           return Logger.const_get(level.upcase)
         rescue NameError
