@@ -1,17 +1,28 @@
 module Evesync
   module Utils
-    def self.local_ip?(ip)
-      ips = `getent hosts #{ip}`
-            .lines
-            .map(&:split)
-            .map(&:first)
-      local_ips = `ip a`
-                  .lines
-                  .grep(/inet/)
-                  .map(&:split)
-                  .map { |lines| lines[1].split('/')[0] }
+    class << self
+      def local_ip?(ip)
+        ips = `getent hosts #{ip}`
+                .lines
+                .map(&:split)
+                .map(&:first)
+        local_ips = `ip a`
+                      .lines
+                      .grep(/inet/)
+                      .map(&:split)
+                      .map { |lines| lines[1].split('/')[0] }
 
-      !(ips & local_ips).empty?
+        !(ips & local_ips).empty?
+      end
+
+      def local_ip
+        `ip a`
+          .lines
+          .grep(/inet/)
+          .map(&:split)
+          .map { |lines| lines[1].split('/')[0] }
+          .first
+      end
     end
   end
 end

@@ -2,25 +2,42 @@
 # -*- mode: ruby -*-
 
 require 'optparse'
+require 'socket'
 require 'evesync'
+require 'evesync/utils'
 
 $opts = {}
+program = File.basename($0)
 OptionParser.new do |parser|
-  parser.banner = "#{File.basename($0)} [OPTIONS...]
+  parser.banner = "#{program} [OPTIONS...]
 
 "
   parser.summary_width = 20
 
-  parser.on('-l', '--load=FILE', 'Arhive file to load events from') do |f|
-    $opts['load'] = true
+  parser.on('-l', '--load FILE', 'Arhive file to load events from') do |f|
     $opts['file'] = f
+  end
+
+  parser.on('-z', '--zip [OUTFILE]', 'Zip current database') do |zo|
+    # Pretty default name
+    hostname = Socket.gethostname
+    hostname = hostname == 'localhost' \
+                ? Evesync::Utils::local_ip : hostname
+    time_now = Time.now.strftime('%Y.%m.%d-%H:%M:%S')
+    $opts['zip'] = zo || "#{program}_#{hostname}_#{time_now}.zip"
+
+    # Validation
+    unless File.directory? File.dirname $opts['zip']
+      puts "Directory doesn't exist: #{File.dirname $opts['zip']}"
+      exit 1
+    end
   end
 
   parser.on('-s', '--sync', 'Enforce synchronization') do
     $opts['sync'] = true
   end
 
-  parser.on_tail('-v', '--version', "Version of #{File.basename($0)}") do
+  parser.on_tail('-v', '--version', "Version of #{program}") do
     puts Evesync::VERSION
     exit
   end
@@ -30,3 +47,5 @@ OptionParser.new do |parser|
     exit
   end
 end.parse!
+
+puts $opts
