@@ -1,20 +1,21 @@
 require 'rake' # for FileList
+require_relative 'lib/evesync'
 
 Gem::Specification.new do |s|
   s.name = 'evesync'
 
-  s.version = '1.0.0'
+  s.version = Evesync::VERSION
 
   s.license = 'BSD-2-Clause'
 
   s.date = '2019-02-12'
 
-  s.summary = 'Sys changes monitor'
+  s.summary = 'Daemons and utility for package and file changes synchronization'
 
   s.authors = 'Kiselev Valentine'
   s.email = 'mrexox@yahoo.com'
   s.homepage = 'https://mrexox.github.io'
-  s.description = 'System monitor and synchronization daemons'
+  s.description = %q(Daemons and utility for package and file changes synchronization.)
   s.files = FileList[
     'doc/**/*',
     'bin/*',
@@ -29,7 +30,8 @@ Gem::Specification.new do |s|
     evedatad
     evehand
     evesyncd
+    evesync
   ]
 
-  s.require_paths = %w[lib src]
+  s.require_paths = %w[lib]
 end

@@ -1,9 +1,8 @@
 require 'rspec/core/rake_task'
 require 'find'
 require 'mkmf'
-
-VERSION = '1.0.0'.freeze
-
+require_relative 'lib/evesync'
+VERSION = Evesync::VERSION
 GEMSPEC = 'evesync.gemspec'.freeze
 GEMFILE = "evesync-#{VERSION}.gem".freeze
 

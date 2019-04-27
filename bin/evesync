@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+# -*- mode: ruby -*-
+
+require 'optparse'
+require 'evesync'
+
+$opts = {}
+OptionParser.new do |parser|
+  parser.banner = "#{File.basename($0)} [OPTIONS...]
+
+"
+  parser.summary_width = 20
+
+  parser.on('-l', '--load=FILE', 'Arhive file to load events from') do |f|
+    $opts['load'] = true
+    $opts['file'] = f
+  end
+
+  parser.on('-s', '--sync', 'Enforce synchronization') do
+    $opts['sync'] = true
+  end
+
+  parser.on_tail('-v', '--version', "Version of #{File.basename($0)}") do
+    puts Evesync::VERSION
+    exit
+  end
+
+  parser.on_tail('-h', '--help', 'Help message') do
+    puts parser
+    exit
+  end
+end.parse!
