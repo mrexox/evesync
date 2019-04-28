@@ -43,6 +43,37 @@ module Evesync
       @discovery.send_discovery_message
     end
 
+    def apply_events(events)
+      events.each do |_, message|
+        message.values.each do |json|
+          ipc_message = IPC::Data.from_json(json)
+          @handler.handle(ipc_message)
+        end
+      end
+    end
+
+    # Diffs missed of `v1' that `v2' contain
+    def self.diff_missed(params)
+      v1 = params[:v1]
+      v2 = params[:v2]
+
+      # Fully missed objects
+      fully_missed = v2.reject { |k| v1.include?(k) }
+
+      # Included in both, but may be missed in `v1'
+      maybe_missed = v2.select { |k| v1.include?(k) }
+
+      not_relevant = maybe_missed.select do |k, v|
+        v.max > v1[k].max
+      end
+
+      partially_missed = not_relevant.map do |k, v|
+        [k, v.select { |tms| tms > v1[k].max }]
+      end.to_h
+
+      fully_missed.merge(partially_missed)
+    end
+
     private
 
     # We only recieve, dont push events to synchronize.
@@ -126,28 +157,6 @@ module Evesync
       end.to_h
     end
 
-    # Diffs missed of `v1' that `v2' contain
-    def diff_missed(params)
-      v1 = params[:v1]
-      v2 = params[:v2]
-
-      # Fully missed objects
-      fully_missed = v2.reject { |k| v1.include?(k) }
-
-      # Included in both, but may be missed in `v1'
-      maybe_missed = v2.select { |k| v1.include?(k) }
-
-      not_relevant = maybe_missed.select do |k, v|
-        v.max > v1[k].max
-      end
-
-      partially_missed = not_relevant.map do |k, v|
-        [k, v.select { |tms| tms > v1[k].max }]
-      end.to_h
-
-      fully_missed.merge(partially_missed)
-    end
-
     # Fetch events from given diff.
     #   events_diff: {object => {event => [ip..]}}
     def fetch_events(events_diff)
@@ -172,15 +181,6 @@ module Evesync
       end
       Log.debug('Synchronizing events fetched:', messages)
       messages
-    end
-
-    def apply_events(events)
-      events.each do |_, message|
-        message.values.each do |json|
-          ipc_message = IPC::Data.from_json(json)
-          @handler.handle(ipc_message)
-        end
-      end
     end
 
     # Map events to appropriate nodes that can be used to

@@ -16,6 +16,8 @@ services:
       - "55432" # evehand
     tty: true
     stdin_open: true
+    volumes:
+      - $PWD:/evesync
 
   node-2:
     build:
@@ -26,3 +28,5 @@ services:
       - "55432" # evehand
     tty: true
     stdin_open: true
+    volumes:
+      - $PWD:/evesync

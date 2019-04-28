@@ -33,6 +33,7 @@ task test: :spec
 task :clean do
   rm_rf('tmp')
   rm_rf('doc')
+  rm_rf(Dir['*.zip'])
   rm_rf(GEMFILE)
 end
 

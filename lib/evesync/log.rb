@@ -11,7 +11,7 @@ module Evesync
     class << self
       def method_missing(m, *args)
         # You cannot setup logger from anywhere
-        raise NoMethodError until LEVELS.include?(m)
+        raise NoMethodError unless LEVELS.include?(m)
 
         check_logger
         @logger.send(m, to_string(*args))
@@ -19,7 +19,33 @@ module Evesync
       end
 
       def check_logger
-        init_logger until @logger
+        init_logger unless @logger
+      end
+
+      def level=(lvl)
+        check_logger
+        if lvl.is_a?(Symbol) or lvl.is_a?(String)
+          @logger.level =
+            begin
+              Logger.const_get(lvl.to_s.upcase)
+            rescue NameError
+              Logger::DEBUG
+            end
+        end
+      end
+
+      def level
+        check_logger
+        @logger.level
+      end
+
+      def simple=(bool)
+        init_logger unless @logger
+        if bool
+          @logger.formatter = proc do |_sev, _dt, _prog, msg|
+            "#{msg}\n"
+          end
+        end
       end
 
       def init_logger
@@ -29,24 +55,11 @@ module Evesync
           prog = File.basename($PROGRAM_NAME)
           "[#{time}] #{prog.ljust(8)} #{sev.ljust(5)}: #{msg}\n"
         end
-        @logger.level = read_loglevel
       end
 
       def to_string(*args)
         to_s_with_space = ->(s) { "#{s} " }
         args.map(&to_s_with_space).reduce(&:+).strip
-      end
-
-      private
-
-      def read_loglevel
-        level = Config['loglevel'] || Constants::DEFAULT_LOGLEVEL
-        begin
-          return Logger.const_get(level.upcase)
-        rescue NameError
-          # TODO: log about it
-          return Logger::DEBUG
-        end
       end
     end
   end

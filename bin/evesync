@@ -6,16 +6,23 @@ require 'socket'
 require 'find'
 require 'zip'
 require 'evesync'
-require 'evesync/config'
-require 'evesync/utils'
-require 'evesync/ipc/client'
 require 'evesync/log'
+require 'evesync/utils'
+require 'evesync/database'
+require 'evesync/config'
+require 'evesync/sync'
+require 'evesync/ipc/client'
+
+DB_TAG = 'db'
+FILES_TAG = 'files'
 
 opts = {}
-program = File.basename($0)
-Log.set_level(:warn)
+$program = File.basename($0)
+#Evesync::Log.level = :warn
+Evesync::Log.simple = true
+
 OptionParser.new do |parser|
-  parser.banner = "#{program} [OPTIONS...]
+  parser.banner = "#{$program} [OPTIONS...]
 
 "
   parser.summary_width = 20
@@ -29,12 +36,13 @@ OptionParser.new do |parser|
   end
 
   parser.on('-z', '--zip [DEST]', 'Zip current database') do |d|
+
     # Pretty default name
     hostname = Socket.gethostname
     hostname = hostname == 'localhost' \
-                ? Evesync::Utils::local_ip : hostname
+               ? Evesync::Utils::local_ip : hostname
     time_now = Time.now.strftime('%Y.%m.%d-%H:%M:%S')
-    opts['zip'] = d || "#{program}_#{hostname}_#{time_now}.zip"
+    opts['zip'] = d || "#{$program}_#{hostname}_#{time_now}.zip"
 
     # Validation
     unless File.directory? File.dirname opts['zip']
@@ -47,7 +55,7 @@ OptionParser.new do |parser|
     opts['sync'] = true
   end
 
-  parser.on_tail('-v', '--version', "Version of #{program}") do
+  parser.on_tail('-v', '--version', "Version of #{$program}") do
     puts Evesync::VERSION
     exit
   end
@@ -76,11 +84,11 @@ end
 
 def zip(out)
   databases = {
-    'db' => {
+    DB_TAG => {
       Evesync::Config[:evedatad]['db_path'] =>
       files_in(Evesync::Config[:evedatad]['db_path'])
     },
-    'files' => {
+    FILES_TAG => {
       Evesync::Config[:evedatad]['db_files_path'] =>
       files_in(Evesync::Config[:evedatad]['db_files_path'])
     }
@@ -91,12 +99,50 @@ def zip(out)
       entries.each do |base_path, files|
         files.each do |file|
           relative_path = Pathname.new(file)
-                   .relative_path_from(Pathname.new(base_path))
+                            .relative_path_from(Pathname.new(base_path))
           zip.add(File.join(key, relative_path.to_s), file)
         end
       end
     end
   end
+end
+
+def load_file(filename)
+
+  Dir.mktmpdir($program) do |tmpdir|
+    # Unpacking...
+    Zip::File.open(filename) do |zip|
+      zip.each do |entry|
+        entry.extract(File.join(tmpdir, entry.name))
+      end
+    end
+
+    db_path = File.join(tmpdir, DB_TAG)
+    db_files_path = File.join(tmpdir, FILES_TAG)
+
+    loaded_db = Evesync::Database.new(
+      db_path,
+      db_files_path
+    )
+
+    local_db = Evesync::IPC::Client.new(
+      port: :evedatad
+    )
+
+    diff = Evesync::Sync::diff_missed(
+      v1: local_db.events,
+      v2: loaded_db.events
+    )
+
+    new_messages = loaded_db.messages(diff)
+
+    sync_client = Evesync::IPC::Client.new(
+      port: :evesyncd
+    )
+
+    sync_client.apply_events(new_messages)
+  end
+
 end
 
 def evesync(opts)
@@ -106,7 +152,7 @@ def evesync(opts)
   end
 
   if opts['load_file']
-    # ...
+    load_file opts['load_file']
   end
 
   if opts['zip']

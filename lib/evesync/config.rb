@@ -31,6 +31,10 @@ module Evesync
         @@config[daemon.to_s]
       end
 
+      def reread
+        read_config
+      end
+
       private
 
       def read_config
