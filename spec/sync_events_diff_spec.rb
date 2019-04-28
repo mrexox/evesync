@@ -27,7 +27,7 @@ module Evesync
       it 'should find the newer' do
         # Hardly bind this function call.
         # The interface should not change!
-        expect(syncer).to receive(:diff_missed)
+        expect(Sync).to receive(:diff_missed)
           .with(v1: params[:local],
                 v2: params[:remote]['n1'])
           .and_call_original
@@ -79,7 +79,7 @@ module Evesync
       end
 
       it 'should find the newer' do
-        expect(syncer).to receive(:diff_missed)
+        expect(Sync).to receive(:diff_missed)
           .with(v1: params[:local],
                 v2: v2)
           .and_call_original

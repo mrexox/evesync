@@ -137,7 +137,7 @@ module Evesync
       end
 
       # Applying algorithm
-      diff = diff_missed(
+      diff = self.class.diff_missed(
         v1: local,
         v2: remote_objects.map do |k, v|
           [k, v.keys]
