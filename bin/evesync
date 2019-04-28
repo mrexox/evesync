@@ -3,37 +3,47 @@
 
 require 'optparse'
 require 'socket'
+require 'find'
+require 'zip'
 require 'evesync'
+require 'evesync/config'
 require 'evesync/utils'
+require 'evesync/ipc/client'
+require 'evesync/log'
 
 opts = {}
 program = File.basename($0)
+Log.set_level(:warn)
 OptionParser.new do |parser|
   parser.banner = "#{program} [OPTIONS...]
 
 "
   parser.summary_width = 20
 
-  parser.on('-l', '--load FILE', 'Arhive file to load events from') do |f|
-    opts['file'] = f
+  parser.on('-l', '--load FILE', 'Load events from file') do |f|
+    unless File.file? f
+      puts "File is absent: #{f}"
+      exit 1
+    end
+    opts['load_file'] = f
   end
 
-  parser.on('-z', '--zip [OUTFILE]', 'Zip current database') do |zo|
+  parser.on('-z', '--zip [DEST]', 'Zip current database') do |d|
     # Pretty default name
     hostname = Socket.gethostname
     hostname = hostname == 'localhost' \
                 ? Evesync::Utils::local_ip : hostname
     time_now = Time.now.strftime('%Y.%m.%d-%H:%M:%S')
-    opts['zip'] = zo || "#{program}_#{hostname}_#{time_now}.zip"
+    opts['zip'] = d || "#{program}_#{hostname}_#{time_now}.zip"
 
     # Validation
-    unless File.directory? File.dirname $opts['zip']
-      puts "Directory doesn't exist: #{File.dirname $opts['zip']}"
+    unless File.directory? File.dirname opts['zip']
+      puts "Directory doesn't exist: #{File.dirname opts['zip']}"
       exit 1
     end
   end
 
-  parser.on('-s', '--sync', 'Enforce synchronization') do
+  parser.on('-f', '--force', 'Enforce synchronization') do
     opts['sync'] = true
   end
 
@@ -46,10 +56,63 @@ OptionParser.new do |parser|
     puts parser
     exit
   end
-end.parse
+end.parse!
+
+def force_sync
+  sync_client = Evesync::IPC::Client.new(
+    port: :evesyncd
+  )
+  sync_client.synchronize
+end
+
+def files_in(folder)
+  begin
+    Find.find(folder).collect { |file| file }
+  rescue StandardError
+    puts "No files in #{folder}"
+    []
+  end
+end
+
+def zip(out)
+  databases = {
+    'db' => {
+      Evesync::Config[:evedatad]['db_path'] =>
+      files_in(Evesync::Config[:evedatad]['db_path'])
+    },
+    'files' => {
+      Evesync::Config[:evedatad]['db_files_path'] =>
+      files_in(Evesync::Config[:evedatad]['db_files_path'])
+    }
+  }
+
+  Zip::File.open(out, Zip::File::CREATE) do |zip|
+    databases.each do |key, entries|
+      entries.each do |base_path, files|
+        files.each do |file|
+          relative_path = Pathname.new(file)
+                   .relative_path_from(Pathname.new(base_path))
+          zip.add(File.join(key, relative_path.to_s), file)
+        end
+      end
+    end
+  end
+end
 
 def evesync(opts)
-  # ...
+  if opts['sync']
+    puts 'Synchronization enforced'
+    force_sync
+  end
+
+  if opts['load_file']
+    # ...
+  end
+
+  if opts['zip']
+    zip(opts['zip'])
+    puts(opts['zip'])
+  end
 end
 
 evesync opts

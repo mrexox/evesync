@@ -15,3 +15,6 @@ ext/inotify/Makefile
 tmp/
 doc/
 .yardoc
+
+# Ignoring artefacts
+*.zip

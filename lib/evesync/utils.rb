@@ -35,3 +35,17 @@ class Array
     end
   end
 end
+
+class Hash
+  unless defined? deep_merge
+    def deep_merge(h)
+      self.merge(h) do |_k, a, b|
+        if a.is_a? Hash
+          a.deep_merge(b)
+        else
+          b
+        end
+      end
+    end
+  end
+end

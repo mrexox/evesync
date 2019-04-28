@@ -34,10 +34,9 @@ module Evesync
     #   synchronizing
     #
     def synchronize
-      Log.debug('Synchronizing started...')
-      events = missed_events
-      fetch_events events unless events.empty?
-      Log.debug('Synchronizing finished!')
+      Log.debug('Synchronizing starting...')
+      apply_events fetch_events missed_events
+      Log.debug('Synchronizing done!')
     end
 
     def discover
@@ -152,6 +151,11 @@ module Evesync
     # Fetch events from given diff.
     #   events_diff: {object => {event => [ip..]}}
     def fetch_events(events_diff)
+      if events_diff.empty?
+        Log.info('Synchronizing no events')
+        return {}
+      end
+
       # Getting {ip => handler} map
       handlers = {}
       @monitor.remote_handlers.each do |handler|
@@ -161,14 +165,17 @@ module Evesync
       # Mapping events to nodes: {ip => {object => [events...]}}
       nodes_events = map_nodes_for_events(events_diff, handlers)
 
-      # Fetch...
+      # Fetching
       messages = {}
       nodes_events.each do |ip, events|
         messages.merge! handlers[ip].messages(events)
       end
-      Log.debug('Synchronizing fetched events:', messages)
-      # Apply...
-      messages.each do |_, message|
+      Log.debug('Synchronizing events fetched:', messages)
+      messages
+    end
+
+    def apply_events(events)
+      events.each do |_, message|
         message.values.each do |json|
           ipc_message = IPC::Data.from_json(json)
           @handler.handle(ipc_message)

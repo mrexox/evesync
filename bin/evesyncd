@@ -4,6 +4,7 @@
 require 'evesync/log'
 require 'evesync/sync'
 require 'evesync/config'
+require 'evesync/ipc/server'
 
 # Exiting if `auto_discover = false'
 unless Evesync::Config['auto_discover']
@@ -15,7 +16,13 @@ Evesync::Log.info('Synchronizing daemon starting...')
 
 sync = Evesync::Sync.new
 
+sync_server = Evesync::IPC::Server.new(
+  port: :evesyncd,
+  proxy: sync
+).start
+
 Signal.trap('TERM') do
+  sync_server.stop
   exit(0)
 end
 
@@ -32,5 +39,6 @@ begin
     sleep few_seconds           # ... in some interval
   end
 rescue SignalException
+  sync_server.stop
   exit(0)
 end

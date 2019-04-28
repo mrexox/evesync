@@ -1,4 +1,5 @@
 require 'toml-rb'
+require 'evesync/utils'
 require 'evesync/constants'
 require 'evesync/log'
 
@@ -13,9 +14,13 @@ module Evesync
           'watch'          => [],
           'watch_interval' => Constants::WATCH_INTERVAL
         },
-        'evedatad' => { 'port' => Constants::DATAD_PORT },
+        'evedatad' => {
+          'port'           => Constants::DATAD_PORT,
+          'db_path'        => Constants::DB_PATH,
+          'db_files_path'  => Constants::DB_FILES_PATH
+        },
         'evehand'  => { 'port' => Constants::HAND_PORT },
-        'sync'     => { 'port' => Constants::SYNC_PORT },
+        'evesyncd' => { 'port' => Constants::SYNC_PORT },
         'discover_timeout' => Constants::DISCOVER_TIMEOUT
       }
 
@@ -37,7 +42,7 @@ module Evesync
                    Log.error("Config ERROR: Using default configuration")
                    {}
                  end
-        @@config = DEFAULTS.merge(config)
+        @@config = DEFAULTS.deep_merge(config)
         Log.info("Config initialized!")
       end
 

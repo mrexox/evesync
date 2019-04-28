@@ -21,17 +21,16 @@ module Evesync
   #  * Think about how it can be widened
   #
   class Database
-    def initialize
-      path = Config[:evedatad]['db_path'] ||
-             Constants::DB_PATH
+    def initialize(db_path=nil, db_files_path=nil)
+      path = db_path || Config[:evedatad]['db_path']
+
       unless ::File.exist? path
         # FIXME: only root. handle exception
         FileUtils.mkdir_p(path)
       end
       @env = LMDB.new(path)
       @db = @env.database
-      @files_path = Config[:evedatad]['db_path'] ||
-                    Constants::FILES_PATH
+      @files_path = db_files_path || Config[:evedatad]['db_files_path']
     end
 
     # Save message to database, key is timestamp+object

@@ -13,7 +13,7 @@ module Evesync
       @evesync = IPC::Client.new(
         port: :evemond
       )
-      @port = Config[:sync]['port']
+      @port = Config[:evesyncd]['broadcast_port']
       @listen_sock = UDPSocket.new
       @listen_sock.bind('0.0.0.0', @port)
       @listen_thread = Thread.new { listen_discovery }

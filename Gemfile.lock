@@ -41,6 +41,7 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 1.6)
     ruby-progressbar (1.10.0)
+    rubyzip (1.2.2)
     tins (1.20.2)
     toml-rb (1.1.2)
       citrus (~> 3.0, > 3.0)
@@ -58,6 +59,7 @@ DEPENDENCIES
   rb-inotify (= 0.9.9)!
   rspec!
   rubocop!
+  rubyzip!
   toml-rb!
 
 BUNDLED WITH
