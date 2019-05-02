@@ -93,7 +93,7 @@ module Evesync
     end
 
     def parse_event(key)
-      key.split('_')
+      key.split('_', 2)
     end
 
     def save_file(file)
