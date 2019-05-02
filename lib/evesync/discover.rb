@@ -3,6 +3,17 @@ require 'evesync/log'
 require 'evesync/config'
 
 module Evesync
+  # = Synopsis
+  #
+  #   Discover other nodes
+  #   Handles discovering messages sending and receiving
+  #
+  # = Example
+  #
+  #   disc = Discover.new
+  #   disc.send_discovery_message
+  #   ...
+  #   disc.stop
   class Discover
     DISCOVERY_REQ = 'EVESYNC'.freeze
     DISCOVERY_ANS = 'DISCOVERED'.freeze
@@ -30,6 +41,10 @@ module Evesync
       end
       udp_sock.send(message, 0, ip, @port)
       udp_sock.close
+    end
+
+    def stop
+      @listen_thread.exit
     end
 
     private
