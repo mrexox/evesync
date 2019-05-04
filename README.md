@@ -3,21 +3,51 @@
 
 A simple ruby-written service for automation files and packages changes between similar hosts.
 
-### Testing
+## Getting started
+Using evesync is very simple. All you need - install dependent gems and start daemons.
 
-#### Starting containers with evesync service
+### Prerequisites
+
+You need to install all gems. This can be easily done by calling `bundle install`.
+
+### Installing
+
+Installing is not well-tested yet. You need install the gem and place the script **bin/start** directory into any of your PATH-accessable folders.
+
+```bash
+# Installing the gem
+rake install
+
+# Copying start script
+cp bin/start /usr/bin/start-evesync
+chmod +x /usr/bin/start-evesync
+```
+
+## Testing
+There's the way to test without installing evesync on real systems. Using Docker.
+
+### Starting containers with evesync service
 
 ```
 docker-compose build
 docker-compose up --detach
+```
+or
+```
+rake docker
+rake up
 ```
 
 This will build the docker image for CentOS 7.4 distribution and start 2 of the containers.
 
 When attached, you'll see tmux session. `bin/start` will start evesync service.
 
-#### Stopping containers
+### Stopping containers
 
 ```
 docker-compose rm --force
+```
+or
+```
+rake down
 ```
