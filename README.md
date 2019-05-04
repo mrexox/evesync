@@ -51,3 +51,5 @@ or
 ```
 rake down
 ```
+
+For more information about realization see [description.md](./description.md)
