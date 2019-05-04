@@ -10,7 +10,7 @@ module Evesync
 
     class << self
       def method_missing(m, *args)
-        # You cannot setup logger from anywhere
+        # Unlisted methods are not allowed
         raise NoMethodError unless LEVELS.include?(m)
 
         check_logger
