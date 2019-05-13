@@ -4,10 +4,10 @@ require 'evesync/handler/file'
 require 'evesync/ipc/client'
 
 module Evesync
-  # = Synopsis:
+
+  # Handles package changes, sent via Package class and queue
+  # Sends messages to evedatad and available evehands.
   #
-  #   Handles package changes, sent via Package class and queue
-  #   Sends messages to evedatad and available evehands.
   # [See]
   #     - *Evesync::Trigger::File*
   #     - *Evesync::Trigger::Package*

@@ -4,7 +4,7 @@ require 'evesync/ipc/data/file'
 module Evesync
   class Trigger
     class File
-      include Base
+      include Trigger::Base
 
       def initialize(params)
         @ignore = []

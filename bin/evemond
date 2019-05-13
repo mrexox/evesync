@@ -35,8 +35,8 @@ begin
     # FIXME: know what to do
   end
 rescue SignalException => e
-  Evesync::Log.warn("Monitoring daemon received signal: #{e.signm}(#{e.signo})")
   watcher.stop
   evesync_server.stop
+  Evesync::Log.warn("Monitoring daemon received signal: #{e.signm}(#{e.signo})")
   exit(0)
 end

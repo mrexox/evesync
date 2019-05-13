@@ -16,7 +16,7 @@ services:
   node-1:
     build:
       context: .
-      dockerfile: dockerfiles/debian.dockerfile
+      dockerfile: dockerfiles/centos.dockerfile
     image: evesync-test:latest
     ports:
       - "55432" # evehand
@@ -28,7 +28,7 @@ services:
   node-2:
     build:
       context: .
-      dockerfile: dockerfiles/debian.dockerfile
+      dockerfile: dockerfiles/centos.dockerfile
     image: evesync-test:latest
     ports:
       - "55432" # evehand

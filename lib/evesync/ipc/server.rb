@@ -4,8 +4,7 @@ require 'evesync/ipc/ipc'
 
 module Evesync
   module IPC
-    # = Synopsis
-    #
+
     # Server is a DRb object, using +:port+ and +:proxy+
     # object to handle requests.
     #

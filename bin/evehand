@@ -30,7 +30,7 @@ begin
     # FIXME: know what to do
   end
 rescue SignalException => e
-  Evesync::Log.warn("Received signal: #{e.signm}(#{e.signo})")
   handler_server.stop
+  Evesync::Log.warn("Received signal: #{e.signm}(#{e.signo})")
   exit(0)
 end

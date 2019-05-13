@@ -9,8 +9,6 @@ require 'evesync/ipc/data/ignore'
 
 module Evesync
 
-  # = Synopsis:
-  #
   # *Database* class is a proxy for *evedatad* daemon
   # implements at least one method: +save+. Allows
   # Local +evemond+ save messages about changes

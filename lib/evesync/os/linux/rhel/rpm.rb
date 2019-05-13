@@ -3,8 +3,7 @@ require 'evesync/os/linux/base_package_manager'
 
 module Evesync
   module OS
-    # = Synopsis:
-    #
+
     # Rpm packages changes watcher. Yum history makes it
     # difficult to handler package removals. So, rpm is
     # the only tool that show all packages in the system.

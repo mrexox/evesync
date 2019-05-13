@@ -32,11 +32,10 @@ module Evesync
           # conten comparing may cost too much
         end
 
-        # == Synopsis
         #  The content of a file for remote call. Sends as
         #  a plain text(?), no extra calls between machines.
         #
-        # == TODO
+        # = TODO
         #  * Think about binary data
         #  * Encoding information
         #  * Large file sending

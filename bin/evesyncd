@@ -35,7 +35,7 @@ sleep 3                         # giving 3 seconds to complete
 
 begin
   loop do
-    sync.synchronize                # updating this node
+    sync.synchronize            # updating this node
     sleep few_seconds           # ... in some interval
   end
 rescue SignalException

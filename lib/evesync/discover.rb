@@ -3,10 +3,9 @@ require 'evesync/log'
 require 'evesync/config'
 
 module Evesync
-  # = Synopsis
-  #
-  #   Discover other nodes
-  #   Handles discovering messages sending and receiving
+
+  # Discover other nodes
+  # Handles discovering messages sending and receiving
   #
   # = Example
   #

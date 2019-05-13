@@ -6,11 +6,11 @@ require 'evesync/watcher/file'
 require 'evesync/watcher/package'
 
 module Evesync
-  # = Synopsis
-  #   *Watcher* class responds for starting all watchers (e.g.
-  #   package and file). Watchers are initialized in their
-  #   own threads. Watcher::Main supports start/stop methods
-  #   for starting and stopping watchers.
+
+  # *Watcher* class responds for starting all watchers (e.g.
+  # package and file). Watchers are initialized in their
+  # own threads. Watcher::Main supports start/stop methods
+  # or starting and stopping watchers.
   #
   # = Example:
   #
@@ -19,9 +19,6 @@ module Evesync
   #
   # = TODO:
   #   * Add ability to restart watchers if something happend
-  #
-  # = FIXME:
-  #   * Remove +biz+ method, it's not save, reorganize code
   #
   class Watcher
     WATCHER_CLASSES = [
@@ -47,17 +44,25 @@ module Evesync
       @threads ||= []
       if @threads.empty?
         @watchers.each do |watcher|
-          @threads << watcher.run
+          @threads << watcher.start
         end
       end
+
       Log.debug('Watcher thread started')
       self
     end
 
     # Stops all watcher threads
+    #
+    # [*Returns*] self
     def stop
+      @watchers.each do |watcher|
+        @threads << watcher.stop
+      end
       @threads.each(&:exit)
-      Log.debug('Watcher thread stopped')
+
+      Log.debug('Watcher threads stopped')
+      self
     end
   end
 end

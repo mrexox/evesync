@@ -1,18 +1,19 @@
 require 'evesync/log'
+require 'evesync/watcher/interface'
 require_relative './dpkg'
 
 module Evesync
   module OS
-    class PackageWatcher
+    class PackageWatcher < Watcher::Interface
       def initialize(queue)
         @queue = queue
         @dpkg = Dpkg.new
         Log.debug('Debian Package watcher initialized')
       end
 
-      def run
+      def start
         Log.debug('Debian Package watcher started')
-        Thread.new do
+        @thr = Thread.new do
           loop do
             sleep 10
             @dpkg.changes.each do |pkg|
@@ -21,6 +22,10 @@ module Evesync
             end
           end
         end
+      end
+
+      def stop
+        @thr.exit
       end
     end
   end

@@ -22,8 +22,6 @@ module Evesync
       )
     end
 
-    # = Synopsis
-    #
     # Starting Synchronization between nodes that are
     # found. Checking if all events are synchronized and
     # synchronizing missing events.

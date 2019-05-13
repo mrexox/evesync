@@ -2,11 +2,11 @@ require 'date'
 require 'rb-inotify'
 require 'evesync/config'
 require 'evesync/ipc/data/file'
+require 'evesync/watcher/interface'
 
 module Evesync
   class Watcher
-    # = Synopsis
-    #
+
     # Watches the files and directories, defined in
     # configuration attribute _watch_
     #
@@ -14,7 +14,7 @@ module Evesync
     #   * Test on various cases, make it work properly
     #   * Find out all possible occasions
     #
-    class File
+    class File < Watcher::Interface
       def initialize(queue)
         @queue = queue
         @watches = Config[:evemond]['watch']
@@ -26,7 +26,7 @@ module Evesync
         initialize_watcher
       end
 
-      def run
+      def start
         @inotify_thr = Thread.new { @inotify.run }
         @main_thr = Thread.new do
           loop do
@@ -38,7 +38,7 @@ module Evesync
 
       def stop
         @inotify.stop
-        @inotify_thr.join # FIXME: maybe exit
+        @inotify_thr.exit
         @main_thr.exit
       end
 

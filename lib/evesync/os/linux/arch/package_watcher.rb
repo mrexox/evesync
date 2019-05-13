@@ -2,15 +2,16 @@ require 'file-tail'
 require 'evesync/log'
 require 'evesync/config'
 require 'evesync/ipc/data/package'
+require 'evesync/watcher/interface'
 
 module Evesync
   module OS
-    # = Synopsis
+
     # Watcher for package changes for Arch Linux
     #
     # = Example
     #  Thread.new { IPC::Data::PackageWatcher.new(queue).run }
-    class PackageWatcher
+    class PackageWatcher < Watcher::Interface
       ARCH_LOG_FILE = '/var/log/pacman.log'.freeze
       PKG_REGEXP =
         /(?<command>reinstalled|installed|removed)
@@ -27,9 +28,9 @@ module Evesync
         Log.debug('Arch Package watcher initialized')
       end
 
-      def run
+      def start
         Log.debug('Arch Package watcher started')
-        Thread.new do
+        @thr = Thread.new do
           File.open(ARCH_LOG_FILE) do |log|
             log.extend(File::Tail)
             log.interval = Config[:evemond]['watch-interval']
@@ -48,6 +49,10 @@ module Evesync
             end
           end
         end
+      end
+
+      def stop
+        @thr.exit
       end
     end
   end

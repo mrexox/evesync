@@ -1,10 +1,9 @@
 # TODO: move to a err directory
 module Evesync
   module Err
-    # = Synopsis:
-    #
-    #   Base Evesync error class.
-    #   Using it as a base for all Evesync exceptions.
+
+    # Base Evesync error class.
+    # Using it as a base for all Evesync exceptions.
     #
     # = Example:
     #  class MyError < Evesync::Err::Base
