@@ -4,7 +4,7 @@ require 'evesync/config'
 require 'evesync/ipc/data/package'
 
 module Evesync
-  module Distro
+  module OS
     # = Synopsis
     # Watcher for package changes for Arch Linux
     #

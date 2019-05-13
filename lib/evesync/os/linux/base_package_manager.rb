@@ -2,7 +2,7 @@ require 'hashdiff'
 require 'evesync/ipc/data/package'
 
 module Evesync
-  module Distro
+  module OS
     module BasePackageManager
       def initialize
         @packages = make_pkg_snapshot

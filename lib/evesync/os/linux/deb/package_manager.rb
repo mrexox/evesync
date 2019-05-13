@@ -1,5 +1,5 @@
 module Evesync
-  module Distro
+  module OS
     module PackageManager
       class << self
         def install(*args)

@@ -2,7 +2,7 @@ require 'evesync/log'
 require_relative './dpkg'
 
 module Evesync
-  module Distro
+  module OS
     class PackageWatcher
       def initialize(queue)
         @queue = queue

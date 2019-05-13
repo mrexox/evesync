@@ -1,5 +1,5 @@
 require 'evesync/log'
-require 'evesync/distro'
+require 'evesync/os'
 
 module Evesync
   class Handler
@@ -11,13 +11,13 @@ module Evesync
 
         case message.command
         when /install/
-          Distro::PackageManager.install(*args)
+          OS::PackageManager.install(*args)
         when /remove/
-          Distro::PackageManager.remove(*args)
+          OS::PackageManager.remove(*args)
         when /update/
-          Distro::PackageManager.update(*args)
+          OS::PackageManager.update(*args)
         when /downgrade/
-          Distro::PackageManager.downgrade(*args)
+          OS::PackageManager.downgrade(*args)
         else
           Log.warn("Handler Package command unknown: #{message.command}")
           return false

@@ -2,7 +2,7 @@ require_relative './rpm'
 require 'evesync/log'
 
 module Evesync
-  module Distro
+  module OS
     class PackageWatcher
       def initialize(queue)
         @queue = queue

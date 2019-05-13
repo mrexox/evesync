@@ -1,8 +1,8 @@
 require 'evesync/log'
-require 'evesync/distro/base_package_manager'
+require 'evesync/os/linux/base_package_manager'
 
 module Evesync
-  module Distro
+  module OS
     # = Synopsis:
     #
     # Rpm packages changes watcher. Yum history makes it

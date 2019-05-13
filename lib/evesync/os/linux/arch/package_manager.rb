@@ -1,5 +1,5 @@
 module Evesync
-  module Distro
+  module OS
     # FIXME: pacman downgrading requires full url path
     module PackageManager
       class << self

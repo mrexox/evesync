@@ -23,4 +23,4 @@ RUN rake install
 
 EXPOSE "55432"
 
-ENTRYPOINT ["screen"]
+ENTRYPOINT ["screen", "bash"]

@@ -1,9 +1,9 @@
 text = File.new('/etc/os-release').read
 
 if text =~ /^ID.*(rhel|centos|fedora)/
-  require 'evesync/distro/rhel'
+  require 'evesync/os/linux/rhel'
 elsif text =~ /ID.*arch/
-  require 'evesync/distro/arch'
+  require 'evesync/os/linux/arch'
 elsif text =~ /ID.*debian/
-  require 'evesync/distro/deb'
+  require 'evesync/os/linux/deb'
 end
