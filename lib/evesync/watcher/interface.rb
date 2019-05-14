@@ -4,7 +4,7 @@ module Evesync
     # watchers to implement
     class Interface
       # The class must be initialized with the queue object
-      def initialize(queue)
+      def initialize(_queue)
         raise NotImplementedError, "must implement 'initialize'"
       end
 
