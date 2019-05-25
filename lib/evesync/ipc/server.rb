@@ -5,6 +5,7 @@ require 'evesync/ipc/ipc'
 module Evesync
   module IPC
 
+    ##
     # Server is a DRb object, using +:port+ and +:proxy+
     # object to handle requests.
     #
@@ -25,10 +26,9 @@ module Evesync
     #   ...
     #   server.stop # main thread exits
     #
-    # = TODO:
-    #
-    # * Handle blocks
-    #
+    # TODO:
+    #   * Handle blocks
+
     class Server
       include IPC
 
