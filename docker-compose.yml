@@ -36,3 +36,13 @@ services:
     stdin_open: true
     volumes:
       - $PWD:/evesync
+
+  build-centos:
+    build:
+      context: .
+      dockerfile: dockerfiles/centos-build.dockerfile
+    image: evesync-build-centos:latest
+    tty: true
+    stdin_open: true
+    volumes:
+      - $PWD:/evesync

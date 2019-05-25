@@ -5,11 +5,12 @@ require_relative 'lib/evesync'
 VERSION = Evesync::VERSION
 GEMSPEC = 'evesync.gemspec'.freeze
 GEMFILE = "evesync-#{VERSION}.gem".freeze
+RELEASE = `git rev-list HEAD master --count`
 
 task default: %i[lint build]
 
 task :lint do
-  sh 'rubocop -l' if find_executable 'rubocop'
+  sh 'rubocop -l lib' if find_executable 'rubocop'
 end
 
 task :rdoc do
@@ -30,11 +31,14 @@ RSpec::Core::RakeTask.new(:spec)
 
 task test: :spec
 
-task :clean do
+task :clean, [:remove_rpm] do |_t, args|
+  args.with_defaults(:remove_rpm => 1)
   rm_rf('tmp')
   rm_rf('doc')
   rm_rf('mkmf.log')
   rm_rf(Dir['*.zip'])
+  rm_rf('RPM') if args[:remove_rpm] == 1
+  rm_rf("evesync-#{VERSION}")
   rm_rf(GEMFILE)
 end
 
@@ -63,4 +67,18 @@ end
 task :down do
   sh 'docker-compose stop || docker-compose kill ||:'
   sh 'docker-compose rm --force ||:'
+end
+
+task :rpm do
+  sh("rpmbuild -bb "\
+     "--define 'VERSION #{VERSION}' "\
+     "--define 'RELEASE #{RELEASE}' "\
+     "--define '_builddir #{Dir.pwd}' "\
+     "--define '_rpmdir #{Dir.pwd}/RPM/' "\
+     "evesync.spec")
+  sh('chown -R 1000:1000 RPM')
+end
+
+task :'build-rpm' do
+  sh('echo rake rpm | docker-compose run build-centos')
 end

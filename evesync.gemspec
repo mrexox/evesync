@@ -10,6 +10,8 @@ Gem::Specification.new do |s|
 
   s.date = '2019-02-12'
 
+  s.required_ruby_version = '>= 2.0.0'
+
   s.summary = 'Daemons and utility for package and file changes synchronization'
 
   s.authors = 'Kiselev Valentine'
@@ -17,7 +19,6 @@ Gem::Specification.new do |s|
   s.homepage = 'https://mrexox.github.io'
   s.description = %q(Daemons and utility for package and file changes synchronization.)
   s.files = FileList[
-    'doc/**/*',
     'bin/*',
     'LICENSE',
     'Rakefile',
@@ -34,4 +35,14 @@ Gem::Specification.new do |s|
   ]
 
   s.require_paths = %w[lib]
+
+  s.add_runtime_dependency 'full_dup'
+  s.add_runtime_dependency 'hashdiff'
+  s.add_runtime_dependency 'lmdb'
+  s.add_runtime_dependency 'rb-inotify', '0.9.9' # Last available on ruby 2.0.0
+  s.add_runtime_dependency 'toml-rb'
+  s.add_runtime_dependency 'rubyzip'
+  s.add_runtime_dependency 'net-ntp'
+  s.required_ruby_version = '>= 2.0.0'
+
 end
