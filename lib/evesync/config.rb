@@ -8,6 +8,7 @@ module Evesync
     class << self
 
       DEFAULTS = {
+        'ntp' => '',
         'evemond' => {
           'port'           => Constants::MOOND_PORT,
           'remotes'        => [],
@@ -19,8 +20,12 @@ module Evesync
           'db_path'        => Constants::DB_PATH,
           'db_files_path'  => Constants::DB_FILES_PATH
         },
-        'evehand'  => { 'port' => Constants::HAND_PORT },
-        'evesyncd' => { 'port' => Constants::SYNC_PORT },
+        'evehand'  => {
+          'port' => Constants::HAND_PORT
+        },
+        'evesyncd' => {
+          'port' => Constants::SYNC_PORT
+        },
         'discover_timeout' => Constants::DISCOVER_TIMEOUT
       }
 

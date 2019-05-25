@@ -1,4 +1,5 @@
 require 'evesync/ipc/data/hashable'
+require 'evesync/ntp'
 
 module Evesync
   module IPC
@@ -20,7 +21,7 @@ module Evesync
           @name = params[:name].freeze
           @mode = params[:mode].freeze
           @action = parse_action(params[:action]).freeze
-          @timestamp = params[:timestamp] || Time.now.to_f.to_s
+          @timestamp = params[:timestamp] || NTP.timestamp
           @content = params[:content] || IO.read(@name).freeze if ::File.exist? @name
         end
 

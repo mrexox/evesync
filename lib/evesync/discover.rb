@@ -4,6 +4,7 @@ require 'evesync/config'
 
 module Evesync
 
+  ##
   # Discover other nodes
   # Handles discovering messages sending and receiving
   #
@@ -13,6 +14,7 @@ module Evesync
   #   disc.send_discovery_message
   #   ...
   #   disc.stop
+
   class Discover
     DISCOVERY_REQ = 'EVESYNC'.freeze
     DISCOVERY_ANS = 'DISCOVERED'.freeze
@@ -29,8 +31,10 @@ module Evesync
       @listen_thread = Thread.new { listen_discovery }
     end
 
+    ##
     # Sending UDP message on broadcast
     # Discovering our nodes
+
     def send_discovery_message(ip = '<broadcast>', message = DISCOVERY_REQ)
       udp_sock = UDPSocket.new
       if ip == '<broadcast>'

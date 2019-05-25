@@ -21,7 +21,7 @@ module Evesync
           @name = params[:name].freeze
           @version = params[:version].freeze
           @command = parse_command(params[:command]).freeze
-          @timestamp = params[:timestamp] || Time.now.to_f.to_s
+          @timestamp = params[:timestamp] || NTP.timestamp
         end
 
         def ==(pkg)

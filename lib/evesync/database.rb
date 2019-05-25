@@ -9,15 +9,16 @@ require 'evesync/ipc/data/ignore'
 
 module Evesync
 
+  ##
   # *Database* class is a proxy for *evedatad* daemon
   # implements at least one method: +save+. Allows
   # Local +evemond+ save messages about changes
   #
   # Messages should be serializable (JSON)
   #
-  # = TODO:
+  # TODO:
   #  * Think about how it can be widened
-  #
+
   class Database
     def initialize(db_path=nil, db_files_path=nil)
       path = db_path || Config[:evedatad]['db_path']

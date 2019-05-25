@@ -1,19 +1,21 @@
 require 'date'
 require 'rb-inotify'
 require 'evesync/config'
+require 'evesync/ntp'
 require 'evesync/ipc/data/file'
 require 'evesync/watcher/interface'
 
 module Evesync
   class Watcher
 
+    ##
     # Watches the files and directories, defined in
     # configuration attribute _watch_
     #
-    # = TODO:
+    # TODO:
     #   * Test on various cases, make it work properly
     #   * Find out all possible occasions
-    #
+
     class File < Watcher::Interface
       def initialize(queue)
         @queue = queue
@@ -57,7 +59,7 @@ module Evesync
             name: file,
             mode: mode,
             action: event,
-            touched_at: DateTime.now.to_s
+            touched_at: NTP.time.to_s
           )
           @queue.push msg
           Log.debug("Watcher File guessed event #{event} " \

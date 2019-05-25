@@ -22,20 +22,24 @@ module Evesync
       )
     end
 
+    ##
     # Starting Synchronization between nodes that are
     # found. Checking if all events are synchronized and
     # synchronizing missing events.
     #
-    # = TODO
-    #
-    # * Catch the time when an event is sent while
-    #   synchronizing
-    #
+    # TODO:
+    #   * Catch the time when an event is sent while
+    #     synchronizing
+
     def synchronize
       Log.debug('Synchronizing starting...')
       apply_events fetch_events missed_events
       Log.debug('Synchronizing done!')
     end
+
+    ##
+    # Sending a discovery message to broadcast.
+    # Local UDP socket listens and responses for handling answers.
 
     def discover
       @discovery.send_discovery_message
