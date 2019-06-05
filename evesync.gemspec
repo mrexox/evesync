@@ -40,7 +40,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'hashdiff', '~> 0.3.8'
   s.add_runtime_dependency 'lmdb', '~> 0.4.8'
   s.add_runtime_dependency 'rb-inotify', '0.9.9' # Last available on ruby 2.0.0
-  s.add_runtime_dependency 'toml-rb', '~> 1.20.2'
+  s.add_runtime_dependency 'toml-rb', '~> 1.1.2'
   s.add_runtime_dependency 'rubyzip', '~> 1.2.2'
   s.add_runtime_dependency 'net-ntp', '~> 2.1.3'
   s.required_ruby_version = '>= 2.0.0'
