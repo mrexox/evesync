@@ -5,6 +5,7 @@ require 'optparse'
 require 'socket'
 require 'find'
 require 'zip'
+require 'fileutils'
 require 'evesync'
 require 'evesync/log'
 require 'evesync/utils'
@@ -63,6 +64,36 @@ OptionParser.new do |parser|
   parser.on_tail('-h', '--help', 'Help message') do
     puts parser
     exit
+  end
+
+  # TODO: refactor
+  parser.on('-r', '--run', 'Start daemons') do
+    r, w = IO.pipe
+    data_pid = spawn('evedatad', :err => '/var/log/evesync/evedatad.log', :out=>:err)
+    mon_pid = spawn('evemond', :err => '/var/log/evesync/evemond.log', :out=>:err)
+    hand_pid = spawn('evehand', :err => '/var/log/evesync/evehand.log', :out=>:err)
+    sync_pid = spawn('evesyncd', :err => '/var/log/evesync/evesyncd.log', :out=>:err)
+    FileUtils.mkdir_p('/var/run/evesync')
+    File.write('/var/run/evesync/evedatad.pid', data_pid)
+    File.write('/var/run/evesync/evemond.pid', mon_pid)
+    File.write('/var/run/evesync/evehand.pid', hand_pid)
+    File.write('/var/run/evesync/evesyncd.pid', sync_pid)
+  end
+
+  parser.on('-k', '--kill', 'Stop daemons') do
+    begin
+    Process.kill('TERM', File.read('/var/run/evesync/evemond.pid').to_i)
+    Process.kill('TERM', File.read('/var/run/evesync/evehand.pid').to_i)
+    Process.kill('TERM', File.read('/var/run/evesync/evesyncd.pid').to_i)
+    Process.kill('TERM', File.read('/var/run/evesync/evedatad.pid').to_i)
+    rescue Errno::ESRCH => e
+      puts('Some process already killed')
+    rescue StandardError => e
+      puts("Error: #{e}")
+      puts('Something went wrong while killing processes. Do it yourself!')
+    ensure
+      FileUtils.rm_f Dir.glob('/var/run/evesync/*.pid')
+    end
   end
 end.parse!
 
