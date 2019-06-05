@@ -1,5 +1,8 @@
-# TODO: move to a err directory
+
 module Evesync
+  # TODO: move to a err directory
+
+
   module Err
 
     # Base Evesync error class.

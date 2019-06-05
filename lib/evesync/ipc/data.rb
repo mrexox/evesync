@@ -1,8 +1,12 @@
 require 'drb/drb'
 
-# TODO: add custom exceptions for IPCData
 module Evesync
+
+
   module IPCData
+    # TODO: add custom exceptions for IPCData
+
+
     def self.pack(message)
       unless message.respond_to? :to_hash
         err_msg = "IPC ERROR Instance #{message} must implement `to_hash'"

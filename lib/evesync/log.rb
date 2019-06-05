@@ -2,8 +2,10 @@ require 'logger'
 require 'evesync/config'
 require 'evesync/constants'
 
-# This module is responsible for logging
+
 module Evesync
+
+  # This module is responsible for logging
   module Log
     # Supported levels for logging
     LEVELS = %i[debug info warn error fatal].freeze

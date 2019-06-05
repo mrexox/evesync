@@ -1,9 +1,9 @@
 require 'evesync/config'
 
 module Evesync
-  #
+  ##
   # Constants and helpful functions for Evesync::IPC module.
-  #
+
   module IPC
     $SAFE = 1 # 'no eval' rule
 

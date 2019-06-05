@@ -1,9 +1,12 @@
 require 'evesync/log'
 
-# Manages package manager things
-# TODO: trigger package_watcher event to update database
 module Evesync
   module OS
+
+    ##
+    # Manages package manager things
+    # TODO: trigger package_watcher event to update database
+
     module PackageManager
       class << self
         def install(*args)
