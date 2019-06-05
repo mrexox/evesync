@@ -5,7 +5,6 @@ require_relative 'lib/evesync'
 VERSION = Evesync::VERSION
 GEMSPEC = 'evesync.gemspec'.freeze
 GEMFILE = "evesync-#{VERSION}.gem".freeze
-RELEASE = `git rev-list HEAD master --count`
 
 task default: %i[lint build]
 
@@ -72,7 +71,7 @@ end
 task :rpm do
   sh("rpmbuild -bb "\
      "--define 'VERSION #{VERSION}' "\
-     "--define 'RELEASE #{RELEASE}' "\
+     "--define 'RELEASE `git rev-list HEAD master --count`' "\
      "--define '_builddir #{Dir.pwd}' "\
      "--define '_rpmdir #{Dir.pwd}/RPM/' "\
      "evesync.spec")
