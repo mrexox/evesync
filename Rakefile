@@ -69,9 +69,10 @@ task :down do
 end
 
 task :rpm do
+  relase = `git rev-list HEAD master --count`
   sh("rpmbuild -bb "\
      "--define 'VERSION #{VERSION}' "\
-     "--define 'RELEASE `git rev-list HEAD master --count`' "\
+     "--define 'RELEASE #{release}' "\
      "--define '_builddir #{Dir.pwd}' "\
      "--define '_rpmdir #{Dir.pwd}/RPM/' "\
      "evesync.spec")
