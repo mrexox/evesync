@@ -1,5 +1,6 @@
 # evesync
 [![Build Status](https://travis-ci.org/mrexox/evesync.svg?branch=master)](https://travis-ci.org/mrexox/evesync)
+[![Gem Version](https://badge.fury.io/rb/evesync.svg)](https://badge.fury.io/rb/evesync)
 
 A simple ruby-written service for automation files and packages changes between similar hosts.
 
