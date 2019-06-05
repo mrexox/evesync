@@ -37,7 +37,7 @@ task :clean, [:remove_rpm] do |_t, args|
   rm_rf('mkmf.log')
   rm_rf(Dir['*.zip'])
   rm_rf('RPM') if args[:remove_rpm] == 1
-  rm_rf("evesync-#{VERSION}")
+  rm_rf(Dir['evesync-*.gem'])
   rm_rf(GEMFILE)
 end
 
