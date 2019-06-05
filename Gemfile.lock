@@ -54,7 +54,7 @@ PLATFORMS
 DEPENDENCIES
   file-tail!
   full_dup!
-  hashdiff!
+  hashdiff (~> 0.3.8)!
   lmdb!
   net-ntp!
   rake!

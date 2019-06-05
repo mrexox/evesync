@@ -68,17 +68,25 @@ task :down do
   sh 'docker-compose rm --force ||:'
 end
 
-task :rpm do
-  relase = `git rev-list HEAD master --count`
-  sh("rpmbuild -bb "\
-     "--define 'VERSION #{VERSION}' "\
-     "--define 'RELEASE #{release}' "\
-     "--define '_builddir #{Dir.pwd}' "\
-     "--define '_rpmdir #{Dir.pwd}/RPM/' "\
-     "evesync.spec")
-  sh('chown -R 1000:1000 RPM')
+
+namespace :rhel do
+  begin
+    @release = `git rev-list HEAD master --count`
+  rescue
+    @release = 0
+  end
+
+  task :rpm do
+    sh("rpmbuild -bb "\
+       "--define 'VERSION #{VERSION}' "\
+       "--define 'RELEASE #{@release}' "\
+       "--define '_builddir #{Dir.pwd}' "\
+       "--define '_rpmdir #{Dir.pwd}/RPM/' "\
+       "evesync.spec")
+    sh('chown -R 1000:1000 RPM')
+  end
 end
 
 task :'build-rpm' do
-  sh('echo rake rpm | docker-compose run build-centos')
+  sh('echo rake rhel:rpm | docker-compose run build-centos')
 end
