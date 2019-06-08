@@ -12,12 +12,12 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 2.0.0'
 
-  s.summary = 'Daemons and utility for package and file changes synchronization'
+  s.summary = 'Daemons and utility for package and file changes synchronization. Installation requires ruby headers and build tools (make, gcc).'
 
   s.authors = 'Kiselev Valentine'
   s.email = 'mrexox@yahoo.com'
   s.homepage = 'https://mrexox.github.io'
-  s.description = %q(Daemons and utility for package and file changes synchronization.)
+  s.description = %q(Daemons and utility for package and file changes synchronization. Installation requires ruby headers and build tools (make, gcc).')
   s.files = FileList[
     'bin/*',
     'LICENSE',

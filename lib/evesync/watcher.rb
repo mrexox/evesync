@@ -1,6 +1,5 @@
 require 'timeout'
 require 'evesync/log'
-require 'evesync/config'
 require 'evesync/ipc/client'
 require 'evesync/watcher/file'
 require 'evesync/watcher/package'

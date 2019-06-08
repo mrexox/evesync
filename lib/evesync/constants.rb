@@ -9,7 +9,7 @@ module Evesync
     DB_PATH       = '/var/lib/evesync/db/'.freeze
     DB_FILES_PATH = '/var/lib/evesync/files/'.freeze
 
-    DEFAULT_LOGLEVEL = 'debug'.freeze
+    DEFAULT_LOGLEVEL = 'info'.freeze
 
     DISCOVER_TIMEOUT = 3600
     WATCH_INTERVAL   = 2

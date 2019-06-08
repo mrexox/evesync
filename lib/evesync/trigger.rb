@@ -22,6 +22,7 @@ module Evesync
         db: evedatad,
         remotes: @remote_handlers
       )
+
       file_trigger = Trigger::File.new(
         db: evedatad,
         remotes: @remote_handlers

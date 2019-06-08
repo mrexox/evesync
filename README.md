@@ -13,7 +13,24 @@ You need to install all gems. This can be easily done by calling `bundle install
 
 ### Installing
 
-Installing is not well-tested yet. You need install the gem and place the script **bin/start** directory into any of your PATH-accessable folders.
+#### From rubygems
+
+For Rhel (CentOS, Fedora, etc.) users:
+```
+# yum install rubygems ruby-devel make gcc
+# gem install evesync
+```
+
+For Debian (Ubuntu, Puppet, etc.) users:
+```
+# apt-get update
+# apt-get install rubygems ruby-dev make gcc
+# gem install evesync
+```
+
+#### Manually
+
+Installing is not well-tested yet. You need install the gem and place the script **bin/start** directory into any of your PATH-accessable folders. Or use **evesync --run**.
 
 ```bash
 # Installing the gem

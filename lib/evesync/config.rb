@@ -8,6 +8,7 @@ module Evesync
     class << self
 
       DEFAULTS = {
+        'loglevel' => Constants::DEFAULT_LOGLEVEL,
         'ntp' => '',
         'evemond' => {
           'port'           => Constants::MOOND_PORT,
@@ -30,10 +31,8 @@ module Evesync
       }
 
 
-      def [](daemon)
-        read_config if needs_reading
-
-        @@config[daemon.to_s]
+      def [](param)
+        config[param.to_s]
       end
 
       def reread
@@ -55,8 +54,9 @@ module Evesync
         Log.info("Config initialized!")
       end
 
-      def needs_reading
-        ! defined? @@config
+      def config
+        read_config if ! defined? @@config
+        @@config
       end
     end
   end

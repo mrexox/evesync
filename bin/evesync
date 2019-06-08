@@ -22,6 +22,22 @@ $program = File.basename($0)
 #Evesync::Log.level = :warn
 Evesync::Log.simple = true
 
+def kill_by_pid(daemon)
+  begin
+    Process.kill('TERM', File.read("/var/run/evesync/#{daemon}.pid").to_i)
+  rescue Errno::ESRCH
+    puts("#{daemon} already killed")
+  end
+end
+
+def spawn_daemon(daemon)
+  pid = spawn(daemon,
+        :err => "/var/log/evesync/#{daemon}.log",
+        :out=>:err)
+  File.write("/var/run/evesync/#{daemon}.pid", pid)
+  pid
+end
+
 OptionParser.new do |parser|
   parser.banner = "#{$program} [OPTIONS...]
 
@@ -68,26 +84,20 @@ OptionParser.new do |parser|
 
   # TODO: refactor
   parser.on('-r', '--run', 'Start daemons') do
-    r, w = IO.pipe
-    data_pid = spawn('evedatad', :err => '/var/log/evesync/evedatad.log', :out=>:err)
-    mon_pid = spawn('evemond', :err => '/var/log/evesync/evemond.log', :out=>:err)
-    hand_pid = spawn('evehand', :err => '/var/log/evesync/evehand.log', :out=>:err)
-    sync_pid = spawn('evesyncd', :err => '/var/log/evesync/evesyncd.log', :out=>:err)
-    FileUtils.mkdir_p('/var/run/evesync')
-    File.write('/var/run/evesync/evedatad.pid', data_pid)
-    File.write('/var/run/evesync/evemond.pid', mon_pid)
-    File.write('/var/run/evesync/evehand.pid', hand_pid)
-    File.write('/var/run/evesync/evesyncd.pid', sync_pid)
+    FileUtils.mkdir_p '/var/log/evesync'
+    FileUtils.mkdir_p '/var/run/evesync'
+    spawn_daemon 'evedatad'
+    spawn_daemon 'evemond'
+    spawn_daemon 'evehand'
+    spawn_daemon 'evesyncd'
   end
 
   parser.on('-k', '--kill', 'Stop daemons') do
     begin
-    Process.kill('TERM', File.read('/var/run/evesync/evemond.pid').to_i)
-    Process.kill('TERM', File.read('/var/run/evesync/evehand.pid').to_i)
-    Process.kill('TERM', File.read('/var/run/evesync/evesyncd.pid').to_i)
-    Process.kill('TERM', File.read('/var/run/evesync/evedatad.pid').to_i)
-    rescue Errno::ESRCH => e
-      puts('Some process already killed')
+      kill_by_pid 'evemond'
+      kill_by_pid 'evehand'
+      kill_by_pid 'evesyncd'
+      kill_by_pid 'evedatad'
     rescue StandardError => e
       puts("Error: #{e}")
       puts('Something went wrong while killing processes. Do it yourself!')
@@ -191,5 +201,6 @@ def evesync(opts)
     puts(opts['zip'])
   end
 end
+
 
 evesync opts

@@ -9,7 +9,7 @@ GEMFILE = "evesync-#{VERSION}.gem".freeze
 task default: %i[lint build]
 
 task :lint do
-  sh 'rubocop -l lib' if find_executable 'rubocop'
+  sh 'rubocop -l lib bin' if find_executable 'rubocop'
 end
 
 task :rdoc do
@@ -38,7 +38,6 @@ task :clean, [:remove_rpm] do |_t, args|
   rm_rf(Dir['*.zip'])
   rm_rf('RPM') if args[:remove_rpm] == 1
   rm_rf(Dir['evesync-*.gem'])
-  rm_rf(GEMFILE)
 end
 
 task todos: :todo
