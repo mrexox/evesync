@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
     'LICENSE',
     'Rakefile',
     'lib/**/*.rb',
-    'config/*.conf' # TODO: remove this line
+    'config/*.conf'
   ]
 
   s.executables = %w[

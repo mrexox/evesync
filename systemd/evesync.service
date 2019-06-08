@@ -1,10 +1,13 @@
 [Unit]
-Requires=evesync.service
-PartOf=moon.target
+Description=Evesync daemons
+Documentation=Starting all evesync daemons. Logs can be found in /var/log/evesync.
+After=network.target
 
 [Service]
-Type=simple
-ExecStart=/usr/bin/evesyncd
+Type=forking
+ExecStart=/usr/bin/evesync --run
+ExecStop=/usr/bin/evesync --kill
+PIDFile=/var/run/evesync/evemond.pid
 
 [Install]
-WantedBy=moon.target
+WantedBy=multi-user.target
