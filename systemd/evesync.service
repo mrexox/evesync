@@ -1,6 +1,6 @@
 [Unit]
 Description=Evesync daemons
-Documentation=Starting all evesync daemons. Logs can be found in /var/log/evesync.
+Documentation=https://mrexox.github.io
 After=network.target
 
 [Service]
