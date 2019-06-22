@@ -15,6 +15,7 @@ ext/inotify/Makefile
 tmp/
 doc/
 .yardoc
+coverage/
 
 # Ignoring artefacts
 *.zip

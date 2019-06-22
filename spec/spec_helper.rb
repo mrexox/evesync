@@ -7,3 +7,10 @@ RSpec.configure do |config|
       .and_return(nil)
   end
 end
+
+# codecov coverage report
+require 'simplecov'
+SimpleCov.start
+
+require 'codecov'
+SimpleCov.formatter = SimpleCov::Formatter::Codecov

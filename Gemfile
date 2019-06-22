@@ -14,6 +14,7 @@ source 'https://rubygems.org' do
 
   group :test do
     gem 'rspec', require: false
+    gem 'codecov', require: false
   end
 
   group :development do
