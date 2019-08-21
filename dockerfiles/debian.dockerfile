@@ -2,7 +2,7 @@ FROM debian:latest
 
 RUN apt update
 RUN apt install -y \
-    build-essential iproute ruby-dev screen procps
+    build-essential iproute2 ruby-dev screen procps
 
 
 COPY Gemfile /evesync/Gemfile
