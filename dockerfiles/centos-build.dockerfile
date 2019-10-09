@@ -1,10 +1,8 @@
 FROM centos:7.4.1708
 
 # Installing dependencies first
-RUN yum install -y ruby ruby-devel rubygem-bundler \
+RUN yum install -y ruby ruby-devel rubygem-bundler rubygem-rake \
     make gcc gcc-c++ tmux iproute rpm-build epel-release git
-
-RUN gem install rake
 
 RUN printf "install: --no-rdoc --no-ri\nupdate:  --no-rdoc --no-ri" > /root/.gemrc
 

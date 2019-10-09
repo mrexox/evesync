@@ -2,6 +2,8 @@ require 'rspec/core/rake_task'
 require 'find'
 require 'mkmf'
 require_relative 'lib/evesync'
+
+# Global variables
 VERSION = Evesync::VERSION
 GEMSPEC = 'evesync.gemspec'.freeze
 GEMFILE = "evesync-#{VERSION}.gem".freeze
@@ -67,8 +69,8 @@ task :down do
   sh 'docker-compose rm --force ||:'
 end
 
-
 namespace :rhel do
+
   begin
     @release = `git rev-list HEAD master --count`
   rescue
