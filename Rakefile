@@ -56,17 +56,20 @@ end
 
 ## Docker related targets
 
-task :docker do
-  sh 'docker-compose build'
-end
+namespace :docker do
 
-task :up do
-  sh 'docker-compose up -d'
-end
+  task :build do
+    sh 'docker-compose build'
+  end
 
-task :down do
-  sh 'docker-compose stop || docker-compose kill ||:'
-  sh 'docker-compose rm --force ||:'
+  task :up do
+    sh 'docker-compose up -d'
+  end
+
+  task :down do
+    sh 'docker-compose stop || docker-compose kill ||:'
+    sh 'docker-compose rm --force ||:'
+  end
 end
 
 namespace :rhel do

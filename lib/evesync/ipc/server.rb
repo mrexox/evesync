@@ -48,7 +48,7 @@ module Evesync
       end
 
       def stop
-        DRb.thread.exit
+        DRb.stop_service
         self
       end
     end

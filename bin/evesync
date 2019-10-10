@@ -24,8 +24,10 @@ Evesync::Log.simple = true
 
 def kill_by_pid(daemon)
   begin
-    Process.kill('TERM', File.read("/var/run/evesync/#{daemon}.pid").to_i)
-  rescue Errno::ESRCH
+    puts "Killing #{daemon}..."
+    pid = File.read("/var/run/evesync/#{daemon}.pid").to_i
+    Process.kill('INT', pid)
+  rescue Errno::ESRCH, Errno::ENOENT
     puts("#{daemon} already killed")
   end
 end
