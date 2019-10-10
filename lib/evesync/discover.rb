@@ -1,6 +1,9 @@
 require 'evesync/ipc/client'
 require 'evesync/log'
 require 'evesync/config'
+require 'evesync/os'
+
+require 'json'
 
 module Evesync
 
@@ -35,14 +38,14 @@ module Evesync
     # Sending UDP message on broadcast
     # Discovering our nodes
 
-    def send_discovery_message(ip = '<broadcast>', message = DISCOVERY_REQ)
+    def send_discovery_message(ip='<broadcast>', message=DISCOVERY_REQ)
       udp_sock = UDPSocket.new
-      if ip == '<broadcast>'
+      if is_broadcast(ip)
         udp_sock.setsockopt(
           Socket::SOL_SOCKET, Socket::SO_BROADCAST, true
         )
       end
-      udp_sock.send(message, 0, ip, @port)
+      udp_sock.send(to_discover_msg(message: message), 0, ip, @port)
       udp_sock.close
     end
 
@@ -54,17 +57,18 @@ module Evesync
 
     def listen_discovery
       loop do
-        data, recvdata = @listen_sock.recvfrom(1024)
+        datajson, recvdata = @listen_sock.recvfrom(1024)
         node_ip = recvdata[-1]
 
         next if Utils.local_ip?(node_ip)
 
-        if [DISCOVERY_REQ, DISCOVERY_ANS].include? data
+        data = from_discover_msg(datajson)
+        if fine_node?(data)
           # Push new node_ip to trigger
           @evesync.add_remote_node(node_ip)
         end
 
-        case data
+        case data[:message]
         when DISCOVERY_REQ
           Log.info("Discover host request got: #{node_ip}")
           send_discovery_message(node_ip, DISCOVERY_ANS)
@@ -72,6 +76,30 @@ module Evesync
           Log.info("Discover host response got: #{node_ip}")
         end
       end
+    end
+
+    def to_discover_msg(msg)
+      {
+        evesync: {
+          message: msg,
+          os: EVESYNC_OS,
+        }
+      }.to_json.freeze
+    end
+
+    def from_discover_msg(data)
+      JSON.parse(data)[:evesync] # TODO: catch error
+    end
+
+    def is_broadcast(ip)
+      ip == '<broadcast>'
+    end
+
+    def fine_node?(data)
+      [
+        [DISCOVERY_ANS, DISCOVERY_REQ].include?(data[:message]),
+        data[:os] == EVESYNC_OS,
+      ].all?
     end
   end
 end
