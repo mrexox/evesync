@@ -1,25 +1,25 @@
 require 'evesync/log'
 require 'evesync/ipc/server'
 
+require 'fileutils'
+
 module Evesync
   class Service
     def initialize(name)
       @factory = ServiceFactory.new
       @factory.name = name unless name.nil?
       yield @factory
-      p @factory.logs
     end
 
     def start
-      # TODO: double fork
-      # TODO: chdir
-      # TODO: setsid
+      daemonize
 
       Evesync::Log.info("#{@factory.name} daemon starting...")
 
       @ipc_server = Evesync::IPC::Server.new(
         port: @factory.port,
-        proxy: @factory.proxy
+        proxy: @factory.proxy,
+        ip: @factory.ip,
       ).start
 
       Signal.trap('TERM') do
@@ -29,19 +29,37 @@ module Evesync
 
       Evesync::Log.info("#{@factory.name} daemon started!")
 
-      loop { sleep @factory.repeat_interval }
+      @factory.at_start.call if @factory.at_start.respond_to? :call
+
+      loop do
+        sleep @factory.interval
+        yield if block_given?
+      end
     rescue SignalException => e
       Evesync::Log.warn("#{@factory.name} daemon received signal: " \
                         "#{e.signm}(#{e.signo})")
     ensure
+      @factory.at_exit.call if @factory.at_exit.respond_to? :call
       @ipc_server.stop
+    end
+
+    def daemonize
+      Process.daemon
+      Process.setproctitle(@factory.name.to_s) \
+        if Process.respond_to? :setproctitle
+      $0 = @factory.name.to_s
+      FileUtils.mkdir_p @factory.pids
+      FileUtils.mkdir_p @factory.logs
+      File.open("#{@factory.pids}/#{@factory.name}.pid", 'w') do |f|
+        f.puts(Process.pid)
+      end
     end
   end
 
   class ServiceFactory
-    attr_accessor :name, :proxy, :port,
-                  :repeat_code, :repeat_interval,
-                  :at_start, :at_exit, :logs, :pids
+    attr_accessor :name, :proxy, :ip, :port,
+                  :interval, :at_start, :at_exit,
+                  :logs, :pids
 
     def logs
       @logs || '/var/log/evesync/'
@@ -55,9 +73,12 @@ module Evesync
       @port || name.to_sym
     end
 
-    def repeat_interval
-      @repeat_interval || 3600
+    def ip
+      @ip || 'localhost'
+    end
+
+    def interval
+      @interval || 3600
     end
   end
-
 end

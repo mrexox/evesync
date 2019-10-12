@@ -1,6 +1,23 @@
 #!/usr/bin/env ruby
 # -*- mode: ruby -*-
 
+require 'evesync/service'
+require 'evesync/trigger'
+require 'evesync/watcher'
+
+queue = Queue.new
+trigger = Evesync::Trigger.new(queue)
+watcher = Evesync::Watcher.new(queue)
+
+evemon = Evesync::Service.new(:evemond) do |config|
+  config.proxy = trigger
+  config.at_start = lambda { [trigger, watcher].each(&:start) }
+  config.at_exit  = lambda { [trigger, watcher].each(&:stop)  }
+end
+
+evemon.start
+
+__END__
 require 'evesync/log'
 require 'evesync/ipc/server'
 require 'evesync/trigger'

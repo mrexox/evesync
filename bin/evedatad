@@ -4,7 +4,7 @@
 require 'evesync/service'
 require 'evesync/database'
 
-evedata = Evesync::Service.new('evedatad') do |config|
+evedata = Evesync::Service.new(:evedatad) do |config|
   config.proxy = Evesync::Database.new
   # zip db if needed, save backup
 end

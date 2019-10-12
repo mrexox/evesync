@@ -1,16 +1,5 @@
 #!/usr/bin/env bash
-trap 'echo Exiting; \
-	pkill evedatad; \
-	pkill evemond; \
-	pkill evehand; \
-	pkill evesyncd
-	exit 1' 2
-evedatad &
-evemond &
-evehand &
-sleep 3s
-evesyncd &
-
-while true; do
-    sleep 1000
-done
+evedatad
+evemond
+evehand
+evesyncd

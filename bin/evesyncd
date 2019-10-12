@@ -1,6 +1,22 @@
 #!/usr/bin/env ruby
 # -*- mode: ruby -*-
 
+require 'evesync/service'
+require 'evesync/sync'
+
+sync = Evesync::Sync.new
+
+evesync = Evesync::Service.new(:evesyncd) do |config|
+  config.proxy = sync
+  config.at_start = sync.method(:discover)
+  config.interval = 15 # TODO: read from config
+end
+
+evesync.start do
+  sync.synchronize
+end
+
+__END__
 require 'evesync/log'
 require 'evesync/sync'
 require 'evesync/config'

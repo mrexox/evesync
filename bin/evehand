@@ -1,36 +1,12 @@
 #!/usr/bin/env ruby
 # -*- mode: ruby -*-
 
-require 'evesync/log'
-require 'evesync/ipc/server'
+require 'evesync/service'
 require 'evesync/handler'
 
-Evesync::Log.info('Handle daemon starting...')
-
-all_handler = Evesync::Handler.new
-
-handler_server = Evesync::IPC::Server.new(
-  port: :evehand,
-  proxy: all_handler,
-  ip: '*' # accept remote requests
-).start
-
-Evesync::Log.info('Handle daemon started!')
-
-# Signal handling
-
-Signal.trap('TERM') do
-  handler_server.stop
-  exit(0)
+evehand = Evesync::Service.new(:evehand) do |config|
+  config.proxy = Evesync::Handler.new
+  config.ip = '*'
 end
 
-begin
-  loop do
-    sleep 3600 # FIXME: 1 hour, rewrite better
-    # FIXME: know what to do
-  end
-rescue SignalException => e
-  handler_server.stop
-  Evesync::Log.warn("Received signal: #{e.signm}(#{e.signo})")
-  exit(0)
-end
+evehand.start
