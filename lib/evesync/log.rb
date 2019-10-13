@@ -47,7 +47,7 @@ module Evesync
       LEVELS.each do |level|
         define_method(level) do |*args|
           check_logger
-          return unless LEVELS.less(level, @level)
+          return unless LEVELS.less(level.to_sym, @level.to_sym)
 
           case @engine
           when :syslog
@@ -97,7 +97,7 @@ module Evesync
           end
         end
 
-        @level  = :debug
+        @level  = Config[:loglevel] || :info
       end
 
       def to_string(*args)
