@@ -68,7 +68,7 @@ module Evesync
           @evesync.add_remote_node(node_ip)
         end
 
-        case data[:message]
+        case data['message']
         when DISCOVERY_REQ
           Log.info("Discover host request got: #{node_ip}")
           send_discovery_message(node_ip, DISCOVERY_ANS)
@@ -88,7 +88,7 @@ module Evesync
     end
 
     def from_discover_msg(data)
-      JSON.parse(data)[:evesync] # TODO: catch error
+      JSON.parse(data)['evesync'] # TODO: catch error
     end
 
     def is_broadcast(ip)
@@ -97,8 +97,8 @@ module Evesync
 
     def fine_node?(data)
       [
-        [DISCOVERY_ANS, DISCOVERY_REQ].include?(data[:message]),
-        data[:os] == EVESYNC_OS,
+        [DISCOVERY_ANS, DISCOVERY_REQ].include?(data['message']),
+        data['os'] == EVESYNC_OS,
       ].all?
     end
   end

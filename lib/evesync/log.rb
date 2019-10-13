@@ -9,8 +9,8 @@ module Evesync
   module Log
     # Supported levels for logging
     LEVELS = %i[debug info notice warn error fatal]
-    def LEVELS.compare(a, b)
-      self.index(a) <=> self.index(b) or -1
+    def LEVELS.less(a, b)
+      (self.index(a) <=> self.index(b) or -1) >= 0
     end
 
     SYSLOG = {
@@ -42,7 +42,7 @@ module Evesync
       LEVELS.each do |level|
         define_method(level) do |*args|
           check_logger
-          return if LEVELS.compare(level, @level) >= 0
+          return if LEVELS.less(level, @level)
 
           @logger.log(SYSLOG[level], to_string(*args))
 
