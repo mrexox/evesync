@@ -27,6 +27,8 @@ module Evesync
 
         expect(Utils).to receive(:local_ip?).and_return(false)
 
+        expect(discovery).to receive(:fine_node?).and_return(true)
+
         expect(evesync).to receive(:add_remote_node).with('ip')
 
         expect(discovery).to receive(:send_discovery_message)
