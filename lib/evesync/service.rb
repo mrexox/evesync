@@ -26,9 +26,9 @@ module Evesync
     def start
       daemonize
 
-      Evesync::Log.info("#{@factory.name} daemon starting...")
+      Log.info("#{@factory.name} daemon starting...")
 
-      @ipc_server = Evesync::IPC::Server.new(
+      @ipc_server = IPC::Server.new(
         port: @factory.port,
         proxy: @factory.proxy,
         ip: @factory.ip,
@@ -39,7 +39,7 @@ module Evesync
         exit 0
       end
 
-      Evesync::Log.info("#{@factory.name} daemon started!")
+      Log.info("#{@factory.name} daemon started!")
 
       @factory.at_start.call if @factory.at_start.respond_to? :call
 
@@ -47,9 +47,19 @@ module Evesync
         sleep @factory.interval
         yield if block_given?
       end
+
     rescue SignalException => e
-      Evesync::Log.warn("#{@factory.name} daemon received signal: " \
-                        "#{e.signm}(#{e.signo})")
+      Log.warn("#{@factory.name} daemon received signal: " \
+               "#{e.signm}(#{e.signo})")
+      exit 0
+
+    # rubocop:disable Lint/RescueException
+    rescue Exception => crit
+      Log.fatal(crit)
+      crit.backtrace.each { |line| Log.fatal(line) }
+      exit 1
+
+    # rubocop:enable Lint/RescueException
     ensure
       @factory.at_exit.call if @factory.at_exit.respond_to? :call
       @ipc_server.stop

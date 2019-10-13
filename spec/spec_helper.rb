@@ -3,8 +3,10 @@ require 'evesync/log'
 
 RSpec.configure do |config|
   config.before(:all) do
-    allow(Evesync::Log).to receive(:method_missing)
-      .and_return(nil)
+    Evesync::Log::LEVELS.each do |level|
+      allow(Evesync::Log).to receive(level)
+                               .and_return(nil)
+    end
   end
 end
 

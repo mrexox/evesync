@@ -1,4 +1,5 @@
 require 'syslog'
+require 'logger'
 require 'evesync/config'
 require 'evesync/constants'
 
@@ -13,6 +14,10 @@ module Evesync
       (self.index(a) <=> self.index(b) or -1) >= 0
     end
 
+    # Default engine for logging, one of (:io, :syslog)
+    DEFAULT_ENGINE = :io
+
+    # Log level mapping for syslog
     SYSLOG = {
       :debug  => Syslog::LOG_DEBUG,
       :info   => Syslog::LOG_INFO,
@@ -42,9 +47,14 @@ module Evesync
       LEVELS.each do |level|
         define_method(level) do |*args|
           check_logger
-          return if LEVELS.less(level, @level)
+          return unless LEVELS.less(level, @level)
 
-          @logger.log(SYSLOG[level], to_string(*args))
+          case @engine
+          when :syslog
+            @logger.log(SYSLOG[level], to_string(*args))
+          when :io
+            @logger.send(level, to_string(*args))
+          end
 
           nil           # prevent from being able to access the object
         end
@@ -64,9 +74,29 @@ module Evesync
         init_logger unless @logger
       end
 
+      def engine=(engine)
+        raise UnsupportedLogEngine.new(engine) \
+          unless [:syslog, :io].member? engine
+        @engine = engine
+      end
+
       # Using syslog implementation
       def init_logger
-        @logger = Syslog.open($PROGRAM_NAME, SYSLOG_OPTIONS, SYSLOG_FACILITY)
+        @engine ||= DEFAULT_ENGINE
+        prog = File.basename($PROGRAM_NAME)
+
+        case @engine
+        when :syslog
+          @logger = Syslog.open(prog, SYSLOG_OPTIONS, SYSLOG_FACILITY)
+
+        when :io
+          @logger = Logger.new("/var/log/evesync/#{prog}.log")
+          @logger.formatter = proc do |sev, dtime, _prog, msg|
+            time = dtime.strftime('%Y-%m-%d %H:%M:%S')
+            "[#{time}] #{prog.ljust(8)} #{sev.ljust(5)}: #{msg}\n"
+          end
+        end
+
         @level  = :debug
       end
 
