@@ -63,7 +63,7 @@ namespace :docker do
   end
 
   task :up do
-    sh 'docker-compose up -d'
+    sh 'docker-compose up -d node-1 node-2'
   end
 
   task :down do

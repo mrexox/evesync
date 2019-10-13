@@ -1,62 +1,73 @@
-require 'logger'
+require 'syslog'
 require 'evesync/config'
 require 'evesync/constants'
 
 
 module Evesync
 
-  # This module is responsible for logging
+  # Logging via syslog
   module Log
     # Supported levels for logging
-    LEVELS = %i[debug info warn error fatal].freeze
+    LEVELS = %i[debug info notice warn error fatal]
+    def LEVELS.compare(a, b)
+      self.index(a) <=> self.index(b) or -1
+    end
 
+    SYSLOG = {
+      :debug  => Syslog::LOG_DEBUG,
+      :info   => Syslog::LOG_INFO,
+      :notice => Syslog::LOG_NOTICE,
+      :warn   => Syslog::LOG_WARNING,
+      :error  => Syslog::LOG_ERR,
+      :fatal  => Syslog::LOG_CRIT,
+      #:alert => Syslog::LOG_ALERT,
+      #:emerg => Syslog::LOG_EMERG,
+    }
+
+    SYSLOG_OPTIONS = [
+      Syslog::LOG_PID,
+      Syslog::LOG_NOWAIT,
+      Syslog::LOG_CONS,
+      Syslog::LOG_PERROR,
+    ].inject(&:|)
+
+    SYSLOG_FACILITY = [
+      Syslog::LOG_DAEMON,
+      Syslog::LOG_LOCAL5,
+    ].inject(&:|)
+
+    # Public methods available via Log.method
     class << self
-      def method_missing(m, *args)
-        # Unlisted methods are not allowed
-        raise NoMethodError unless LEVELS.include?(m)
 
+      LEVELS.each do |level|
+        define_method(level) do |*args|
+          check_logger
+          return if LEVELS.compare(level, @level) >= 0
+
+          @logger.log(SYSLOG[level], to_string(*args))
+
+          nil           # prevent from being able to access the object
+        end
+      end
+
+      def level=(lvl)
         check_logger
-        @logger.send(m, to_string(*args))
-        nil
+        raise "Unknown level #{lvl}" unless LEVELS.include? lvl
+        @level = lvl
+      end
+
+      def level
+        @level
       end
 
       def check_logger
         init_logger unless @logger
       end
 
-      def level=(lvl)
-        check_logger
-        if lvl.is_a?(Symbol) or lvl.is_a?(String)
-          @logger.level =
-            begin
-              Logger.const_get(lvl.to_s.upcase)
-            rescue NameError
-              Logger::DEBUG
-            end
-        end
-      end
-
-      def level
-        check_logger
-        @logger.level
-      end
-
-      def simple=(bool)
-        init_logger unless @logger
-        if bool
-          @logger.formatter = proc do |_sev, _dt, _prog, msg|
-            "#{msg}\n"
-          end
-        end
-      end
-
+      # Using syslog implementation
       def init_logger
-        @logger = Logger.new(STDERR)
-        @logger.formatter = proc do |sev, dtime, _prog, msg|
-          time = dtime.strftime('%Y-%m-%d %H:%M:%S')
-          prog = File.basename($PROGRAM_NAME)
-          "[#{time}] #{prog.ljust(8)} #{sev.ljust(5)}: #{msg}\n"
-        end
+        @logger = Syslog.open($PROGRAM_NAME, SYSLOG_OPTIONS, SYSLOG_FACILITY)
+        @level  = :debug
       end
 
       def to_string(*args)

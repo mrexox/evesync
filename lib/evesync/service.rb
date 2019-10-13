@@ -4,6 +4,18 @@ require 'evesync/ipc/server'
 require 'fileutils'
 
 module Evesync
+  # Class for creating daemons which are DRb servers with
+  # proxy object to accept requests.
+  #
+  # Traps signals to exit.
+  #
+  # Example:
+  #  d = Evesync::Service.new(:mydaemond) do |config|
+  #    config.proxy = SomeProxyObject.new
+  #  end
+  #
+  #  d.start
+  #
   class Service
     def initialize(name)
       @factory = ServiceFactory.new
@@ -57,9 +69,8 @@ module Evesync
   end
 
   class ServiceFactory
-    attr_accessor :name, :proxy, :ip, :port,
-                  :interval, :at_start, :at_exit,
-                  :logs, :pids
+    attr_accessor :name, :proxy, :at_start, :at_exit
+    attr_writer   :interval, :port, :ip, :logs, :pids
 
     def logs
       @logs || '/var/log/evesync/'

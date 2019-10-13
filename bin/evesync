@@ -20,7 +20,7 @@ FILES_TAG = 'files'
 opts = {}
 $program = File.basename($0)
 #Evesync::Log.level = :warn
-Evesync::Log.simple = true
+#Evesync::Log.simple = true
 
 def kill_by_pid(daemon)
   begin
