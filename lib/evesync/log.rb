@@ -1,8 +1,9 @@
-require 'syslog'
-require 'logger'
 require 'evesync/config'
 require 'evesync/constants'
 
+require 'syslog'
+require 'logger'
+require 'fileutils'
 
 module Evesync
 
@@ -90,6 +91,7 @@ module Evesync
           @logger = Syslog.open(prog, SYSLOG_OPTIONS, SYSLOG_FACILITY)
 
         when :io
+          FileUtils.mkdir_p '/var/log/evesync/'
           @logger = Logger.new("/var/log/evesync/#{prog}.log")
           @logger.formatter = proc do |sev, dtime, _prog, msg|
             time = dtime.strftime('%Y-%m-%d %H:%M:%S')

@@ -71,7 +71,6 @@ module Evesync
         if Process.respond_to? :setproctitle
       $0 = @factory.name.to_s
       FileUtils.mkdir_p @factory.pids
-      FileUtils.mkdir_p @factory.logs
       File.open("#{@factory.pids}/#{@factory.name}.pid", 'w') do |f|
         f.puts(Process.pid)
       end

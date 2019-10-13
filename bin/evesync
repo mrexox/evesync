@@ -14,13 +14,11 @@ require 'evesync/config'
 require 'evesync/sync'
 require 'evesync/ipc/client'
 
-DB_TAG = 'db'
-FILES_TAG = 'files'
+DB_TAG    = 'db'.freeze
+FILES_TAG = 'files'.freeze
 
-opts = {}
+opts     = {}
 $program = File.basename($0)
-#Evesync::Log.level = :warn
-#Evesync::Log.simple = true
 
 def kill_by_pid(daemon)
   begin
@@ -33,11 +31,7 @@ def kill_by_pid(daemon)
 end
 
 def spawn_daemon(daemon)
-  pid = spawn(daemon,
-        :err => "/var/log/evesync/#{daemon}.log",
-        :out=>:err)
-  File.write("/var/run/evesync/#{daemon}.pid", pid)
-  pid
+  system(daemon)
 end
 
 OptionParser.new do |parser|
@@ -86,8 +80,6 @@ OptionParser.new do |parser|
 
   # TODO: refactor
   parser.on('-r', '--run', 'Start daemons') do
-    FileUtils.mkdir_p '/var/log/evesync'
-    FileUtils.mkdir_p '/var/run/evesync'
     spawn_daemon 'evedatad'
     spawn_daemon 'evemond'
     spawn_daemon 'evehand'
@@ -101,10 +93,8 @@ OptionParser.new do |parser|
       kill_by_pid 'evesyncd'
       kill_by_pid 'evedatad'
     rescue StandardError => e
-      puts("Error: #{e}")
-      puts('Something went wrong while killing processes. Do it yourself!')
-    ensure
-      FileUtils.rm_f Dir.glob('/var/run/evesync/*.pid')
+      puts("(!) Error: #{e} (!)")
+      puts('Something went wrong while killing processes...')
     end
   end
 end.parse!
