@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
 
   s.date = '2019-02-12'
 
-  s.required_ruby_version = '>= 2.0.0'
+  s.required_ruby_version = '>= 2.3.0'
 
   s.summary = 'Daemons and utility for package and file changes synchronization.'
 

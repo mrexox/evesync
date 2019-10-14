@@ -99,7 +99,7 @@ module Evesync
           end
         end
 
-        @level  = Config[:loglevel] || :info
+        @level = Config[:loglevel] || :info
       end
 
       def to_string(*args)

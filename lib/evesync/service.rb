@@ -63,6 +63,7 @@ module Evesync
     ensure
       @factory.at_exit.call if @factory.at_exit.respond_to? :call
       @ipc_server.stop
+      File.delete(@pidfile) if @pidfile
     end
 
     def daemonize
@@ -71,7 +72,8 @@ module Evesync
         if Process.respond_to? :setproctitle
       $0 = @factory.name.to_s
       FileUtils.mkdir_p @factory.pids
-      File.open("#{@factory.pids}/#{@factory.name}.pid", 'w') do |f|
+      @pidfile = "#{@factory.pids}/#{@factory.name}.pid"
+      File.open(@pidfile, 'w') do |f|
         f.puts(Process.pid)
       end
     end
