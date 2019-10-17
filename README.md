@@ -17,12 +17,14 @@ You need to install all gems. This can be easily done by calling `bundle install
 #### From rubygems
 
 For Rhel (CentOS, Fedora, etc.) users:
+
 ```
 # yum install rubygems ruby-devel make gcc
 # sudo gem install --no-user-install evesync
 ```
 
 For Debian (Ubuntu, Puppet, etc.) users:
+
 ```
 # apt-get update
 # apt-get install rubygems ruby-dev make gcc
@@ -32,6 +34,7 @@ For Debian (Ubuntu, Puppet, etc.) users:
 #### Adding Systemd service
 
 Create a file **/usr/lib/systemd/system/evesync.service** with following content:
+
 ```
 [Unit]
 Description=Evesync daemons
@@ -49,6 +52,7 @@ WantedBy=multi-user.target
 ```
 
 Then just run:
+
 ```
 # systemctl enable evesync.service
 # systemctl start evesync.service
@@ -58,15 +62,17 @@ Don't forget to install gem with `--no-user-install` flag, to install it globall
 
 #### Manually
 
-Installing is not well-tested yet. You need install the gem and place the script **bin/start** directory into any of your PATH-accessable folders. Or use **evesync --run**.
+You need install the gem and place the script **bin/start** directory into any of your PATH-accessable folders. Or use **evesync --run**.
 
 ```bash
+# Installing dependencies
+bundle install --without development
+
+# Test to make sure it works as expected
+rake test
+
 # Installing the gem
 rake install
-
-# Copying start script
-cp bin/start /usr/bin/start-evesync
-chmod +x /usr/bin/start-evesync
 ```
 
 ## Testing
@@ -78,10 +84,12 @@ There's the way to test without installing evesync on real systems. Using Docker
 docker-compose build
 docker-compose up --detach
 ```
+
 or
+
 ```
-rake docker
-rake up
+rake docker:build
+rake docker:up
 ```
 
 This will build the docker image for CentOS 7.4 distribution and start 2 of the containers.
@@ -91,11 +99,14 @@ When attached, you'll see tmux session. `bin/start` will start evesync service.
 ### Stopping containers
 
 ```
-docker-compose rm --force
+rake docker:down
+
 ```
+
 or
+
 ```
-rake down
+docker-compose rm --force
 ```
 
 For more information about realization see [description.md](./description.md)
