@@ -18,6 +18,6 @@ source 'https://rubygems.org' do
 
   group :development do
     gem 'rubocop', require: false
-    gem 'rake'
+    gem 'rake', '>= 12.3.3'
   end
 end

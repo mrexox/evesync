@@ -22,7 +22,7 @@ GEM
       ast (~> 2.4.0)
     psych (3.1.0)
     rainbow (3.0.0)
-    rake (12.3.2)
+    rake (13.0.1)
     rb-inotify (0.9.9)
       ffi (~> 1.0)
     rspec (3.8.0)
@@ -69,7 +69,7 @@ DEPENDENCIES
   hashdiff (~> 0.3.8)!
   lmdb!
   net-ntp!
-  rake!
+  rake (>= 12.3.3)!
   rb-inotify (= 0.9.9)!
   rspec!
   rubocop!
