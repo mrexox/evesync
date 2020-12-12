@@ -24,10 +24,6 @@ script:
 
 jobs:
   include:
-    - stage: rpm
-      name: "Building RPM package"
-      script:
-        - bundle exec rake build-rpm
     - stage: docker
       name: "Building evesync in a CentOS container"
       script:
